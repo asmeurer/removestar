@@ -1,0 +1,3 @@
+- Package this
+- Tests
+- Make it work with absolute imports
