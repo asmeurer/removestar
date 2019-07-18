@@ -193,6 +193,8 @@ def main():
             path = path + '/**'
         for file in glob.iglob(path, recursive=True):
             directory, filename = os.path.split(file)
+            if path.endswith('*') and not filename.endswith('.py'):
+                continue
             with open(file, 'r') as f:
                 code = f.read()
                 try:
