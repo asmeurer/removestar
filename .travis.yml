@@ -1,0 +1,19 @@
+language: python
+
+sudo: false
+dist: xenial
+python:
+  - 3.6
+  - 3.7
+  - 3.8-dev
+
+install:
+  - pip install pyflakes
+
+script:
+  - set -e
+  - set -x
+  - pyflakes .
+  - python -We::SyntaxWarning -m compileall -f -q mypython/
+  # Make sure it installs
+  - python setup.py install
