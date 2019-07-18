@@ -10,6 +10,7 @@ Limitations:
 - Does not work correctly with recursive star imports
 - Assumes only names in the current file are used by star imports
 """
+__version__ = '1.0'
 
 from pyflakes.checker import Checker, _MAGIC_GLOBALS, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
@@ -172,6 +173,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, prog='removestar')
     parser.add_argument('paths', nargs='+', help="Files or directories to fix")
     parser.add_argument('-i', '--in-place', action='store_true', help="Edit the files in-place")
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
     args = parser.parse_args()
 
     for path in args.paths:
