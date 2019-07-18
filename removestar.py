@@ -125,7 +125,7 @@ def main():
     for path in args.paths:
         for file in glob.iglob(path, recursive=True):
             directory, filename = os.path.split(file)
-            with open(file, 'w') as f:
+            with open(file, 'rw') as f:
                 code = f.read()
                 try:
                     new_code = fix_code(code, directory)
