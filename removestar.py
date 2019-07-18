@@ -182,7 +182,7 @@ def main():
             with open(file, 'r') as f:
                 code = f.read()
                 try:
-                    new_code = fix_code(code, directory, filename)
+                    new_code = fix_code(code, directory, file)
                 except (RuntimeError, NotImplementedError) as e:
                     sys.exit(f"Error with {file}: {e}")
 
