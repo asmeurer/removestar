@@ -115,7 +115,7 @@ def get_names(mod, directory):
     checker = Checker(tree)
     for scope in checker.deadScopes:
         if isinstance(scope, ModuleScope):
-            return scope - set(dir(builtins)) - set(_MAGIC_GLOBALS)
+            return scope.keys() - set(dir(builtins)) - set(_MAGIC_GLOBALS)
 
     raise RuntimeError(f"Could not parse the names from {file}")
 
