@@ -122,7 +122,7 @@ def main():
     parser.add_argument('paths', nargs='+', help="files or directories to fix")
     args = parser.parse_args()
 
-    for path in args.files:
+    for path in args.paths:
         for file in glob.iglob(path, recursive=True):
             directory, filename = os.path.split(file)
             with open(file, 'w') as f:
