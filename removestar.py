@@ -183,7 +183,7 @@ def main():
                 code = f.read()
                 try:
                     new_code = fix_code(code, directory, filename)
-                except RuntimeError as e:
+                except (RuntimeError, NotImplementedError) as e:
                     sys.exit(f"Error with {file}: {e}")
 
             if args.in_place:
