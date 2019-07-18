@@ -189,6 +189,8 @@ def main():
     args = parser.parse_args()
 
     for path in args.paths:
+        if os.path.isdir(path):
+            path = path + '/**'
         for file in glob.iglob(path, recursive=True):
             directory, filename = os.path.split(file)
             with open(file, 'r') as f:
