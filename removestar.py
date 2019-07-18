@@ -61,10 +61,11 @@ def fix_code(code, directory, filename):
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
-            print(f"Warning: {filename}: could not find import for {name}", file=sys.stderr)
+            print(f"Warning: {filename}: could not find import for '{name}'", file=sys.stderr)
             continue
         if len(mods) > 1:
-            print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(mods)}. Using {mods[-1]}.", file=sys.stderr)
+            print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
+    file=sys.stderr)
 
         repls[mods[-1]].append(name)
 
@@ -93,7 +94,7 @@ def replace_imports(code, repls):
 
         new_code = STAR_IMPORT.sub(new_import, code)
         if new_code == code:
-            print("Warning: Could not find the star imports for {mod}.", file=sys.stderr)
+            print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
         code = new_code
 
     return code
