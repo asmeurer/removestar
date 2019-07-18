@@ -65,6 +65,8 @@ def fix_code(code, directory):
 
     code = replace_imports(code, repls)
 
+    return code
+
 def replace_imports(code, repls):
     for mod in repls:
         names = sorted(repls[mod])
