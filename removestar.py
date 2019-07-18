@@ -18,8 +18,6 @@ import glob
 import difflib
 import io
 
-from collections import defaultdict
-
 def names_to_replace(checker):
     names = {}
     for message in checker.messages:
@@ -50,7 +48,7 @@ def fix_code(code, directory):
     names = names_to_replace(checker)
 
     mod_names = {}
-    repls = defaultdict(list)
+    repls = {i: [] for i in stars}
     for mod in stars:
         mod_names[mod] = get_names(mod, directory)
     for name in names:
@@ -72,16 +70,19 @@ def replace_imports(code, repls):
         names = sorted(repls[mod])
 
         STAR_IMPORT = re.compile(rf'from +{re.escape(mod)} +import +\*')
-        new_import = f"from {mod} import" + ', '.join(repls[mod])
-        if len(new_import) > 100: #TODO: make this configurable
-            new_import = line = f"from {mod} import ("
-            indent = ' '*len(line)
-            while names:
-                while len(line) < 100:
-                    line += 'name' + ','
-                new_import += line
-                line = indent
-            new_import = ')'
+        if not names:
+            new_import = ""
+        else:
+            new_import = f"from {mod} import " + ', '.join(repls[mod])
+            if len(new_import) > 100: #TODO: make this configurable
+                new_import = line = f"from {mod} import ("
+                indent = ' '*len(line)
+                while names:
+                    while len(line) < 100:
+                        line += 'name' + ','
+                    new_import += line
+                    line = indent
+                new_import = ')'
 
         new_code = STAR_IMPORT.sub(new_import, code)
         if new_code == code:
