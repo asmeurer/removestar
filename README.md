@@ -1,3 +1,7 @@
+# removestar
+
+[![Build Status](https://travis-ci.com/asmeurer/removestar.svg?branch=master)](https://travis-ci.com/asmeurer/removestar)
+
 Tool to automatically replace `import *` imports with explicit imports
 
 Requires pyflakes. Somewhat inspired by autoflake.
