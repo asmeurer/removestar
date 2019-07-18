@@ -90,16 +90,18 @@ def replace_imports(code, repls):
         if not names:
             new_import = ""
         else:
-            new_import = f"from {mod} import " + ', '.join(repls[mod])
-            if len(new_import) > 100: #TODO: make this configurable
-                new_import = line = f"from {mod} import ("
+            new_import = f"from {mod} import " + ', '.join(names)
+            if len(new_import) - len(names[-1]) > 100: #TODO: make this configurable
+                lines = []
+                line = f"from {mod} import ("
                 indent = ' '*len(line)
-                while names:
-                    while len(line) < 100:
-                        line += 'name' + ','
-                    new_import += line
-                    line = indent
-                new_import = ')'
+                for name in names:
+                    line += name + ', '
+                    if len(line) > 100:
+                        lines.append(line.rstrip())
+                        line = indent
+                lines.append(line[:-2] + ')') # Remove last trailing comma
+                new_import = '\n'.join(lines)
 
         new_code = STAR_IMPORT.sub(new_import, code)
         if new_code == code:
