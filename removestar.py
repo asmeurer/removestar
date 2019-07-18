@@ -94,7 +94,7 @@ def get_names(mod, directory):
     m = dots.match(mod)
     if m:
         # Relative import
-        loc = os.path.join(directory, m.group(0), *m.group(1).split('.'))
+        loc = os.path.join(directory, m.group(1), *m.group(2).split('.'))
         if os.path.isfile(loc + '.py'):
             file = loc + '.py'
         else:
