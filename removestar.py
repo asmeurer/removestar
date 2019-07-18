@@ -40,7 +40,7 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(code, directory):
+def fix_code(code, directory, filename):
     """
     Return a fixed version of code, or raise SyntaxError if code is not valid Python
     """
@@ -61,10 +61,10 @@ def fix_code(code, directory):
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
-            print(f"Warning: could not find import for {name}", file=sys.stderr)
+            print(f"Warning: {filename}: could not find import for {name}", file=sys.stderr)
             continue
         if len(mods) > 1:
-            print(f"Warning: '{name}' comes from multiple modules: {', '.join(mods)}. Using {mods[-1]}.", file=sys.stderr)
+            print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(mods)}. Using {mods[-1]}.", file=sys.stderr)
 
         repls[mods[-1]].append(name)
 
@@ -182,7 +182,7 @@ def main():
             with open(file, 'r') as f:
                 code = f.read()
                 try:
-                    new_code = fix_code(code, directory)
+                    new_code = fix_code(code, directory, filename)
                 except RuntimeError as e:
                     sys.exit(f"Error with {file}: {e}")
 
