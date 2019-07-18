@@ -10,7 +10,7 @@ Limitations:
 - Does not work correctly with recursive star imports
 - Assumes only names in the current file are used by star imports
 """
-__version__ = '1.0'
+from . import __version__
 
 from pyflakes.checker import Checker, _MAGIC_GLOBALS, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
