@@ -186,6 +186,8 @@ def main():
     parser.add_argument('paths', nargs='+', help="Files or directories to fix")
     parser.add_argument('-i', '--in-place', action='store_true', help="Edit the files in-place")
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('--no-skip-init', action='store_false',
+                        dest='skip_init', help="Don't skip __init__.py files (they are skipped by default)")
     args = parser.parse_args()
 
     for path in args.paths:
@@ -194,6 +196,8 @@ def main():
         for file in glob.iglob(path, recursive=True):
             directory, filename = os.path.split(file)
             if path.endswith('*') and not filename.endswith('.py'):
+                continue
+            if args.skip_init and filename == '__init__.py':
                 continue
             with open(file, 'r') as f:
                 code = f.read()
