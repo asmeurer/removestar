@@ -59,7 +59,7 @@ def fix_code(code, directory):
         if len(mods) > 1:
             print(f"Warning: '{name}' comes from multiple modules: {', '.join(mods)}. Using {mods[-1]}.", file=sys.stderr)
 
-        repls[mod].append(name)
+        repls[mods[-1]].append(name)
 
     code = replace_imports(code, repls)
 
