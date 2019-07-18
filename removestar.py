@@ -15,6 +15,8 @@ import os
 import re
 import builtins
 import glob
+import difflib
+import io
 
 from collections import defaultdict
 
@@ -117,21 +119,48 @@ def get_names(mod, directory):
 
     raise RuntimeError(f"Could not parse the names from {file}")
 
+def get_diff_text(old, new, filename):
+    # Taken from https://github.com/myint/autoflake/blob/master/autoflake.py
+    """Return text of unified diff between old and new."""
+    newline = '\n'
+    diff = difflib.unified_diff(
+        old, new,
+        'original/' + filename,
+        'fixed/' + filename,
+        lineterm=newline)
+
+    text = ''
+    for line in diff:
+        text += line
+
+        # Work around missing newline (http://bugs.python.org/issue2142).
+        if not line.endswith(newline):
+            text += newline + r'\ No newline at end of file' + newline
+
+    return text
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, prog='removestar')
-    parser.add_argument('paths', nargs='+', help="files or directories to fix")
+    parser.add_argument('paths', nargs='+', help="Files or directories to fix")
+    parser.add_argument('-i', '--in-place', help="Edit the files in-place")
     args = parser.parse_args()
 
     for path in args.paths:
         for file in glob.iglob(path, recursive=True):
             directory, filename = os.path.split(file)
-            with open(file, 'rw') as f:
+            with open(file, 'r') as f:
                 code = f.read()
                 try:
                     new_code = fix_code(code, directory)
                 except RuntimeError as e:
                     sys.exit(f"Error with {file}: {e}")
-                f.write(new_code)
+
+            if args.in_place:
+                with open(file, 'w') as f:
+                    f.write(new_code)
+            else:
+                print(get_diff_text(io.StringIO(code).readlines(),
+                    io.StringIO(new_code).readlines(), file))
 
 if __name__ == '__main__':
     main()
