@@ -171,7 +171,7 @@ def get_diff_text(old, new, filename):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, prog='removestar')
     parser.add_argument('paths', nargs='+', help="Files or directories to fix")
-    parser.add_argument('-i', '--in-place', help="Edit the files in-place")
+    parser.add_argument('-i', '--in-place', action='store_true', help="Edit the files in-place")
     args = parser.parse_args()
 
     for path in args.paths:
