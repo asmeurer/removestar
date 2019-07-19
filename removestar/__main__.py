@@ -74,7 +74,7 @@ def fix_code(code, directory, filename):
             continue
         if len(mods) > 1:
             print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
-    file=sys.stderr)
+                  file=sys.stderr)
 
         repls[mods[-1]].append(name)
 
