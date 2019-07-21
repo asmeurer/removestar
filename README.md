@@ -12,6 +12,9 @@ Limitations:
 - Does not work correctly with recursive star imports
 - Assumes only names in the current file are used by star imports
 
+See the [issue tracker](https://github.com/asmeurer/removestar/issues). Pull
+requests are welcome.
+
 ## Usage
 
 ```
