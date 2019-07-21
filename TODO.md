@@ -1,3 +1,5 @@
 - Package this
 - Tests
 - Make it work with absolute imports
+- Don't import modules
+- Add a verbose mode
