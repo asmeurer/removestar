@@ -44,7 +44,7 @@ def fix_code(code, directory, filename, *, verbose=False, quiet=False):
     mod_names = {}
     repls = {i: [] for i in stars}
     for mod in stars:
-        mod_names[mod] = get_names(mod, directory)
+        mod_names[mod] = get_names_from_dir(mod, directory)
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
@@ -93,7 +93,7 @@ def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
 
     return code
 
-def get_names(mod, directory):
+def get_names_from_dir(mod, directory):
     # TODO: Use the import machinery to do this.
     dots = re.compile(r'(\.+)([^\.].+)')
     m = dots.match(mod)
@@ -101,25 +101,28 @@ def get_names(mod, directory):
         # Relative import
         loc = os.path.join(directory, m.group(1), *m.group(2).split('.'))
         if os.path.isfile(loc + '.py'):
-            file = loc + '.py'
+            filename = loc + '.py'
         else:
-            file = os.path.join(loc, '__init__.py')
-        if not os.path.isfile(file):
+            filename = os.path.join(loc, '__init__.py')
+        if not os.path.isfile(filename):
             raise RuntimeError(f"Could not fine the file for the module {mod}")
     else:
         raise NotImplementedError("Non-relative imports are not supported yet")
 
-    with open(file) as f:
+    with open(filename) as f:
         code = f.read()
 
+    return get_names(code, filename)
+
+def get_names(code, filename):
     try:
         tree = ast.parse(code)
     except SyntaxError as e:
-        raise RuntimeError(f"Could not parse {file}: {e}")
+        raise RuntimeError(f"Could not parse {filename}: {e}")
 
     checker = Checker(tree)
     for scope in checker.deadScopes:
         if isinstance(scope, ModuleScope):
             return scope.keys() - set(dir(builtins)) - set(_MAGIC_GLOBALS)
 
-    raise RuntimeError(f"Could not parse the names from {file}")
+    raise RuntimeError(f"Could not parse the names from {filename}")
