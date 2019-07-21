@@ -25,7 +25,7 @@ def star_imports(checker):
 
 def fix_code(code, directory, filename):
     """
-    Return a fixed version of code, or raise SyntaxError if code is not valid Python
+    Return a fixed version of code, or raise RuntimeError if code is not valid Python
     """
     try:
         tree = ast.parse(code)
