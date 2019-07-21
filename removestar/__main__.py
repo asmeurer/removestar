@@ -27,7 +27,8 @@ import io
 import os
 import sys
 
-from .removestar import fix_code, get_diff_text
+from .removestar import fix_code
+from .helper import get_diff_text
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, prog='removestar')
