@@ -120,6 +120,17 @@ def get_names_from_dir(mod, directory):
         raise RuntimeError(f"Could not parse the names from {filename}")
 
 def get_names(code):
+    """
+    Get a set of defined top-level names from code
+
+    Star imports in code are returned like
+
+    >>> get_names('from .mod import *')
+    {'.mod.*'}
+
+    Returns a set of names, or raises SyntaxError if the code is not valid
+    syntax.
+    """
     tree = ast.parse(code)
 
     checker = Checker(tree)
