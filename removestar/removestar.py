@@ -8,11 +8,11 @@ import re
 import builtins
 
 def names_to_replace(checker):
-    names = {}
+    names = []
     for message in checker.messages:
         if isinstance(message, ImportStarUsage):
             name, *modules = message.message_args
-            names[name] = modules
+            names.append(name)
     return names
 
 def star_imports(checker):
