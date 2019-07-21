@@ -112,17 +112,19 @@ def get_names_from_dir(mod, directory):
     with open(filename) as f:
         code = f.read()
 
-    return get_names(code, filename)
-
-def get_names(code, filename):
     try:
-        tree = ast.parse(code)
+        return get_names(code)
     except SyntaxError as e:
         raise RuntimeError(f"Could not parse {filename}: {e}")
+    except RuntimeError:
+        raise RuntimeError(f"Could not parse the names from {filename}")
+
+def get_names(code):
+    tree = ast.parse(code)
 
     checker = Checker(tree)
     for scope in checker.deadScopes:
         if isinstance(scope, ModuleScope):
             return scope.keys() - set(dir(builtins)) - set(_MAGIC_GLOBALS)
 
-    raise RuntimeError(f"Could not parse the names from {filename}")
+    raise RuntimeError(f"Could not parse the names")
