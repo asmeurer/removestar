@@ -37,6 +37,9 @@ def main():
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
     parser.add_argument('--no-skip-init', action='store_false',
                         dest='skip_init', help="Don't skip __init__.py files (they are skipped by default)")
+    parser.add_argument('-v', '--verbose', action='store_true', help="""Print information about every imported name that is replaced.""")
+    parser.add_argument('-q', '--quiet', action='store_true', help="""Don't print any warning messages.""")
+
     args = parser.parse_args()
 
     for path in args.paths:
@@ -51,7 +54,8 @@ def main():
             with open(file, 'r') as f:
                 code = f.read()
                 try:
-                    new_code = fix_code(code, directory, file)
+                    new_code = fix_code(code, directory, file,
+                                        verbose=args.verbose, quiet=args.quiet)
                 except (RuntimeError, NotImplementedError) as e:
                     sys.exit(f"Error with {file}: {e}")
 

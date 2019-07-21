@@ -22,9 +22,14 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(code, directory, filename):
+def fix_code(code, directory, filename, *, verbose=False, quiet=False):
     """
     Return a fixed version of code, or raise RuntimeError if code is not valid Python
+
+    If verbose=True (default is False), info about every replaced import is
+    printed.
+
+    If quiet=True (default is False), no warning messages are printed.
     """
     try:
         tree = ast.parse(code)
@@ -43,19 +48,21 @@ def fix_code(code, directory, filename):
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
-            print(f"Warning: {filename}: could not find import for '{name}'", file=sys.stderr)
+            if not quiet:
+                print(f"Warning: {filename}: could not find import for '{name}'", file=sys.stderr)
             continue
         if len(mods) > 1:
-            print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
+            if not quiet:
+                print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
                   file=sys.stderr)
 
         repls[mods[-1]].append(name)
 
-    code = replace_imports(code, repls)
+    code = replace_imports(code, repls, filename, verbose=verbose, quiet=quiet)
 
     return code
 
-def replace_imports(code, repls):
+def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
     for mod in repls:
         names = sorted(repls[mod])
 
@@ -78,7 +85,10 @@ def replace_imports(code, repls):
 
         new_code = STAR_IMPORT.sub(new_import, code)
         if new_code == code:
-            print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
+            if not quiet:
+                print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
+        elif verbose:
+            print(f"{filename}: Replacing 'from {mod} import *' with '{new_import}'")
         code = new_code
 
     return code
