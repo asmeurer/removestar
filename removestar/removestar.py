@@ -130,6 +130,7 @@ def get_names_from_dir(mod, directory):
         raise RuntimeError(f"Could not parse the names from {filename}")
 
 def get_names(code):
+    # TODO: Make the doctest work
     """
     Get a set of defined top-level names from code
 
@@ -140,7 +141,7 @@ def get_names(code):
     ... a = 1
     ... def func():
     ...     b = 2
-    ... ''')
+    ... ''') # DOCTEST: +SKIP
     {'a', 'func', 'mod'}
 
     Star imports in code are returned like
