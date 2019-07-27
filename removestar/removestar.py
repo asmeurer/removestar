@@ -1,6 +1,9 @@
 from pyflakes.checker import Checker, _MAGIC_GLOBALS, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
+# quit and exit are not included in old versions of pyflakes
+MAGIC_GLOBALS = set(_MAGIC_GLOBALS).union({'quit', 'exit'})
+
 import sys
 import ast
 import os
@@ -153,6 +156,6 @@ def get_names(code):
     checker = Checker(tree)
     for scope in checker.deadScopes:
         if isinstance(scope, ModuleScope):
-            return scope.keys() - set(dir(builtins)) - set(_MAGIC_GLOBALS)
+            return scope.keys() - set(dir(builtins)) - set(MAGIC_GLOBALS)
 
     raise RuntimeError(f"Could not parse the names")
