@@ -126,11 +126,12 @@ def get_names(code):
     Example:
 
     >>> get_names('''
+    ... import mod
     ... a = 1
     ... def func():
     ...     b = 2
     ... ''')
-    {'a', 'func'}
+    {'a', 'func', 'mod'}
 
     Star imports in code are returned like
 
