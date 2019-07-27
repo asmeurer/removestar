@@ -22,7 +22,7 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(code, directory, filename, *, verbose=False, quiet=False):
+def fix_code(code, file, *, verbose=False, quiet=False):
     """
     Return a fixed version of code, or raise RuntimeError if code is not valid Python
 
@@ -31,6 +31,7 @@ def fix_code(code, directory, filename, *, verbose=False, quiet=False):
 
     If quiet=True (default is False), no warning messages are printed.
     """
+    directory, filename = os.path.split(file)
     try:
         tree = ast.parse(code)
     except SyntaxError as e:
