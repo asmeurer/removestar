@@ -5,7 +5,8 @@ import os
 
 from pytest import raises
 
-from .removestar import names_to_replace, star_imports, get_names, get_names_from_dir
+from .removestar import (names_to_replace, star_imports, get_names,
+                         get_names_from_dir, fix_code)
 
 
 code_mod1 = """
@@ -33,9 +34,27 @@ def func():
     return a + b + c + d + name
 """
 
+code_mod4_fixed = """
+from .mod1 import a
+from .mod2 import b, c
+from .mod3 import name
+
+def func():
+    return a + b + c + d + name
+"""
+
 code_submod1 = """
 from ..mod1 import *
 from ..mod2 import *
+from ..mod3 import name
+
+def func():
+    return a + b + c + d + name
+"""
+
+code_submod1_fixed = """
+from ..mod1 import a
+from ..mod2 import b, c
 from ..mod3 import name
 
 def func():
@@ -122,3 +141,57 @@ def test_get_names_from_dir(tmpdir):
     assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
 
     raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
+
+def test_fix_code(tmpdir, capsys):
+    directory = tmpdir/'module'
+    create_module(directory)
+
+    raises(RuntimeError, lambda: fix_code(directory/'notarealfile.py'))
+
+    assert fix_code(directory/'mod1.py') == code_mod1
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
+
+    assert fix_code(directory/'mod2.py') == code_mod2
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
+
+    assert fix_code(directory/'mod3.py') == code_mod3
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
+
+    assert fix_code(directory/'mod4.py') == code_mod4_fixed
+    out, err = capsys.readouterr()
+    assert not out
+    assert 'Warning' in err
+    assert str(directory/'mod4.py') in err
+    assert "'b'" in err
+    assert "'a'" not in err
+    assert "'.mod1'" in err
+    assert "'.mod2'" in err
+    assert "Using '.mod2'" in err
+    assert "could not find import for 'd'" in err
+
+    submod = directory/'submod'
+    raises(RuntimeError, lambda: fix_code(submod))
+    assert fix_code(submod/'submod1.py') == code_submod1_fixed
+    out, err = capsys.readouterr()
+    assert not out
+    assert 'Warning' in err
+    assert str(submod/'submod1.py') in err
+    assert "'b'" in err
+    assert "'a'" not in err
+    assert "'..mod1'" in err
+    assert "'..mod2'" in err
+    assert "'.mod1'" not in err
+    assert "'.mod2'" not in err
+    assert "Using '..mod2'" in err
+    assert "could not find import for 'd'" in err
+
+    raises(RuntimeError, lambda: fix_code(directory/'mod_bad.py'))
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
