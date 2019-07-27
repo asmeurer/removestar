@@ -22,16 +22,22 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(code, file, *, verbose=False, quiet=False):
+def fix_code(file, *, verbose=False, quiet=False):
     """
-    Return a fixed version of code, or raise RuntimeError if code is not valid Python
+    Return a fixed version of the code in `file`, or raise RuntimeError if it is is not valid Python.
 
     If verbose=True (default is False), info about every replaced import is
     printed.
 
     If quiet=True (default is False), no warning messages are printed.
     """
+    if not os.path.isfile(file):
+        raise RuntimeError(f"{file} is not a file.")
+
     directory, filename = os.path.split(file)
+    with open(file) as f:
+        code = f.read()
+
     try:
         tree = ast.parse(code)
     except SyntaxError as e:

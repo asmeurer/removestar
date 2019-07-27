@@ -51,18 +51,19 @@ def main():
                 continue
             if args.skip_init and filename == '__init__.py':
                 continue
-            with open(file, 'r') as f:
-                code = f.read()
-                try:
-                    new_code = fix_code(code, file,
-                                        verbose=args.verbose, quiet=args.quiet)
-                except (RuntimeError, NotImplementedError) as e:
-                    sys.exit(f"Error with {file}: {e}")
+            try:
+                new_code = fix_code(file,
+                                    verbose=args.verbose, quiet=args.quiet)
+            except (RuntimeError, NotImplementedError) as e:
+                sys.exit(f"Error with {file}: {e}")
 
             if args.in_place:
                 with open(file, 'w') as f:
                     f.write(new_code)
             else:
+                with open(file) as f:
+                    code = f.read()
+
                 print(get_diff_text(io.StringIO(code).readlines(),
                     io.StringIO(new_code).readlines(), file))
 
