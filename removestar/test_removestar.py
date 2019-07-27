@@ -6,7 +6,7 @@ import os
 from pytest import raises
 
 from .removestar import (names_to_replace, star_imports, get_names,
-                         get_names_from_dir, fix_code)
+                         get_names_from_file, fix_code)
 
 
 code_mod1 = """
@@ -129,18 +129,21 @@ def test_get_names():
 def test_get_names_from_dir(tmpdir):
     directory = tmpdir/'module'
     create_module(directory)
-    assert get_names_from_dir('.mod1', directory) == {'a', 'aa', 'b'}
-    assert get_names_from_dir('.mod2', directory) == {'b', 'c', 'cc'}
-    assert get_names_from_dir('.mod3', directory) == {'name'}
-    assert get_names_from_dir('.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-    submod = directory/'submod'
-    assert get_names_from_dir('.submod1', submod) == {'..mod1.*', '..mod2.*', 'name', 'func'}
-    assert get_names_from_dir('..mod1', submod) == {'a', 'aa', 'b'}
-    assert get_names_from_dir('..mod2', submod) == {'b', 'c', 'cc'}
-    assert get_names_from_dir('..mod3', submod) == {'name'}
-    assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+    file = str(directory/'mod1.py')
+    assert get_names_from_file('.mod1', file) == {'a', 'aa', 'b'}
+    assert get_names_from_file('.mod2', file) == {'b', 'c', 'cc'}
+    assert get_names_from_file('.mod3', file) == {'name'}
+    assert get_names_from_file('.mod4', file) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+    raises(RuntimeError, lambda: get_names_from_file('.mod_bad', directory))
 
-    raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
+    submod = directory/'submod'
+    file = str(submod/'submod1.py')
+    assert get_names_from_file('.submod1', file) == {'..mod1.*', '..mod2.*', 'name', 'func'}
+    assert get_names_from_file('..mod1', file) == {'a', 'aa', 'b'}
+    assert get_names_from_file('..mod2', file) == {'b', 'c', 'cc'}
+    assert get_names_from_file('..mod3', file) == {'name'}
+    assert get_names_from_file('..mod4', file) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+
 
 def test_fix_code(tmpdir, capsys):
     directory = tmpdir/'module'
@@ -148,22 +151,22 @@ def test_fix_code(tmpdir, capsys):
 
     raises(RuntimeError, lambda: fix_code(directory/'notarealfile.py'))
 
-    assert fix_code(directory/'mod1.py') == code_mod1
+    assert fix_code(str(directory/'mod1.py')) == code_mod1
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod2.py') == code_mod2
+    assert fix_code(str(directory/'mod2.py')) == code_mod2
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod3.py') == code_mod3
+    assert fix_code(str(directory/'mod3.py')) == code_mod3
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod4.py') == code_mod4_fixed
+    assert fix_code(str(directory/'mod4.py')) == code_mod4_fixed
     out, err = capsys.readouterr()
     assert not out
     assert 'Warning' in err
@@ -176,8 +179,8 @@ def test_fix_code(tmpdir, capsys):
     assert "could not find import for 'd'" in err
 
     submod = directory/'submod'
-    raises(RuntimeError, lambda: fix_code(submod))
-    assert fix_code(submod/'submod1.py') == code_submod1_fixed
+    raises(RuntimeError, lambda: fix_code(str(submod)))
+    assert fix_code(str(submod/'submod1.py')) == code_submod1_fixed
     out, err = capsys.readouterr()
     assert not out
     assert 'Warning' in err
@@ -191,7 +194,7 @@ def test_fix_code(tmpdir, capsys):
     assert "Using '..mod2'" in err
     assert "could not find import for 'd'" in err
 
-    raises(RuntimeError, lambda: fix_code(directory/'mod_bad.py'))
+    raises(RuntimeError, lambda: fix_code(str(directory/'mod_bad.py')))
     out, err = capsys.readouterr()
     assert not out
     assert not err

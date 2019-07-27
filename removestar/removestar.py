@@ -9,6 +9,7 @@ import ast
 import os
 import re
 import builtins
+from importlib.machinery import PathFinder
 
 def names_to_replace(checker):
     names = []
@@ -37,7 +38,6 @@ def fix_code(file, *, verbose=False, quiet=False):
     if not os.path.isfile(file):
         raise RuntimeError(f"{file} is not a file.")
 
-    directory, filename = os.path.split(file)
     with open(file) as f:
         code = f.read()
 
@@ -54,7 +54,7 @@ def fix_code(file, *, verbose=False, quiet=False):
     mod_names = {}
     repls = {i: [] for i in stars}
     for mod in stars:
-        mod_names[mod] = get_names_from_dir(mod, directory)
+        mod_names[mod] = get_names_from_file(mod, file)
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
@@ -68,11 +68,11 @@ def fix_code(file, *, verbose=False, quiet=False):
 
         repls[mods[-1]].append(name)
 
-    code = replace_imports(code, repls, filename, verbose=verbose, quiet=quiet)
+    code = replace_imports(code, repls, file, verbose=verbose, quiet=quiet)
 
     return code
 
-def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
+def replace_imports(code, repls, file, *, verbose=False, quiet=False):
     for mod in repls:
         names = sorted(repls[mod])
 
@@ -98,26 +98,31 @@ def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
             if not quiet:
                 print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
         elif verbose:
-            print(f"{filename}: Replacing 'from {mod} import *' with '{new_import}'")
+            print(f"{file}: Replacing 'from {mod} import *' with '{new_import}'")
         code = new_code
 
     return code
 
-def get_names_from_dir(mod, directory):
+def get_names_from_file(mod, file):
     # TODO: Use the import machinery to do this.
-    dots = re.compile(r'(\.+)([^\.].+)')
-    m = dots.match(mod)
-    if m:
-        # Relative import
-        loc = os.path.join(directory, m.group(1), *m.group(2).split('.'))
-        if os.path.isfile(loc + '.py'):
-            filename = loc + '.py'
-        else:
-            filename = os.path.join(loc, '__init__.py')
-        if not os.path.isfile(filename):
-            raise RuntimeError(f"Could not fine the file for the module {mod}")
-    else:
-        raise NotImplementedError("Non-relative imports are not supported yet")
+    spec = PathFinder().find_spec(mod, file)
+    if not spec:
+        raise RuntimeError(f"Could not find the import for {mod} in {file}.")
+    filename = spec.origin
+
+    # dots = re.compile(r'(\.+)([^\.].+)')
+    # m = dots.match(mod)
+    # if m:
+    #     # Relative import
+    #     loc = os.path.join(directory, m.group(1), *m.group(2).split('.'))
+    #     if os.path.isfile(loc + '.py'):
+    #         filename = loc + '.py'
+    #     else:
+    #         filename = os.path.join(loc, '__init__.py')
+    #     if not os.path.isfile(filename):
+    #         raise RuntimeError(f"Could not fine the file for the module {mod}")
+    # else:
+    #     raise NotImplementedError("Non-relative imports are not supported yet")
 
     with open(filename) as f:
         code = f.read()
@@ -141,7 +146,7 @@ def get_names(code):
     ... a = 1
     ... def func():
     ...     b = 2
-    ... ''') # DOCTEST: +SKIP
+    ... ''') # doctest: +SKIP
     {'a', 'func', 'mod'}
 
     Star imports in code are returned like
