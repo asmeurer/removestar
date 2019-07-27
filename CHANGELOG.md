@@ -1,3 +1,9 @@
+# 1.1 (???)
+- Add tests.
+- Add --verbose and --quiet flags. --verbose prints about every name that an
+  import is added for. --quiet hides all warning output.
+- Move all TODOs to the GitHub issue tracker.
+
 # 1.0.1 (2019-07-18)
 
 - Fix directory recursion
