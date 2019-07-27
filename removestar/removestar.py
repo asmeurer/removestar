@@ -59,11 +59,11 @@ def fix_code(file, *, verbose=False, quiet=False):
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
             if not quiet:
-                print(f"Warning: {filename}: could not find import for '{name}'", file=sys.stderr)
+                print(f"Warning: {file}: could not find import for '{name}'", file=sys.stderr)
             continue
         if len(mods) > 1:
             if not quiet:
-                print(f"Warning: {filename}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
+                print(f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
                   file=sys.stderr)
 
         repls[mods[-1]].append(name)
