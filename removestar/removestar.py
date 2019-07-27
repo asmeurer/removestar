@@ -123,6 +123,15 @@ def get_names(code):
     """
     Get a set of defined top-level names from code
 
+    Example:
+
+    >>> get_names('''
+    ... a = 1
+    ... def func():
+    ...     b = 2
+    ... ''')
+    {'a', 'func'}
+
     Star imports in code are returned like
 
     >>> get_names('from .mod import *')
