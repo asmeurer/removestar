@@ -115,7 +115,7 @@ def get_names_from_dir(mod, directory):
         else:
             filename = os.path.join(loc, '__init__.py')
         if not os.path.isfile(filename):
-            raise RuntimeError(f"Could not fine the file for the module {mod}")
+            raise RuntimeError(f"Could not find the file for the module {mod}")
     else:
         top, *rest = mod.split('.')
 
