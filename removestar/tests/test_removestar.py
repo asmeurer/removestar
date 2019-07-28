@@ -7,7 +7,7 @@ from pytest import raises
 import pytest
 
 from ..removestar import (names_to_replace, star_imports, get_names,
-                         get_names_from_dir, fix_code)
+                         get_names_from_dir, fix_code, get_mod_filename)
 
 
 code_mod1 = """
@@ -316,3 +316,39 @@ def test_fix_code(tmpdir, capsys):
     out, err = capsys.readouterr()
     assert not out
     assert not err
+
+def touch(f):
+    with open(f, 'w'):
+        pass
+
+def test_get_mod_filename(tmpdir):
+    module = tmpdir/'module'
+    os.makedirs(module)
+    touch(module/'__init__.py')
+    touch(module/'mod1.py')
+    submod = module/'submod'
+    os.makedirs(submod)
+    touch(submod/'__init__.py')
+    touch(submod/'mod1.py')
+    subsubmod = submod/'submod'
+    os.makedirs(subsubmod)
+    touch(subsubmod/'__init__.py')
+    touch(subsubmod/'mod1.py')
+
+    def _test(mod, directory, expected):
+        result = os.path.abspath(get_mod_filename(mod, directory))
+        assert result == os.path.abspath(expected)
+
+    _test('.', module, module/'__init__.py')
+    _test('.mod1', module, module/'mod1.py')
+    _test('.submod', module, submod/'__init__.py')
+    _test('.submod.mod1', module, submod/'mod1.py')
+    _test('.submod.submod', module, subsubmod/'__init__.py')
+    _test('.submod.submod.mod1', module, subsubmod/'mod1.py')
+
+    _test('module', module, module/'__init__.py')
+    _test('module.mod1', module, module/'mod1.py')
+    _test('module.submod', module, submod/'__init__.py')
+    _test('module.submod.mod1', module, submod/'mod1.py')
+    _test('module.submod.submod', module, subsubmod/'__init__.py')
+    _test('module.submod.submod.mod1', module, subsubmod/'mod1.py')
