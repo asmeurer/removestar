@@ -103,7 +103,10 @@ def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
 
     return code
 
-def get_names_from_dir(mod, directory):
+def get_mod_filename(mod, directory):
+    """
+    Get the filename for `mod` relative to a file in `directory`.
+    """
     # TODO: Use the import machinery to do this.
     dots = re.compile(r'(\.+)([^\.].+)')
     m = dots.match(mod)
@@ -130,11 +133,14 @@ def get_names_from_dir(mod, directory):
                     filename = loc + '.py'
                     break
                 elif os.path.isfile(os.path.join(loc, '__init__.py')):
-                    filename = os.path.isfile(os.path.join(loc, '__init__.py'))
+                    filename = os.path.join(loc, '__init__.py')
                     break
             head, tail = os.path.split(head)
         else:
             raise NotImplementedError("Imports from external modules are not yet supported.")
+
+def get_names_from_dir(mod, directory):
+    filename = get_mod_filename(mod, directory)
 
     with open(filename) as f:
         code = f.read()
