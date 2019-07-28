@@ -112,7 +112,7 @@ def get_mod_filename(mod, directory):
     m = dots.match(mod)
     if m:
         # Relative import
-        loc = os.path.join(directory, m.group(1), *m.group(2).split('.'))
+        loc = os.path.join(directory, *['..']*(len(m.group(1))-1), *m.group(2).split('.'))
         if os.path.isfile(loc + '.py'):
             filename = loc + '.py'
         else:
