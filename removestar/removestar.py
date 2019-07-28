@@ -117,7 +117,24 @@ def get_names_from_dir(mod, directory):
         if not os.path.isfile(filename):
             raise RuntimeError(f"Could not fine the file for the module {mod}")
     else:
-        raise NotImplementedError("Non-relative imports are not supported yet")
+        top, *rest = mod.split('.')
+
+        # Try to find an absolute import from the same module as the file
+        head, tail = os.path.split(directory)
+        while head not in ['', '/']:
+            # If directory is relative assume we
+            # don't need to go higher than .
+            if tail == top:
+                loc = os.path.join(head, tail, *rest)
+                if os.path.isfile(loc + '.py'):
+                    filename = loc + '.py'
+                    break
+                elif os.path.isfile(os.path.join(loc, '__init__.py')):
+                    filename = os.path.isfile(os.path.join(loc, '__init__.py'))
+                    break
+            head, tail = os.path.split(head)
+        else:
+            raise NotImplementedError("Imports from external modules are not yet supported.")
 
     with open(filename) as f:
         code = f.read()
