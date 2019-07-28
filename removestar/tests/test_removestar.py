@@ -4,6 +4,7 @@ import ast
 import os
 
 from pytest import raises
+import pytest
 
 from ..removestar import (names_to_replace, star_imports, get_names,
                          get_names_from_dir, fix_code)
@@ -198,25 +199,35 @@ def test_get_names():
 
     raises(SyntaxError, lambda: get_names(code_bad_syntax))
 
-def test_get_names_from_dir(tmpdir):
+@pytest.mark.parametrize('relative', [True, False])
+def test_get_names_from_dir(tmpdir, relative):
     directory = tmpdir/'module'
     create_module(directory)
-    assert get_names_from_dir('.mod1', directory) == {'a', 'aa', 'b'}
-    assert get_names_from_dir('.mod2', directory) == {'b', 'c', 'cc'}
-    assert get_names_from_dir('.mod3', directory) == {'name'}
-    assert get_names_from_dir('.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-    submod = directory/'submod'
-    assert get_names_from_dir('.submod1', submod) == {'..mod1.*', '..mod2.*', 'name', 'func'}
-    assert get_names_from_dir('.submod2', submod) == {'module.mod1.*',
-        'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
-    assert get_names_from_dir('.submod3', submod) == {'e'}
-    assert get_names_from_dir('..mod1', submod) == {'a', 'aa', 'b'}
-    assert get_names_from_dir('..mod2', submod) == {'b', 'c', 'cc'}
-    assert get_names_from_dir('..mod3', submod) == {'name'}
-    assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-    assert get_names_from_dir('..mod5', submod) == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
+    if relative:
+        chdir = tmpdir
+    else:
+        chdir = '.'
+    curdir = os.path.abspath('.')
+    try:
+        os.chdir(chdir)
+        assert get_names_from_dir('.mod1', directory) == {'a', 'aa', 'b'}
+        assert get_names_from_dir('.mod2', directory) == {'b', 'c', 'cc'}
+        assert get_names_from_dir('.mod3', directory) == {'name'}
+        assert get_names_from_dir('.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+        submod = directory/'submod'
+        assert get_names_from_dir('.submod1', submod) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('.submod2', submod) == {'module.mod1.*',
+            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('.submod3', submod) == {'e'}
+        assert get_names_from_dir('..mod1', submod) == {'a', 'aa', 'b'}
+        assert get_names_from_dir('..mod2', submod) == {'b', 'c', 'cc'}
+        assert get_names_from_dir('..mod3', submod) == {'name'}
+        assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+        assert get_names_from_dir('..mod5', submod) == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
 
-    raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
+        raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
+    finally:
+        os.chdir(curdir)
 
 def test_fix_code(tmpdir, capsys):
     directory = tmpdir/'module'
