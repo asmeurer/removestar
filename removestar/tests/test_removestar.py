@@ -51,7 +51,7 @@ from module.mod3 import name
 def func():
     return a + b + c + d + name
 """
-5
+
 code_mod5_fixed = """
 from module.mod1 import a
 from module.mod2 import b, c
@@ -65,7 +65,7 @@ code_submod1 = """
 from ..mod1 import *
 from ..mod2 import *
 from ..mod3 import name
-from .submod3 import e
+from .submod3 import *
 
 def func():
     return a + b + c + d + e + name
@@ -186,7 +186,7 @@ def test_get_names():
 
     names = get_names(code_submod1)
     # TODO: Remove the imported name 'name'
-    assert names == {'..mod1.*', '..mod2.*', 'name', 'func'}
+    assert names == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
 
     names = get_names(code_submod2)
     # TODO: Remove the imported name 'name'
