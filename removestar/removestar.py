@@ -108,7 +108,7 @@ def get_mod_filename(mod, directory):
     Get the filename for `mod` relative to a file in `directory`.
     """
     # TODO: Use the import machinery to do this.
-    dots = re.compile(r'(\.+)([^\.].+)')
+    dots = re.compile(r'(\.+)(.*)')
     m = dots.match(mod)
     if m:
         # Relative import
