@@ -139,6 +139,8 @@ def get_mod_filename(mod, directory):
         else:
             raise NotImplementedError("Imports from external modules are not yet supported.")
 
+    return filename
+
 def get_names_from_dir(mod, directory):
     filename = get_mod_filename(mod, directory)
 
