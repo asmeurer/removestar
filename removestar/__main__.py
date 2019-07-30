@@ -40,8 +40,13 @@ def main():
                         dest='skip_init', help="Don't skip __init__.py files (they are skipped by default)")
     parser.add_argument('-v', '--verbose', action='store_true', help="""Print information about every imported name that is replaced.""")
     parser.add_argument('-q', '--quiet', action='store_true', help="""Don't print any warning messages.""")
+    parser.add_argument('--max-line-length', type=int, default=100,
+    help="""The maximum line length for replaced imports before they are wrapped. Set to 0 to disable line wrapping.""")
 
     args = parser.parse_args()
+
+    if args.max_line_length == 0:
+        args.max_line_length = float('inf')
 
     for path in args.paths:
         if os.path.isdir(path):
@@ -53,7 +58,7 @@ def main():
             if args.skip_init and filename == '__init__.py':
                 continue
             try:
-                new_code = fix_code(file,
+                new_code = fix_code(file, max_line_length=args.max_line_length,
                                     verbose=args.verbose, quiet=args.quiet)
             except (RuntimeError, NotImplementedError) as e:
                 sys.exit(f"Error with {file}: {e}")
