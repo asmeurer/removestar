@@ -108,7 +108,13 @@ e = 1
 """
 
 code_submod4 = """
-from .submod import *
+from . import *
+
+func()
+"""
+
+code_submod4_fixed = """
+from . import func
 
 func()
 """
@@ -184,7 +190,7 @@ def test_star_imports():
     assert stars == ['module.mod1', 'module.mod2', 'module.submod.submod3']
 
     stars = star_imports(Checker(ast.parse(code_submod4)))
-    assert stars == ['.submod']
+    assert stars == ['.']
 
 def test_get_names():
     names = get_names(code_mod1)
@@ -220,7 +226,7 @@ def test_get_names():
     assert names == {'e'}
 
     names = get_names(code_submod4)
-    assert names == {'.submod.*'}
+    assert names == {'..*'}
 
     raises(SyntaxError, lambda: get_names(code_bad_syntax))
 
@@ -245,7 +251,7 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('.submod.submod2', directory) == {'module.mod1.*',
             'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
         assert get_names_from_dir('.submod.submod3', directory) == {'e'}
-        assert get_names_from_dir('.submod.submod4', directory) == {'.submod.*'}
+        assert get_names_from_dir('.submod.submod4', directory) == {'..*'}
 
         assert get_names_from_dir('module.mod1', directory) == {'a', 'aa', 'b'}
         assert get_names_from_dir('module.mod2', directory) == {'b', 'c', 'cc'}
@@ -256,7 +262,7 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.submod.submod2', directory) == {'module.mod1.*',
             'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
         assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
-        assert get_names_from_dir('module.submod.submod4', directory) == {'.submod.*'}
+        assert get_names_from_dir('module.submod.submod4', directory) == {'..*'}
 
         submod = directory/'submod'
         assert get_names_from_dir('..submod', submod) == {'func'}
@@ -265,7 +271,7 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('.submod2', submod) == {'module.mod1.*',
             'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
         assert get_names_from_dir('.submod3', submod) == {'e'}
-        assert get_names_from_dir('.submod4', submod) == {'.submod.*'}
+        assert get_names_from_dir('.submod4', submod) == {'..*'}
         assert get_names_from_dir('..mod1', submod) == {'a', 'aa', 'b'}
         assert get_names_from_dir('..mod2', submod) == {'b', 'c', 'cc'}
         assert get_names_from_dir('..mod3', submod) == {'name'}
@@ -281,7 +287,7 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.submod.submod2', directory) == {'module.mod1.*',
             'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
         assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
-        assert get_names_from_dir('module.submod.submod4', directory) == {'.submod.*'}
+        assert get_names_from_dir('module.submod.submod4', directory) == {'..*'}
 
         raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
         raises(RuntimeError, lambda: get_names_from_dir('module.mod_bad', directory))
@@ -367,6 +373,11 @@ def test_fix_code(tmpdir, capsys):
     assert "could not find import for 'd'" in err
 
     assert fix_code(submod/'submod3.py') == code_submod3
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
+
+    assert fix_code(submod/'submod4.py') == code_submod4_fixed
     out, err = capsys.readouterr()
     assert not out
     assert not err
