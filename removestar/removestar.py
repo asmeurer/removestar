@@ -73,7 +73,12 @@ def fix_code(file, *, verbose=False, quiet=False):
 
     return code
 
-def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
+def replace_imports(code, repls, filename=None, *, verbose=False, quiet=False):
+    """
+    Replace the star imports in code
+
+    repls should be a dictionary mapping module names to a list of names to be imported
+    """
     for mod in repls:
         names = sorted(repls[mod])
 
@@ -99,7 +104,10 @@ def replace_imports(code, repls, filename, *, verbose=False, quiet=False):
             if not quiet:
                 print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
         elif verbose:
-            print(f"{filename}: Replacing 'from {mod} import *' with '{new_import}'")
+            msg = f"Replacing 'from {mod} import *' with '{new_import}'"
+            if filename:
+                msg = f"{filename}: {msg}"
+            print(msg)
         code = new_code
 
     return code
