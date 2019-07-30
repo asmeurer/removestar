@@ -86,6 +86,18 @@ def replace_imports(code, repls, filename=None, *, verbose=False, quiet=False):
 
     If quiet=True (default: False), a warning is printed if no replacements
     are made. The quiet flag does not affect the messages from verbose=True.
+
+    Example:
+
+    >>> code = '''
+    ... from mod import *
+    ... print(a + b)
+    ... '''
+    >>> repls = {'mod': ['a', 'b']}
+    >>> print(replace_imports(code, repls, verbose=False))
+    from mod import a, b
+    print(a + b)
+
     """
     for mod in repls:
         names = sorted(repls[mod])
