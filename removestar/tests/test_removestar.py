@@ -295,6 +295,7 @@ def test_get_names_from_dir(tmpdir, relative):
         os.chdir(curdir)
 
 def test_fix_code(tmpdir, capsys):
+    # TODO: Test the verbose and quiet flags
     directory = tmpdir/'module'
     create_module(directory)
 
