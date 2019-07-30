@@ -9,6 +9,7 @@ import ast
 import os
 import re
 import builtins
+from pathlib import Path
 
 def names_to_replace(checker):
     names = []
@@ -108,23 +109,24 @@ def get_mod_filename(mod, directory):
     Get the filename for `mod` relative to a file in `directory`.
     """
     # TODO: Use the import machinery to do this.
+    directory = Path(directory)
+
     dots = re.compile(r'(\.+)(.*)')
     m = dots.match(mod)
     if m:
         # Relative import
-        loc = os.path.join(directory, *['..']*(len(m.group(1))-1), *m.group(2).split('.'))
-        if os.path.isfile(loc + '.py'):
-            filename = loc + '.py'
-        else:
-            filename = os.path.join(loc, '__init__.py')
-        if not os.path.isfile(filename):
+        loc = directory.joinpath(*['..']*(len(m.group(1))-1), *m.group(2).split('.'))
+        filename = Path(str(loc) + '.py')
+        if not filename.is_file():
+            filename = loc/'__init__.py'
+        if not filename.is_file():
             raise RuntimeError(f"Could not find the file for the module '{mod}'")
     else:
         top, *rest = mod.split('.')
 
         # Try to find an absolute import from the same module as the file
-        head, tail = os.path.split(directory)
-        while head not in ['', '/']:
+        head, tail = directory.parent, directory.name
+        while True:
             # If directory is relative assume we
             # don't need to go higher than .
             if tail == top:
@@ -135,9 +137,9 @@ def get_mod_filename(mod, directory):
                 elif os.path.isfile(os.path.join(loc, '__init__.py')):
                     filename = os.path.join(loc, '__init__.py')
                     break
-            head, tail = os.path.split(head)
-        else:
-            raise NotImplementedError("Imports from external modules are not yet supported.")
+            if head in [Path('.'), Path('/')]:
+                raise NotImplementedError("Imports from external modules are not yet supported.")
+            head, tail = head.parent, head.name
 
     return filename
 
