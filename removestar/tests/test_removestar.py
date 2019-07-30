@@ -107,6 +107,16 @@ code_submod3 = """
 e = 1
 """
 
+code_submod4 = """
+from .submod import *
+
+func()
+"""
+
+code_submod_init = """
+from .submod1 import func
+"""
+
 code_bad_syntax = """
 from mod
 """
@@ -130,16 +140,18 @@ def create_module(module):
     submod = module/'submod'
     os.makedirs(submod)
     with open(submod/'__init__.py', 'w') as f:
-        pass
+        f.write(code_submod_init)
     with open(submod/'submod1.py', 'w') as f:
         f.write(code_submod1)
     with open(submod/'submod2.py', 'w') as f:
         f.write(code_submod2)
     with open(submod/'submod3.py', 'w') as f:
         f.write(code_submod3)
+    with open(submod/'submod4.py', 'w') as f:
+        f.write(code_submod4)
 
 def test_names_to_replace():
-    for code in [code_mod1, code_mod2, code_mod3, code_submod3]:
+    for code in [code_mod1, code_mod2, code_mod3, code_submod3, code_submod_init]:
         names = names_to_replace(Checker(ast.parse(code)))
         assert names == []
 
@@ -151,8 +163,11 @@ def test_names_to_replace():
         names = names_to_replace(Checker(ast.parse(code)))
         assert names == ['a', 'b', 'c', 'd', 'e']
 
+    names = names_to_replace(Checker(ast.parse(code_submod4)))
+    assert names == ['func']
+
 def test_star_imports():
-    for code in [code_mod1, code_mod2, code_mod3, code_submod3]:
+    for code in [code_mod1, code_mod2, code_mod3, code_submod3, code_submod_init]:
         stars = star_imports(Checker(ast.parse(code)))
         assert stars == []
 
@@ -167,6 +182,9 @@ def test_star_imports():
 
     stars = star_imports(Checker(ast.parse(code_submod2)))
     assert stars == ['module.mod1', 'module.mod2', 'module.submod.submod3']
+
+    stars = star_imports(Checker(ast.parse(code_submod4)))
+    assert stars == ['.submod']
 
 def test_get_names():
     names = get_names(code_mod1)
@@ -186,6 +204,9 @@ def test_get_names():
     # TODO: Remove the imported name 'name'
     assert names == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
 
+    names = get_names(code_submod_init)
+    assert names == {'func'}
+
     names = get_names(code_submod1)
     # TODO: Remove the imported name 'name'
     assert names == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
@@ -197,6 +218,9 @@ def test_get_names():
 
     names = get_names(code_submod3)
     assert names == {'e'}
+
+    names = get_names(code_submod4)
+    assert names == {'.submod.*'}
 
     raises(SyntaxError, lambda: get_names(code_bad_syntax))
 
@@ -216,18 +240,51 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('.mod2', directory) == {'b', 'c', 'cc'}
         assert get_names_from_dir('.mod3', directory) == {'name'}
         assert get_names_from_dir('.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+        assert get_names_from_dir('.submod', directory) == {'func'}
+        assert get_names_from_dir('.submod.submod1', directory) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('.submod.submod2', directory) == {'module.mod1.*',
+            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('.submod.submod3', directory) == {'e'}
+        assert get_names_from_dir('.submod.submod4', directory) == {'.submod.*'}
+
+        assert get_names_from_dir('module.mod1', directory) == {'a', 'aa', 'b'}
+        assert get_names_from_dir('module.mod2', directory) == {'b', 'c', 'cc'}
+        assert get_names_from_dir('module.mod3', directory) == {'name'}
+        assert get_names_from_dir('module.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+        assert get_names_from_dir('module.submod', directory) == {'func'}
+        assert get_names_from_dir('module.submod.submod1', directory) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('module.submod.submod2', directory) == {'module.mod1.*',
+            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
+        assert get_names_from_dir('module.submod.submod4', directory) == {'.submod.*'}
+
         submod = directory/'submod'
+        assert get_names_from_dir('..submod', submod) == {'func'}
+        assert get_names_from_dir('.', submod) == {'func'}
         assert get_names_from_dir('.submod1', submod) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
         assert get_names_from_dir('.submod2', submod) == {'module.mod1.*',
             'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
         assert get_names_from_dir('.submod3', submod) == {'e'}
+        assert get_names_from_dir('.submod4', submod) == {'.submod.*'}
         assert get_names_from_dir('..mod1', submod) == {'a', 'aa', 'b'}
         assert get_names_from_dir('..mod2', submod) == {'b', 'c', 'cc'}
         assert get_names_from_dir('..mod3', submod) == {'name'}
         assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
         assert get_names_from_dir('..mod5', submod) == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
 
+        assert get_names_from_dir('module.mod1', directory) == {'a', 'aa', 'b'}
+        assert get_names_from_dir('module.mod2', directory) == {'b', 'c', 'cc'}
+        assert get_names_from_dir('module.mod3', directory) == {'name'}
+        assert get_names_from_dir('module.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
+        assert get_names_from_dir('module.submod', directory) == {'func'}
+        assert get_names_from_dir('module.submod.submod1', directory) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('module.submod.submod2', directory) == {'module.mod1.*',
+            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
+        assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
+        assert get_names_from_dir('module.submod.submod4', directory) == {'.submod.*'}
+
         raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
+        raises(RuntimeError, lambda: get_names_from_dir('module.mod_bad', directory))
     finally:
         os.chdir(curdir)
 
