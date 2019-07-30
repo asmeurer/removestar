@@ -26,7 +26,7 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(file, *, verbose=False, quiet=False):
+def fix_code(file, *, max_line_length=100, verbose=False, quiet=False):
     """
     Return a fixed version of the code in `file`, or raise RuntimeError if it is is not valid Python.
 
