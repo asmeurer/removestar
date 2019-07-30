@@ -206,6 +206,7 @@ def test_get_names_from_dir(tmpdir, relative):
     create_module(directory)
     if relative:
         chdir = tmpdir
+        directory = Path('module')
     else:
         chdir = '.'
     curdir = os.path.abspath('.')
