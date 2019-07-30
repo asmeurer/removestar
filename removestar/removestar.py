@@ -30,10 +30,8 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False):
     """
     Return a fixed version of the code in `file`, or raise RuntimeError if it is is not valid Python.
 
-    If verbose=True (default is False), info about every replaced import is
-    printed.
-
-    If quiet=True (default is False), no warning messages are printed.
+    See the docstring of replace_imports() for the meaning of the keyword
+    arguments to this function.
     """
     if not os.path.isfile(file):
         raise RuntimeError(f"{file} is not a file.")
@@ -81,7 +79,8 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
     imported.
 
     max_line_length (default: 100) is the maximum number of characters for a
-    line. Added imports that are longer than this are wrapped.
+    line. Added imports that are longer than this are wrapped. Set to
+    float('inf') to disable wrapping.
 
     If a filename is provided it is only used for the verbose messages.
 
