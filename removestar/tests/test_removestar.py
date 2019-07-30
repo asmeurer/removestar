@@ -8,7 +8,7 @@ from pytest import raises
 import pytest
 
 from ..removestar import (names_to_replace, star_imports, get_names,
-                         get_names_from_dir, fix_code, get_mod_filename)
+                          get_names_from_dir, fix_code, get_mod_filename, replace_imports)
 
 
 code_mod1 = """
@@ -472,3 +472,22 @@ def test_get_mod_filename(tmpdir, relative):
         _test('module.submod.submod.mod1', subsubmod, subsubmod/'mod1.py')
     finally:
         os.chdir(curdir)
+
+def test_replace_imports():
+    # The verbose and quiet flags are already tested in test_fix_code
+    for code in [code_mod1, code_mod2, code_mod3, code_submod3, code_submod_init]:
+        assert replace_imports(code, repls={}, verbose=False, quiet=True) == code
+
+    assert replace_imports(code_mod4, repls={'.mod1': ['a'], '.mod2': ['b', 'c']}, verbose=False, quiet=True) == code_mod4_fixed
+
+    assert replace_imports(code_mod5, repls={'module.mod1': ['a'],
+    'module.mod2': ['b', 'c']}, verbose=False, quiet=True) == code_mod5_fixed
+
+    assert replace_imports(code_submod1, repls={'..mod1': ['a'], '..mod2':
+    ['b', 'c'], '.submod3': ['e']}, verbose=False, quiet=True) == code_submod1_fixed
+
+    assert replace_imports(code_submod2, repls={'module.mod1': ['a'],
+    'module.mod2': ['b', 'c'], 'module.submod.submod3': ['e']}, verbose=False, quiet=True) == code_submod2_fixed
+
+    assert replace_imports(code_submod4, repls={'.': ['func']},
+    verbose=False, quiet=True) == code_submod4_fixed
