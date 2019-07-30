@@ -77,7 +77,15 @@ def replace_imports(code, repls, filename=None, *, verbose=False, quiet=False):
     """
     Replace the star imports in code
 
-    repls should be a dictionary mapping module names to a list of names to be imported
+    repls should be a dictionary mapping module names to a list of names to be
+    imported.
+
+    If a filename is provided it is only used for the verbose messages.
+
+    If verbose=True (default: True), a message is printed for each import that is replaced.
+
+    If quiet=True (default: False), a warning is printed if no replacements
+    are made. The quiet flag does not affect the messages from verbose=True.
     """
     for mod in repls:
         names = sorted(repls[mod])
