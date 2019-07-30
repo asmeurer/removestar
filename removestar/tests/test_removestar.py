@@ -2,6 +2,7 @@ from pyflakes.checker import Checker
 
 import ast
 import os
+from pathlib import Path
 
 from pytest import raises
 import pytest
@@ -325,6 +326,7 @@ def touch(f):
 def test_get_mod_filename(tmpdir, relative):
     if relative:
         chdir = tmpdir
+        tmpdir = Path('.')
     else:
         chdir = '.'
     curdir = os.path.abspath('.')
