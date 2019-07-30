@@ -111,23 +111,23 @@ code_bad_syntax = """
 from mod
 """
 
-def create_module(directory):
-    os.makedirs(directory)
-    with open(directory/'mod1.py', 'w') as f:
+def create_module(module):
+    os.makedirs(module)
+    with open(module/'mod1.py', 'w') as f:
         f.write(code_mod1)
-    with open(directory/'mod2.py', 'w') as f:
+    with open(module/'mod2.py', 'w') as f:
         f.write(code_mod2)
-    with open(directory/'mod3.py', 'w') as f:
+    with open(module/'mod3.py', 'w') as f:
         f.write(code_mod3)
-    with open(directory/'mod4.py', 'w') as f:
+    with open(module/'mod4.py', 'w') as f:
         f.write(code_mod4)
-    with open(directory/'mod5.py', 'w') as f:
+    with open(module/'mod5.py', 'w') as f:
         f.write(code_mod5)
-    with open(directory/'__init__.py', 'w') as f:
+    with open(module/'__init__.py', 'w') as f:
         pass
-    with open(directory/'mod_bad.py', 'w') as f:
+    with open(module/'mod_bad.py', 'w') as f:
         f.write(code_bad_syntax)
-    submod = directory/'submod'
+    submod = module/'submod'
     os.makedirs(submod)
     with open(submod/'__init__.py', 'w') as f:
         pass
