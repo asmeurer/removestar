@@ -11,7 +11,6 @@ install:
   - pip install pyflakes pytest
 
 script:
-  - set -e
   - set -x
   - pyflakes .
   - python -We::SyntaxWarning -m compileall -f -q mypython/
