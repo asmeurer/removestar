@@ -69,11 +69,11 @@ def fix_code(file, *, verbose=False, quiet=False):
 
         repls[mods[-1]].append(name)
 
-    code = replace_imports(code, repls, filename, verbose=verbose, quiet=quiet)
+    code = replace_imports(code, repls, filename=filename, verbose=verbose, quiet=quiet)
 
     return code
 
-def replace_imports(code, repls, filename=None, *, verbose=False, quiet=False):
+def replace_imports(code, repls, *, filename=None, verbose=False, quiet=False):
     """
     Replace the star imports in code
 
