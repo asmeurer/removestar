@@ -73,12 +73,15 @@ def fix_code(file, *, verbose=False, quiet=False):
 
     return code
 
-def replace_imports(code, repls, *, filename=None, verbose=False, quiet=False):
+def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=False, quiet=False):
     """
     Replace the star imports in code
 
     repls should be a dictionary mapping module names to a list of names to be
     imported.
+
+    max_line_length (default: 100) is the maximum number of characters for a
+    line. Added imports that are longer than this are wrapped.
 
     If a filename is provided it is only used for the verbose messages.
 
@@ -97,6 +100,13 @@ def replace_imports(code, repls, *, filename=None, verbose=False, quiet=False):
     >>> print(replace_imports(code, repls, verbose=False))
     from mod import a, b
     print(a + b)
+    >>> code = '''
+    ... from .module.submodule import *
+    ... '''
+    >>> repls = {'.module.submodule': ['name1', 'name2', 'name3']}
+    >>> print(replace_imports(code, repls, max_line_length=40, verbose=False))
+    from .module.submodule import (name1, name2,
+                                  name3)
 
     """
     for mod in repls:
@@ -107,13 +117,13 @@ def replace_imports(code, repls, *, filename=None, verbose=False, quiet=False):
             new_import = ""
         else:
             new_import = f"from {mod} import " + ', '.join(names)
-            if len(new_import) - len(names[-1]) > 100: #TODO: make this configurable
+            if len(new_import) - len(names[-1]) > max_line_length:
                 lines = []
                 line = f"from {mod} import ("
                 indent = ' '*len(line)
                 for name in names:
                     line += name + ', '
-                    if len(line) > 100:
+                    if len(line) > max_line_length:
                         lines.append(line.rstrip())
                         line = indent
                 lines.append(line[:-2] + ')') # Remove last trailing comma
