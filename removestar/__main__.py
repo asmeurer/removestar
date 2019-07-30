@@ -33,8 +33,9 @@ from .helper import get_diff_text
 def main():
     parser = argparse.ArgumentParser(description=__doc__, prog='removestar', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('paths', nargs='+', help="Files or directories to fix")
-    parser.add_argument('-i', '--in-place', action='store_true', help="Edit the files in-place")
-    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
+    parser.add_argument('-i', '--in-place', action='store_true', help="Edit the files in-place.")
+    parser.add_argument('--version', action='version', version='%(prog)s ' +
+    __version__, help="Show removestar version number and exit.")
     parser.add_argument('--no-skip-init', action='store_false',
                         dest='skip_init', help="Don't skip __init__.py files (they are skipped by default)")
     parser.add_argument('-v', '--verbose', action='store_true', help="""Print information about every imported name that is replaced.""")
