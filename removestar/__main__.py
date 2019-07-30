@@ -31,7 +31,7 @@ from .removestar import fix_code
 from .helper import get_diff_text
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__, prog='removestar')
+    parser = argparse.ArgumentParser(description=__doc__, prog='removestar', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('paths', nargs='+', help="Files or directories to fix")
     parser.add_argument('-i', '--in-place', action='store_true', help="Edit the files in-place")
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
