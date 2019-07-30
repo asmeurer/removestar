@@ -80,7 +80,9 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
 
     max_line_length (default: 100) is the maximum number of characters for a
     line. Added imports that are longer than this are wrapped. Set to
-    float('inf') to disable wrapping.
+    float('inf') to disable wrapping. Note that only the names being imported
+    are line wrapped. If the "from module import" part of the import is longer
+    than the max_line_length, it is not line wrapped.
 
     If a filename is provided it is only used for the verbose messages.
 
