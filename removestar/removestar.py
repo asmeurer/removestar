@@ -138,7 +138,7 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
             msg = f"Replacing 'from {mod} import *' with '{new_import}'"
             if filename:
                 msg = f"{filename}: {msg}"
-            print(msg)
+            print(msg, file=sys.stderr)
         code = new_code
 
     return code
