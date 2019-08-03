@@ -131,10 +131,10 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
                 line = f"from {mod} import ("
                 indent = ' '*len(line)
                 for name in names:
-                    line += name + ', '
-                    if len(line) > max_line_length:
+                    if len(line + name + ',') > max_line_length and line[-1] != '(':
                         lines.append(line.rstrip())
                         line = indent
+                    line += name + ', '
                 lines.append(line[:-2] + ')') # Remove last trailing comma
                 new_import = '\n'.join(lines)
 
