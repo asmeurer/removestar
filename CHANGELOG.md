@@ -3,6 +3,14 @@
 - Add --verbose and --quiet flags. --verbose prints about every name that an
   import is added for. --quiet hides all warning output.
 - Move all TODOs to the GitHub issue tracker.
+- Add support for absolute imports. Absolute imports from the same module are
+  scanned statically, the same as relative imports. Absolute imports from
+  external modules are imported dynamically to get the list of names. This can
+  be disabled with the flag --no-dynamic-importing.
+- Fix logic for wrapping long imports
+- Add --max-line-length to control the line length at which imports are
+  wrapped. The default is 100. It can be disabled with `remoevstar
+  --max-line-length 0`.
 
 # 1.0.1 (2019-07-18)
 
