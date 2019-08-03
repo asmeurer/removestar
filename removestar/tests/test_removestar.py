@@ -526,3 +526,74 @@ def test_replace_imports():
 
     assert replace_imports(code_submod4, repls={'.': ['func']},
     verbose=False, quiet=True) == code_submod4_fixed
+
+def test_replace_imports_line_wrapping():
+    code = """\
+from reallyreallylongmodulename import *
+
+print(longname1, longname2, longname3, longname4, longname5, longname6,
+    longname7, longname8, longname9)
+"""
+    code_fixed = """\
+{imp}
+
+print(longname1, longname2, longname3, longname4, longname5, longname6,
+    longname7, longname8, longname9)
+"""
+    repls = {'reallyreallylongmodulename': ['longname1', 'longname2', 'longname3', 'longname4', 'longname5', 'longname6', 'longname7', 'longname8', 'longname9']}
+
+    assert replace_imports(code, repls) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5,
+                                        longname6, longname7, longname8, longname9)''')
+
+    # Make sure the first line has at least one imported name.
+    # There's no point to doing
+    #
+    # from mod import (
+    #                  name,
+    #
+    # if we are aligning the names to the opening parenthesis anyway.
+    assert replace_imports(code, repls, max_line_length=49) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import (longname1,
+                                        longname2,
+                                        longname3,
+                                        longname4,
+                                        longname5,
+                                        longname6,
+                                        longname7,
+                                        longname8,
+                                        longname9)''')
+
+
+    assert replace_imports(code, repls, max_line_length=50) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import (longname1,
+                                        longname2,
+                                        longname3,
+                                        longname4,
+                                        longname5,
+                                        longname6,
+                                        longname7,
+                                        longname8,
+                                        longname9)''')
+
+
+
+    assert replace_imports(code, repls, max_line_length=51) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import (longname1,
+                                        longname2,
+                                        longname3,
+                                        longname4,
+                                        longname5,
+                                        longname6,
+                                        longname7,
+                                        longname8,
+                                        longname9)''')
+
+
+
+    assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
+
+    assert replace_imports(code, repls, max_line_length=120) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7,
+                                        longname8, longname9)''')
