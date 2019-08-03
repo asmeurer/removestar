@@ -38,6 +38,7 @@ def main():
     __version__, help="Show removestar version number and exit.")
     parser.add_argument('--no-skip-init', action='store_false',
                         dest='skip_init', help="Don't skip __init__.py files (they are skipped by default)")
+    parser.add_argument('--no-dynamic-importing', action='store_false', dest='allow_dynamic', help="""Don't dynamically import modules to determine the list of names. This is required for star imports from external modules and modules in the standard library."""
     parser.add_argument('-v', '--verbose', action='store_true', help="""Print information about every imported name that is replaced.""")
     parser.add_argument('-q', '--quiet', action='store_true', help="""Don't print any warning messages.""")
     parser.add_argument('--max-line-length', type=int, default=100,
@@ -59,7 +60,7 @@ def main():
                 continue
             try:
                 new_code = fix_code(file, max_line_length=args.max_line_length,
-                                    verbose=args.verbose, quiet=args.quiet)
+                                    verbose=args.verbose, quiet=args.quiet, allow_dynamic=args.allow_dynamic)
             except (RuntimeError, NotImplementedError) as e:
                 sys.exit(f"Error with {file}: {e}")
 
