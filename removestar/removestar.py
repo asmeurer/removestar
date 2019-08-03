@@ -75,7 +75,8 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dyn
 
         repls[mods[-1]].append(name)
 
-    code = replace_imports(code, repls, filename=filename, verbose=verbose, quiet=quiet)
+    code = replace_imports(code, repls, filename=filename, verbose=verbose,
+    quiet=quiet, max_line_length=max_line_length)
 
     return code
 
