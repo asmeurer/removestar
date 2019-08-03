@@ -591,9 +591,13 @@ from reallyreallylongmodulename import (longname1,
 
 
 
-    assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(imp='''\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
-
     assert replace_imports(code, repls, max_line_length=120) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7,
                                         longname8, longname9)''')
+
+
+    assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
+
+    assert replace_imports(code, repls, max_line_length=float('inf')) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
