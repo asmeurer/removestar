@@ -26,12 +26,14 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(file, *, max_line_length=100, verbose=False, quiet=False):
+def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True):
     """
     Return a fixed version of the code in `file`, or raise RuntimeError if it is is not valid Python.
 
     See the docstring of replace_imports() for the meaning of the keyword
     arguments to this function.
+
+    If allow_dynamic=True, then external modules will be dynamically imported.
     """
     if not os.path.isfile(file):
         raise RuntimeError(f"{file} is not a file.")
@@ -53,7 +55,13 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False):
     mod_names = {}
     repls = {i: [] for i in stars}
     for mod in stars:
-        mod_names[mod] = get_names_from_dir(mod, directory)
+        try:
+            mod_names[mod] = get_names_from_dir(mod, directory)
+        except ExternalModule:
+            if allow_dynamic:
+                mod_names[mod] = get_names_dynamically(mod)
+            else:
+                raise NotImplementedError("Static determination of external module imports is not supported.")
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
@@ -143,6 +151,9 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
 
     return code
 
+class ExternalModule(Exception):
+    pass
+
 def get_mod_filename(mod, directory):
     """
     Get the filename for `mod` relative to a file in `directory`.
@@ -177,10 +188,15 @@ def get_mod_filename(mod, directory):
                     filename = os.path.join(loc, '__init__.py')
                     break
             if head in [Path('.'), Path('/')]:
-                raise NotImplementedError("Imports from external modules are not yet supported.")
+                raise ExternalModule
             head, tail = head.parent, head.name
 
     return filename
+
+def get_names_dynamically(mod):
+    d = {}
+    exec(f'from {mod} import *', d)
+    return d.keys()
 
 def get_names_from_dir(mod, directory):
     filename = get_mod_filename(mod, directory)

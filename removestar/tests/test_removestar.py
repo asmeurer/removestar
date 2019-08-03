@@ -8,7 +8,8 @@ from pytest import raises
 import pytest
 
 from ..removestar import (names_to_replace, star_imports, get_names,
-                          get_names_from_dir, fix_code, get_mod_filename, replace_imports)
+                          get_names_from_dir, fix_code, get_mod_filename,
+                          replace_imports, ExternalModule)
 
 
 code_mod1 = """
@@ -61,6 +62,16 @@ from module.mod3 import name
 
 def func():
     return a + b + c + d + name
+"""
+
+code_mod6 = """
+from os.path import *
+isfile(join('a', 'b'))
+"""
+
+code_mod6_fixed = """
+from os.path import isfile, join
+isfile(join('a', 'b'))
 """
 
 code_submod1 = """
@@ -139,6 +150,8 @@ def create_module(module):
         f.write(code_mod4)
     with open(module/'mod5.py', 'w') as f:
         f.write(code_mod5)
+    with open(module/'mod6.py', 'w') as f:
+        f.write(code_mod6)
     with open(module/'__init__.py', 'w') as f:
         pass
     with open(module/'mod_bad.py', 'w') as f:
@@ -172,6 +185,9 @@ def test_names_to_replace():
     names = names_to_replace(Checker(ast.parse(code_submod4)))
     assert names == ['func']
 
+    names = names_to_replace(Checker(ast.parse(code_mod6)))
+    assert names == ['isfile', 'join']
+
 def test_star_imports():
     for code in [code_mod1, code_mod2, code_mod3, code_submod3, code_submod_init]:
         stars = star_imports(Checker(ast.parse(code)))
@@ -182,6 +198,9 @@ def test_star_imports():
 
     stars = star_imports(Checker(ast.parse(code_mod5)))
     assert stars == ['module.mod1', 'module.mod2']
+
+    stars = star_imports(Checker(ast.parse(code_mod6)))
+    assert stars == ['os.path']
 
     stars = star_imports(Checker(ast.parse(code_submod1)))
     assert stars == ['..mod1', '..mod2', '.submod3']
@@ -209,6 +228,9 @@ def test_get_names():
     names = get_names(code_mod5)
     # TODO: Remove the imported name 'name'
     assert names == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
+
+    names = get_names(code_mod6)
+    assert names == {'os.path.*'}
 
     names = get_names(code_submod_init)
     assert names == {'func'}
@@ -277,6 +299,7 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('..mod3', submod) == {'name'}
         assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
         assert get_names_from_dir('..mod5', submod) == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
+        assert get_names_from_dir('..mod6', submod) == {'os.path.*'}
 
         assert get_names_from_dir('module.mod1', directory) == {'a', 'aa', 'b'}
         assert get_names_from_dir('module.mod2', directory) == {'b', 'c', 'cc'}
@@ -289,6 +312,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
         assert get_names_from_dir('module.submod.submod4', directory) == {'..*'}
 
+        raises(ExternalModule, lambda: get_names_from_dir('os.path', directory))
+        raises(ExternalModule, lambda: get_names_from_dir('os.path', submod))
         raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
         raises(RuntimeError, lambda: get_names_from_dir('module.mod_bad', directory))
     finally:
@@ -339,6 +364,13 @@ def test_fix_code(tmpdir, capsys):
     assert "'module.mod2'" in err
     assert "Using 'module.mod2'" in err
     assert "could not find import for 'd'" in err
+
+    assert fix_code(directory/'mod6.py') == code_mod6_fixed
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
+
+    assert raises(NotImplementedError, lambda: fix_code(directory/'mod6.py', allow_dynamic=False))
 
     submod = directory/'submod'
     raises(RuntimeError, lambda: fix_code(submod))
@@ -483,6 +515,8 @@ def test_replace_imports():
 
     assert replace_imports(code_mod5, repls={'module.mod1': ['a'],
     'module.mod2': ['b', 'c']}, verbose=False, quiet=True) == code_mod5_fixed
+    assert replace_imports(code_mod6, repls={'os.path': ['isfile', 'join']},
+    verbose=False, quiet=False) == code_mod6_fixed
 
     assert replace_imports(code_submod1, repls={'..mod1': ['a'], '..mod2':
     ['b', 'c'], '.submod3': ['e']}, verbose=False, quiet=True) == code_submod1_fixed
