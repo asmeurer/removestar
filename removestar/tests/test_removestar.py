@@ -766,6 +766,7 @@ mod6.py: Replacing 'from os.path import *' with 'from os.path import isfile, joi
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
+    # XXX: This modifies directory, so keep it at the end of the test
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '-i', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
     assert p.stderr == error + '\n'
