@@ -650,8 +650,7 @@ Warning: {directory}/mod5.py: could not find import for 'd'
 f"""\
 --- original/{directory}/submod/submod1.py
 +++ fixed/{directory}/submod/submod1.py
-@@ -1,8 +1,8 @@
- \n\
+@@ -1,7 +1,7 @@
 -from ..mod1 import *
 -from ..mod2 import *
 +from ..mod1 import a
@@ -667,8 +666,7 @@ f"""\
 f"""\
 --- original/{directory}/submod/submod4.py
 +++ fixed/{directory}/submod/submod4.py
-@@ -1,4 +1,4 @@
- \n\
+@@ -1,3 +1,3 @@
 -from . import *
 +from . import func
  \n\
@@ -678,8 +676,7 @@ f"""\
 f"""\
 --- original/{directory}/submod/submod2.py
 +++ fixed/{directory}/submod/submod2.py
-@@ -1,8 +1,8 @@
- \n\
+@@ -1,7 +1,7 @@
 -from module.mod1 import *
 -from module.mod2 import *
 +from module.mod1 import a
@@ -695,8 +692,7 @@ f"""\
 f"""\
 --- original/{directory}/mod4.py
 +++ fixed/{directory}/mod4.py
-@@ -1,6 +1,6 @@
- \n\
+@@ -1,5 +1,5 @@
 -from .mod1 import *
 -from .mod2 import *
 +from .mod1 import a
@@ -709,8 +705,7 @@ f"""\
 f"""\
 --- original/{directory}/mod5.py
 +++ fixed/{directory}/mod5.py
-@@ -1,6 +1,6 @@
- \n\
+@@ -1,5 +1,5 @@
 -from module.mod1 import *
 -from module.mod2 import *
 +from module.mod1 import a
