@@ -4,7 +4,7 @@
 
 Tool to automatically replace `import *` imports with explicit imports
 
-Requires pyflakes. Somewhat inspired by autoflake.
+Requires pyflakes.
 
 Limitations:
 
