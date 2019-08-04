@@ -728,6 +728,44 @@ f"""\
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '--verbose', directory],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding='utf-8')
+    changes = set("""\
+submod1.py: Replacing 'from ..mod1 import *' with 'from ..mod1 import a'
+submod1.py: Replacing 'from ..mod2 import *' with 'from ..mod2 import b, c'
+submod1.py: Replacing 'from .submod3 import *' with 'from .submod3 import e'
+submod4.py: Replacing 'from . import *' with 'from . import func'
+submod2.py: Replacing 'from module.mod1 import *' with 'from module.mod1 import a'
+submod2.py: Replacing 'from module.mod2 import *' with 'from module.mod2 import b, c'
+submod2.py: Replacing 'from module.submod.submod3 import *' with 'from module.submod.submod3 import e'
+mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'
+mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'
+mod5.py: Replacing 'from module.mod1 import *' with 'from module.mod1 import a'
+mod5.py: Replacing 'from module.mod2 import *' with 'from module.mod2 import b, c'
+mod6.py: Replacing 'from os.path import *' with 'from os.path import isfile, join'
+""".splitlines())
+
+    assert set(p.stderr.splitlines()) == changes.union({error})
+    for d in diffs:
+        assert d in p.stdout, p.stdout
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
+
+
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '--no-dynamic-importing', directory],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding='utf-8')
+    static_error = f"Error with {directory}/mod6.py: Static determination of external module imports is not supported."
+    assert set(p.stderr.splitlines()) == {error, static_error}
+    for d in diffs:
+        if 'mod6' in d:
+            assert d not in p.stdout
+        else:
+            assert d in p.stdout, p.stdout
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
+
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '-i', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
     assert p.stderr == error + '\n'
