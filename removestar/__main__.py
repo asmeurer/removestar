@@ -43,8 +43,14 @@ def main():
     parser.add_argument('-q', '--quiet', action='store_true', help="""Don't print any warning messages.""")
     parser.add_argument('--max-line-length', type=int, default=100,
     help="""The maximum line length for replaced imports before they are wrapped. Set to 0 to disable line wrapping.""")
+    # For testing
+    parser.add_argument('--_this-file', action='store_true', help=argparse.SUPPRESS)
 
     args = parser.parse_args()
+
+    if args._this_file:
+        print(__file__, end='')
+        return
 
     if args.max_line_length == 0:
         args.max_line_length = float('inf')
