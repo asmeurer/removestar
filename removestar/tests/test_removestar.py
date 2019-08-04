@@ -786,8 +786,3 @@ mod6.py: Replacing 'from os.path import *' with 'from os.path import isfile, joi
         assert f.read() == code_submod2_fixed
     with open(directory/'submod'/'submod4.py') as f:
         assert f.read() == code_submod4_fixed
-
-    directory = tmpdir/'test2'/'module'
-    create_module(directory)
-    cmp = dircmp(directory, directory_orig)
-    assert _dirs_equal(cmp)
