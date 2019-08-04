@@ -43,7 +43,7 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dyn
         code = f.read()
 
     try:
-        tree = ast.parse(code)
+        tree = ast.parse(code, filename=file)
     except SyntaxError as e:
         raise RuntimeError(f"SyntaxError: {e}")
 
@@ -206,13 +206,13 @@ def get_names_from_dir(mod, directory):
         code = f.read()
 
     try:
-        return get_names(code)
+        return get_names(code, filename)
     except SyntaxError as e:
         raise RuntimeError(f"Could not parse {filename}: {e}")
     except RuntimeError:
         raise RuntimeError(f"Could not parse the names from {filename}")
 
-def get_names(code):
+def get_names(code, filename='<unknown>'):
     # TODO: Make the doctests work
     """
     Get a set of defined top-level names from code
@@ -238,7 +238,7 @@ def get_names(code):
     Returns a set of names, or raises SyntaxError if the code is not valid
     syntax.
     """
-    tree = ast.parse(code)
+    tree = ast.parse(code, filename=filename)
 
     checker = Checker(tree)
     for scope in checker.deadScopes:

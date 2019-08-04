@@ -643,7 +643,7 @@ Warning: {directory}/mod5.py: 'b' comes from multiple modules: 'module.mod1', 'm
 Warning: {directory}/mod5.py: could not find import for 'd'
 """.splitlines())
 
-    error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (<unknown>, line 1)"
+    error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (mod_bad.py, line 1)"
     assert set(p.stderr.splitlines()) == warnings.union({error})
 
     diffs = [
