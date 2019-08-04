@@ -11,6 +11,9 @@
 - Add `--max-line-length` to control the line length at which imports are
   wrapped. The default is 100. It can be disabled with `remoevstar
   --max-line-length 0`.
+- Fix the filename in some error messages.
+- No longer stop traversing a directory when encountering a file with invalid
+  syntax.
 
 # 1.0.1 (2019-07-18)
 
