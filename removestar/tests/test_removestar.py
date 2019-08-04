@@ -727,3 +727,29 @@ f"""\
         assert d in p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
+
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '-i', directory],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+    assert p.stderr == error + '\n'
+    assert p.stdout == ''
+    cmp = dircmp(directory, directory_orig)
+    assert not _dirs_equal(cmp)
+    assert cmp.diff_files == ['mod4.py', 'mod5.py', 'mod6.py']
+    assert cmp.subdirs['submod'].diff_files == ['submod1.py', 'submod2.py', 'submod4.py']
+    with open(directory/'mod4.py') as f:
+        assert f.read() == code_mod4_fixed
+    with open(directory/'mod5.py') as f:
+        assert f.read() == code_mod5_fixed
+    with open(directory/'mod6.py') as f:
+        assert f.read() == code_mod6_fixed
+    with open(directory/'submod'/'submod1.py') as f:
+        assert f.read() == code_submod1_fixed
+    with open(directory/'submod'/'submod2.py') as f:
+        assert f.read() == code_submod2_fixed
+    with open(directory/'submod'/'submod4.py') as f:
+        assert f.read() == code_submod4_fixed
+
+    directory = tmpdir/'test2'/'module'
+    create_module(directory)
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
