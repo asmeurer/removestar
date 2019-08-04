@@ -15,23 +15,23 @@ from ..removestar import (names_to_replace, star_imports, get_names,
                           replace_imports, ExternalModule)
 
 
-code_mod1 = """
+code_mod1 = """\
 a = 1
 aa = 2
 b = 3
 """
 
-code_mod2 = """
+code_mod2 = """\
 b = 1
 c = 2
 cc = 3
 """
 
-code_mod3 = """
+code_mod3 = """\
 name = 0
 """
 
-code_mod4 = """
+code_mod4 = """\
 from .mod1 import *
 from .mod2 import *
 from .mod3 import name
@@ -40,7 +40,7 @@ def func():
     return a + b + c + d + name
 """
 
-code_mod4_fixed = """
+code_mod4_fixed = """\
 from .mod1 import a
 from .mod2 import b, c
 from .mod3 import name
@@ -49,7 +49,7 @@ def func():
     return a + b + c + d + name
 """
 
-code_mod5 = """
+code_mod5 = """\
 from module.mod1 import *
 from module.mod2 import *
 from module.mod3 import name
@@ -58,7 +58,7 @@ def func():
     return a + b + c + d + name
 """
 
-code_mod5_fixed = """
+code_mod5_fixed = """\
 from module.mod1 import a
 from module.mod2 import b, c
 from module.mod3 import name
@@ -67,17 +67,17 @@ def func():
     return a + b + c + d + name
 """
 
-code_mod6 = """
+code_mod6 = """\
 from os.path import *
 isfile(join('a', 'b'))
 """
 
-code_mod6_fixed = """
+code_mod6_fixed = """\
 from os.path import isfile, join
 isfile(join('a', 'b'))
 """
 
-code_submod1 = """
+code_submod1 = """\
 from ..mod1 import *
 from ..mod2 import *
 from ..mod3 import name
@@ -87,7 +87,7 @@ def func():
     return a + b + c + d + e + name
 """
 
-code_submod1_fixed = """
+code_submod1_fixed = """\
 from ..mod1 import a
 from ..mod2 import b, c
 from ..mod3 import name
@@ -97,7 +97,7 @@ def func():
     return a + b + c + d + e + name
 """
 
-code_submod2 = """
+code_submod2 = """\
 from module.mod1 import *
 from module.mod2 import *
 from module.mod3 import name
@@ -107,7 +107,7 @@ def func():
     return a + b + c + d + e + name
 """
 
-code_submod2_fixed = """
+code_submod2_fixed = """\
 from module.mod1 import a
 from module.mod2 import b, c
 from module.mod3 import name
@@ -117,27 +117,27 @@ def func():
     return a + b + c + d + e + name
 """
 
-code_submod3 = """
+code_submod3 = """\
 e = 1
 """
 
-code_submod4 = """
+code_submod4 = """\
 from . import *
 
 func()
 """
 
-code_submod4_fixed = """
+code_submod4_fixed = """\
 from . import func
 
 func()
 """
 
-code_submod_init = """
+code_submod_init = """\
 from .submod1 import func
 """
 
-code_bad_syntax = """
+code_bad_syntax = """\
 from mod
 """
 
@@ -643,7 +643,7 @@ Warning: {directory}/mod5.py: 'b' comes from multiple modules: 'module.mod1', 'm
 Warning: {directory}/mod5.py: could not find import for 'd'
 """.splitlines())
 
-    error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (<unknown>, line 2)"
+    error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (<unknown>, line 1)"
     assert set(p.stderr.splitlines()) == warnings.union({error})
 
     diffs = [
