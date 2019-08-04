@@ -1,8 +1,11 @@
 from pyflakes.checker import Checker
 
+import sys
 import ast
 import os
 from pathlib import Path
+from filecmp import dircmp
+import subprocess
 
 from pytest import raises
 import pytest
@@ -601,3 +604,131 @@ from reallyreallylongmodulename import longname1, longname2, longname3, longname
 
     assert replace_imports(code, repls, max_line_length=float('inf')) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
+
+def _dirs_equal(cmp):
+    if cmp.diff_files:
+        return False
+    if not cmp.subdirs:
+        return True
+    return all(_dirs_equal(c) for c in cmp.subdirs.values())
+
+def test_cli(tmpdir):
+    from ..__main__ import __file__
+
+    # TODO: Test the verbose and quiet flags
+    directory_orig = tmpdir/'orig'/'module'
+    directory = tmpdir/'module'
+    create_module(directory)
+    create_module(directory_orig)
+
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
+
+    # Make sure we are running the command for the right file
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--_this-file', 'none'],
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+    assert p.stderr == ''
+    assert p.stdout == __file__
+
+    p = subprocess.run([sys.executable, '-m', 'removestar', directory],
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+    warnings = set(f"""\
+Warning: {directory}/submod/submod1.py: 'b' comes from multiple modules: '..mod1', '..mod2'. Using '..mod2'.
+Warning: {directory}/submod/submod1.py: could not find import for 'd'
+Warning: {directory}/submod/submod2.py: 'b' comes from multiple modules: 'module.mod1', 'module.mod2'. Using 'module.mod2'.
+Warning: {directory}/submod/submod2.py: could not find import for 'd'
+Warning: {directory}/mod4.py: 'b' comes from multiple modules: '.mod1', '.mod2'. Using '.mod2'.
+Warning: {directory}/mod4.py: could not find import for 'd'
+Warning: {directory}/mod5.py: 'b' comes from multiple modules: 'module.mod1', 'module.mod2'. Using 'module.mod2'.
+Warning: {directory}/mod5.py: could not find import for 'd'
+""".splitlines())
+
+    error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (<unknown>, line 2)"
+    assert set(p.stderr.splitlines()) == warnings.union({error})
+
+    diffs = [
+f"""\
+--- original/{directory}/submod/submod1.py
++++ fixed/{directory}/submod/submod1.py
+@@ -1,8 +1,8 @@
+ \n\
+-from ..mod1 import *
+-from ..mod2 import *
++from ..mod1 import a
++from ..mod2 import b, c
+ from ..mod3 import name
+-from .submod3 import *
++from .submod3 import e
+ \n\
+ def func():
+     return a + b + c + d + e + name\
+""",
+
+f"""\
+--- original/{directory}/submod/submod4.py
++++ fixed/{directory}/submod/submod4.py
+@@ -1,4 +1,4 @@
+ \n\
+-from . import *
++from . import func
+ \n\
+ func()\
+""",
+
+f"""\
+--- original/{directory}/submod/submod2.py
++++ fixed/{directory}/submod/submod2.py
+@@ -1,8 +1,8 @@
+ \n\
+-from module.mod1 import *
+-from module.mod2 import *
++from module.mod1 import a
++from module.mod2 import b, c
+ from module.mod3 import name
+-from module.submod.submod3 import *
++from module.submod.submod3 import e
+ \n\
+ def func():
+     return a + b + c + d + e + name\
+""",
+
+f"""\
+--- original/{directory}/mod4.py
++++ fixed/{directory}/mod4.py
+@@ -1,6 +1,6 @@
+ \n\
+-from .mod1 import *
+-from .mod2 import *
++from .mod1 import a
++from .mod2 import b, c
+ from .mod3 import name
+ \n\
+ def func():\
+""",
+
+f"""\
+--- original/{directory}/mod5.py
++++ fixed/{directory}/mod5.py
+@@ -1,6 +1,6 @@
+ \n\
+-from module.mod1 import *
+-from module.mod2 import *
++from module.mod1 import a
++from module.mod2 import b, c
+ from module.mod3 import name
+ \n\
+ def func():\
+""",
+    ]
+    for d in diffs:
+        assert d in p.stdout, p.stdout
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
+
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', directory],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+    assert p.stderr == error + '\n'
+    for d in diffs:
+        assert d in p.stdout
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
