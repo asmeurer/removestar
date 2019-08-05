@@ -65,7 +65,8 @@ def main():
                 new_code = fix_code(file, max_line_length=args.max_line_length,
                                     verbose=args.verbose, quiet=args.quiet, allow_dynamic=args.allow_dynamic)
             except (RuntimeError, NotImplementedError) as e:
-                print(f"Error with {file}: {e}", file=sys.stderr)
+                if not args.quiet:
+                    print(f"Error with {file}: {e}", file=sys.stderr)
                 continue
 
             if args.in_place:

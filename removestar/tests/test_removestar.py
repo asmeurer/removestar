@@ -722,13 +722,13 @@ f"""\
 
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
-    assert p.stderr == error + '\n'
+    assert p.stderr == ''
     for d in diffs:
         assert d in p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
-    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '--verbose', directory],
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--verbose', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        encoding='utf-8')
     changes = set("""\
@@ -746,18 +746,31 @@ mod5.py: Replacing 'from module.mod2 import *' with 'from module.mod2 import b, 
 mod6.py: Replacing 'from os.path import *' with 'from os.path import isfile, join'
 """.splitlines())
 
-    assert set(p.stderr.splitlines()) == changes.union({error})
+    assert set(p.stderr.splitlines()) == changes.union({error}).union(warnings)
     for d in diffs:
         assert d in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
 
-    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '--no-dynamic-importing', directory],
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--no-dynamic-importing', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        encoding='utf-8')
     static_error = f"Error with {directory}/mod6.py: Static determination of external module imports is not supported."
-    assert set(p.stderr.splitlines()) == {error, static_error}
+    assert set(p.stderr.splitlines()) == {error, static_error}.union(warnings)
+    for d in diffs:
+        if 'mod6' in d:
+            assert d not in p.stdout
+        else:
+            assert d in p.stdout, p.stdout
+    cmp = dircmp(directory, directory_orig)
+    assert _dirs_equal(cmp)
+
+    # Test --quiet hides both errors
+    p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '--no-dynamic-importing', directory],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding='utf-8')
+    assert p.stderr == ''
     for d in diffs:
         if 'mod6' in d:
             assert d not in p.stdout
@@ -769,7 +782,7 @@ mod6.py: Replacing 'from os.path import *' with 'from os.path import isfile, joi
     # XXX: This modifies directory, so keep it at the end of the test
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '-i', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
-    assert p.stderr == error + '\n'
+    assert p.stderr == ''
     assert p.stdout == ''
     cmp = dircmp(directory, directory_orig)
     assert not _dirs_equal(cmp)
