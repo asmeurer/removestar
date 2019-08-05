@@ -11,9 +11,11 @@
   --max-line-length 0`.
 - No longer stop traversing a directory when encountering a file with invalid
   syntax.
+
 ## Bug Fixes
 - Fix logic for wrapping long imports
 - Fix the filename in some error messages.
+
 ## Other
 - Add tests.
 - Move all TODOs to the GitHub issue tracker.
@@ -23,6 +25,7 @@
 - Automatically skip non-.py files
 - Automatically skip `__init__.py`
 - Add flag `--no-skip-init` to not skip `__init__.py`
+
 ## Bug Fixes
 - Fix directory recursion
 - Fix multiline import logic
