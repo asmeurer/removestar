@@ -131,3 +131,7 @@ optional arguments:
                         they are wrapped. Set to 0 to disable line wrapping.
                         (default: 100)
 ```
+
+## Changelog
+
+See the [CHANGELOG](changelog) file.
