@@ -26,5 +26,5 @@ setuptools.setup(
     install_requires=[
         'pyflakes'
     ],
-
+    license='MIT',
 )
