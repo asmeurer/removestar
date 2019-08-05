@@ -20,6 +20,18 @@ This can be disabled with the `--no-dynamic-importing` flag.
 See the [issue tracker](https://github.com/asmeurer/removestar/issues). Pull
 requests are welcome.
 
+## Installation
+
+```
+pip install removestar
+```
+
+or if you use conda
+
+```
+conda install -c conda-forge removestar
+```
+
 ## Usage
 
 ```
