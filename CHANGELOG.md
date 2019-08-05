@@ -1,4 +1,4 @@
-# 1.1 (???)
+# 1.1 (2019-08-05)
 ## New Features
 - Add `--verbose` and `--quiet` flags. `--verbose` prints about every name that an
   import is added for. `--quiet` hides all warning output.
