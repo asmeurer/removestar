@@ -35,11 +35,10 @@ $ removestar module/ # Modifies every Python file in module recursively
 Suppose you have a module `mymod` like
 
 ```
-mymod
- |
- __init__.py
- a.py
- b.py
+mymod/
+  | __init__.py
+  | a.py
+  | b.py
 ```
 
 With
