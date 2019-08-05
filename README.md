@@ -134,4 +134,4 @@ optional arguments:
 
 ## Changelog
 
-See the [CHANGELOG](changelog) file.
+See the [CHANGELOG](changelog.md) file.
