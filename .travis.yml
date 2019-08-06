@@ -13,7 +13,7 @@ install:
 script:
   - set -e
   - pyflakes .
-  - python -We::SyntaxWarning -m compileall -f -q mypython/
+  - python -We:invalid -We::SyntaxWarning -m compileall -f -q mypython/
   - pytest
   # Make sure it installs
   - python setup.py install
