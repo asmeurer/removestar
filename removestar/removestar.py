@@ -53,15 +53,10 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dyn
     names = names_to_replace(checker)
 
     mod_names = {}
-    repls = {i: [] for i in stars}
     for mod in stars:
-        try:
-            mod_names[mod] = get_names_from_dir(mod, directory)
-        except ExternalModule:
-            if allow_dynamic:
-                mod_names[mod] = get_names_dynamically(mod)
-            else:
-                raise NotImplementedError("Static determination of external module imports is not supported.")
+        mod_names[mod] = get_module_names(mod, directory, allow_dynamic=allow_dynamic)
+
+    repls = {i: [] for i in stars}
     for name in names:
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
@@ -193,6 +188,25 @@ def get_mod_filename(mod, directory):
             head, tail = head.parent, head.name
 
     return filename
+
+def get_module_names(mod, directory, allow_dynamic=True):
+    """
+    Get the names defined in the module 'mod'
+
+    'directory' should be the directory where the file with the import is.
+    This is only used for static import determination.
+
+    If allow_dynamic=True, then external module names are found by importing
+    the module directly.
+    """
+    try:
+        names = get_names_from_dir(mod, directory)
+    except ExternalModule:
+        if allow_dynamic:
+            names = get_names_dynamically(mod)
+        else:
+            raise NotImplementedError("Static determination of external module imports is not supported.")
+    return names
 
 def get_names_dynamically(mod):
     d = {}
