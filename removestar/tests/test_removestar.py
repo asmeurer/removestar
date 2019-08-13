@@ -12,7 +12,7 @@ import pytest
 
 from ..removestar import (names_to_replace, star_imports, get_names,
                           get_names_from_dir, fix_code, get_mod_filename,
-                          replace_imports, ExternalModule)
+                          replace_imports, ExternalModuleError)
 
 
 code_mod1 = """\
@@ -315,8 +315,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
         assert get_names_from_dir('module.submod.submod4', directory) == {'..*'}
 
-        raises(ExternalModule, lambda: get_names_from_dir('os.path', directory))
-        raises(ExternalModule, lambda: get_names_from_dir('os.path', submod))
+        raises(ExternalModuleError, lambda: get_names_from_dir('os.path', directory))
+        raises(ExternalModuleError, lambda: get_names_from_dir('os.path', submod))
         raises(RuntimeError, lambda: get_names_from_dir('.mod_bad', directory))
         raises(RuntimeError, lambda: get_names_from_dir('module.mod_bad', directory))
     finally:

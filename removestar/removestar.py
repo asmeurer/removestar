@@ -147,7 +147,7 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
 
     return code
 
-class ExternalModule(Exception):
+class ExternalModuleError(Exception):
     pass
 
 def get_mod_filename(mod, directory):
@@ -184,7 +184,7 @@ def get_mod_filename(mod, directory):
                     filename = os.path.join(loc, '__init__.py')
                     break
             if head in [Path('.'), Path('/')]:
-                raise ExternalModule
+                raise ExternalModuleError
             head, tail = head.parent, head.name
 
     return filename
@@ -201,7 +201,7 @@ def get_module_names(mod, directory, allow_dynamic=True):
     """
     try:
         names = get_names_from_dir(mod, directory)
-    except ExternalModule:
+    except ExternalModuleError:
         if allow_dynamic:
             names = get_names_dynamically(mod)
         else:
