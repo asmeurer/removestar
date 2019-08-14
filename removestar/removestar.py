@@ -210,7 +210,10 @@ def get_module_names(mod, directory, allow_dynamic=True):
 
 def get_names_dynamically(mod):
     d = {}
-    exec(f'from {mod} import *', d)
+    try:
+        exec(f'from {mod} import *', d)
+    except ImportError:
+        raise RuntimeError(f"Could not import {mod}")
     return d.keys()
 
 def get_names_from_dir(mod, directory):
