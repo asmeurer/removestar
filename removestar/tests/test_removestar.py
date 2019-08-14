@@ -11,8 +11,9 @@ from pytest import raises
 import pytest
 
 from ..removestar import (names_to_replace, star_imports, get_names,
-                          get_names_from_dir, fix_code, get_mod_filename,
-                          replace_imports, ExternalModuleError)
+                          get_names_from_dir, get_names_dynamically, fix_code,
+                          get_mod_filename, replace_imports,
+                          ExternalModuleError)
 
 
 code_mod1 = """\
@@ -345,6 +346,31 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(RuntimeError, lambda: get_names_from_dir('module.mod_bad', directory))
     finally:
         os.chdir(curdir)
+
+def test_get_names_dynamically(tmpdir):
+    os_path = get_names_dynamically('os.path')
+    assert 'isfile' in os_path
+    assert 'join' in os_path
+
+    directory = tmpdir/'module'
+    create_module(directory)
+    sys_path = sys.path
+
+    try:
+        sys.path.insert(0, str(tmpdir))
+        assert get_names_dynamically('module.mod1') == mod1_names
+        assert get_names_dynamically('module.mod2') == mod2_names
+        assert get_names_dynamically('module.mod3') == mod3_names
+        assert get_names_dynamically('module.mod4') == mod4_names
+        assert get_names_dynamically('module.mod5') == mod5_names
+        assert get_names_dynamically('module.submod') == submod_dynamic_names
+        assert get_names_dynamically('module.submod.submod1') == submod1_names
+        assert get_names_dynamically('module.submod.submod2') == submod2_names
+        assert get_names_dynamically('module.submod.submod3') == submod3_names
+        # Doesn't actually import because of the undefined name 'd'
+        # assert get_names_dynamically('module.submod.submod4') == submod4_names
+    finally:
+        sys.path = sys_path
 
 def test_fix_code(tmpdir, capsys):
     # TODO: Test the verbose and quiet flags
