@@ -21,15 +21,21 @@ aa = 2
 b = 3
 """
 
+mod1_names = {'a', 'aa', 'b'}
+
 code_mod2 = """\
 b = 1
 c = 2
 cc = 3
 """
 
+mod2_names = {'b', 'c', 'cc'}
+
 code_mod3 = """\
 name = 0
 """
+
+mod3_names = {'name'}
 
 code_mod4 = """\
 from .mod1 import *
@@ -39,6 +45,8 @@ from .mod3 import name
 def func():
     return a + b + c + d + name
 """
+
+mod4_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
 
 code_mod4_fixed = """\
 from .mod1 import a
@@ -57,6 +65,8 @@ from module.mod3 import name
 def func():
     return a + b + c + d + name
 """
+
+mod5_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
 
 code_mod5_fixed = """\
 from module.mod1 import a
@@ -87,6 +97,8 @@ def func():
     return a + b + c + d + e + name
 """
 
+submod1_names = {'a', 'aa', 'b', 'c', 'cc', 'e', 'name', 'func'}
+
 code_submod1_fixed = """\
 from ..mod1 import a
 from ..mod2 import b, c
@@ -107,6 +119,8 @@ def func():
     return a + b + c + d + e + name
 """
 
+submod2_names = {'a', 'aa', 'b', 'c', 'cc', 'e', 'name', 'func'}
+
 code_submod2_fixed = """\
 from module.mod1 import a
 from module.mod2 import b, c
@@ -121,11 +135,15 @@ code_submod3 = """\
 e = 1
 """
 
+submod3_names = {'e'}
+
 code_submod4 = """\
 from . import *
 
 func()
 """
+
+submod4_names = {'func'}
 
 code_submod4_fixed = """\
 from . import func
@@ -136,6 +154,13 @@ func()
 code_submod_init = """\
 from .submod1 import func
 """
+
+submod_names = {'func'}
+# An actual import adds submod1 and submod3 to the submod namespace, since
+# they are imported submodule names. The static code does not yet support
+# these. If any other imports happen first, like 'import submod.submod2',
+# those would be included as well.
+submod_dynamic_names = {'submod1', 'submod3', 'func'}
 
 code_bad_syntax = """\
 from mod
@@ -267,53 +292,52 @@ def test_get_names_from_dir(tmpdir, relative):
     curdir = os.path.abspath('.')
     try:
         os.chdir(chdir)
-        assert get_names_from_dir('.mod1', directory) == {'a', 'aa', 'b'}
-        assert get_names_from_dir('.mod2', directory) == {'b', 'c', 'cc'}
-        assert get_names_from_dir('.mod3', directory) == {'name'}
-        assert get_names_from_dir('.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-        assert get_names_from_dir('.submod', directory) == {'func'}
-        assert get_names_from_dir('.submod.submod1', directory) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('.submod.submod2', directory) == {'module.mod1.*',
-            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('.submod.submod3', directory) == {'e'}
-        assert get_names_from_dir('.submod.submod4', directory) == {'..*'}
+        assert get_names_from_dir('.mod1', directory) == mod1_names
+        assert get_names_from_dir('.mod2', directory) == mod2_names
+        assert get_names_from_dir('.mod3', directory) == mod3_names
+        assert get_names_from_dir('.mod4', directory) == mod4_names
+        assert get_names_from_dir('.mod5', directory) == mod5_names
+        assert get_names_from_dir('.submod', directory) == submod_names
+        assert get_names_from_dir('.submod.submod1', directory) == submod1_names
+        assert get_names_from_dir('.submod.submod2', directory) == submod2_names
+        assert get_names_from_dir('.submod.submod3', directory) == submod3_names
+        assert get_names_from_dir('.submod.submod4', directory) == submod4_names
 
-        assert get_names_from_dir('module.mod1', directory) == {'a', 'aa', 'b'}
-        assert get_names_from_dir('module.mod2', directory) == {'b', 'c', 'cc'}
-        assert get_names_from_dir('module.mod3', directory) == {'name'}
-        assert get_names_from_dir('module.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-        assert get_names_from_dir('module.submod', directory) == {'func'}
-        assert get_names_from_dir('module.submod.submod1', directory) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('module.submod.submod2', directory) == {'module.mod1.*',
-            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
-        assert get_names_from_dir('module.submod.submod4', directory) == {'..*'}
+        assert get_names_from_dir('module.mod1', directory) == mod1_names
+        assert get_names_from_dir('module.mod2', directory) == mod2_names
+        assert get_names_from_dir('module.mod3', directory) == mod3_names
+        assert get_names_from_dir('module.mod4', directory) == mod4_names
+        assert get_names_from_dir('module.mod5', directory) == mod4_names
+        assert get_names_from_dir('module.submod', directory) == submod_names
+        assert get_names_from_dir('module.submod.submod1', directory) == submod1_names
+        assert get_names_from_dir('module.submod.submod2', directory) == submod2_names
+        assert get_names_from_dir('module.submod.submod3', directory) == submod3_names
+        assert get_names_from_dir('module.submod.submod4', directory) == submod4_names
 
         submod = directory/'submod'
-        assert get_names_from_dir('..submod', submod) == {'func'}
-        assert get_names_from_dir('.', submod) == {'func'}
-        assert get_names_from_dir('.submod1', submod) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('.submod2', submod) == {'module.mod1.*',
-            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('.submod3', submod) == {'e'}
-        assert get_names_from_dir('.submod4', submod) == {'..*'}
-        assert get_names_from_dir('..mod1', submod) == {'a', 'aa', 'b'}
-        assert get_names_from_dir('..mod2', submod) == {'b', 'c', 'cc'}
-        assert get_names_from_dir('..mod3', submod) == {'name'}
-        assert get_names_from_dir('..mod4', submod) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-        assert get_names_from_dir('..mod5', submod) == {'module.mod1.*', 'module.mod2.*', 'name', 'func'}
-        assert get_names_from_dir('..mod6', submod) == {'os.path.*'}
+        assert get_names_from_dir('..submod', submod) == submod_names
+        assert get_names_from_dir('.', submod) == submod_names
+        assert get_names_from_dir('.submod1', submod) == submod1_names
+        assert get_names_from_dir('.submod2', submod) == submod2_names
+        assert get_names_from_dir('.submod3', submod) == submod3_names
+        assert get_names_from_dir('.submod4', submod) == submod4_names
+        assert get_names_from_dir('..mod1', submod) == mod1_names
+        assert get_names_from_dir('..mod2', submod) == mod2_names
+        assert get_names_from_dir('..mod3', submod) == mod3_names
+        assert get_names_from_dir('..mod4', submod) == mod4_names
+        assert get_names_from_dir('..mod5', submod) == mod5_names
+        assert get_names_from_dir('..mod6', submod) == get_names_dynamically('os.path')
 
-        assert get_names_from_dir('module.mod1', directory) == {'a', 'aa', 'b'}
-        assert get_names_from_dir('module.mod2', directory) == {'b', 'c', 'cc'}
-        assert get_names_from_dir('module.mod3', directory) == {'name'}
-        assert get_names_from_dir('module.mod4', directory) == {'.mod1.*', '.mod2.*', 'name', 'func'}
-        assert get_names_from_dir('module.submod', directory) == {'func'}
-        assert get_names_from_dir('module.submod.submod1', directory) == {'..mod1.*', '..mod2.*', '.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('module.submod.submod2', directory) == {'module.mod1.*',
-            'module.mod2.*', 'module.submod.submod3.*', 'name', 'func'}
-        assert get_names_from_dir('module.submod.submod3', directory) == {'e'}
-        assert get_names_from_dir('module.submod.submod4', directory) == {'..*'}
+        assert get_names_from_dir('module.mod1', directory) == mod1_names
+        assert get_names_from_dir('module.mod2', directory) == mod2_names
+        assert get_names_from_dir('module.mod3', directory) == mod3_names
+        assert get_names_from_dir('module.mod4', directory) == mod4_names
+        assert get_names_from_dir('module.mod5', directory) == mod5_names
+        assert get_names_from_dir('module.submod', directory) == submod_names
+        assert get_names_from_dir('module.submod.submod1', directory) == submod1_names
+        assert get_names_from_dir('module.submod.submod2', directory) == submod2_names
+        assert get_names_from_dir('module.submod.submod3', directory) == submod3_names
+        assert get_names_from_dir('module.submod.submod4', directory) == submod4_names
 
         raises(ExternalModuleError, lambda: get_names_from_dir('os.path', directory))
         raises(ExternalModuleError, lambda: get_names_from_dir('os.path', submod))
