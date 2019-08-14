@@ -10,6 +10,7 @@ import os
 import re
 import builtins
 from pathlib import Path
+from functools import lru_cache
 
 def names_to_replace(checker):
     names = []
@@ -189,6 +190,7 @@ def get_mod_filename(mod, directory):
 
     return filename
 
+@lru_cache()
 def get_module_names(mod, directory, allow_dynamic=True):
     """
     Get the names defined in the module 'mod'
