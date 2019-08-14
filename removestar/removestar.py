@@ -214,7 +214,7 @@ def get_names_dynamically(mod):
         exec(f'from {mod} import *', d)
     except ImportError:
         raise RuntimeError(f"Could not import {mod}")
-    return d.keys()
+    return d.keys() - set(MAGIC_GLOBALS)
 
 def get_names_from_dir(mod, directory):
     filename = get_mod_filename(mod, directory)
