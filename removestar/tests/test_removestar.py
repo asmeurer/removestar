@@ -372,6 +372,8 @@ def test_get_names_dynamically(tmpdir):
     finally:
         sys.path = sys_path
 
+    raises(RuntimeError, lambda: get_names_dynamically('notarealmodule'))
+
 def test_fix_code(tmpdir, capsys):
     # TODO: Test the verbose and quiet flags
     directory = tmpdir/'module'
