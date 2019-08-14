@@ -207,7 +207,7 @@ def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
     the module directly.
     """
     try:
-        names = get_names_from_dir(mod, directory, _found=_found)
+        names = get_names_from_dir(mod, directory, allow_dynamic=allow_dynamic, _found=_found)
     except ExternalModuleError:
         if allow_dynamic:
             names = get_names_dynamically(mod)
@@ -223,7 +223,7 @@ def get_names_dynamically(mod):
         raise RuntimeError(f"Could not import {mod}")
     return d.keys() - set(MAGIC_GLOBALS)
 
-def get_names_from_dir(mod, directory, *, _found=()):
+def get_names_from_dir(mod, directory, *, allow_dynamic=True, _found=()):
     filename = Path(get_mod_filename(mod, directory))
 
     with open(filename) as f:
@@ -242,7 +242,8 @@ def get_names_from_dir(mod, directory, *, _found=()):
             rec_mod = name[:-2]
             if rec_mod not in _found:
                 _found += (rec_mod,)
-                names = names.union(get_module_names(rec_mod, filename.parent, _found=_found))
+                names = names.union(get_module_names(rec_mod, filename.parent,
+                    allow_dynamic=allow_dynamic, _found=_found))
     return names
 
 
