@@ -511,6 +511,7 @@ def test_get_mod_filename(tmpdir, relative):
         _test('.submod.mod1', module, submod/'mod1.py')
         _test('.submod.submod', module, subsubmod/'__init__.py')
         _test('.submod.submod.mod1', module, subsubmod/'mod1.py')
+        raises(RuntimeError, lambda: get_mod_filename('.notreal', module))
 
         _test('module', module, module/'__init__.py')
         _test('module.mod1', module, module/'mod1.py')
@@ -518,6 +519,9 @@ def test_get_mod_filename(tmpdir, relative):
         _test('module.submod.mod1', module, submod/'mod1.py')
         _test('module.submod.submod', module, subsubmod/'__init__.py')
         _test('module.submod.submod.mod1', module, subsubmod/'mod1.py')
+        raises(RuntimeError, lambda: get_mod_filename('module.notreal', module))
+        raises(RuntimeError, lambda: get_mod_filename('module.submod.notreal', module))
+        raises(ExternalModuleError, lambda: get_mod_filename('notreal.notreal', module))
 
         _test('..', submod, module/'__init__.py')
         _test('..mod1', submod, module/'mod1.py')
@@ -529,6 +533,8 @@ def test_get_mod_filename(tmpdir, relative):
         _test('.submod.mod1', submod, subsubmod/'mod1.py')
         _test('..submod.submod', submod, subsubmod/'__init__.py')
         _test('..submod.submod.mod1', submod, subsubmod/'mod1.py')
+        raises(RuntimeError, lambda: get_mod_filename('.notreal', submod))
+        raises(RuntimeError, lambda: get_mod_filename('..notreal', submod))
 
         _test('module', submod, module/'__init__.py')
         _test('module.mod1', submod, module/'mod1.py')
@@ -536,6 +542,9 @@ def test_get_mod_filename(tmpdir, relative):
         _test('module.submod.mod1', submod, submod/'mod1.py')
         _test('module.submod.submod', submod, subsubmod/'__init__.py')
         _test('module.submod.submod.mod1', submod, subsubmod/'mod1.py')
+        raises(RuntimeError, lambda: get_mod_filename('module.notreal', submod))
+        raises(RuntimeError, lambda: get_mod_filename('module.submod.notreal', submod))
+        raises(ExternalModuleError, lambda: get_mod_filename('notreal.notreal', submod))
 
         _test('...', subsubmod, module/'__init__.py')
         _test('...mod1', subsubmod, module/'mod1.py')
@@ -549,6 +558,9 @@ def test_get_mod_filename(tmpdir, relative):
         _test('...submod.submod.mod1', subsubmod, subsubmod/'mod1.py')
         _test('..submod', subsubmod, subsubmod/'__init__.py')
         _test('..submod.mod1', subsubmod, subsubmod/'mod1.py')
+        raises(RuntimeError, lambda: get_mod_filename('.notreal', subsubmod))
+        raises(RuntimeError, lambda: get_mod_filename('..notreal', subsubmod))
+        raises(RuntimeError, lambda: get_mod_filename('..notreal', subsubmod))
 
         _test('module', subsubmod, module/'__init__.py')
         _test('module.mod1', subsubmod, module/'mod1.py')
@@ -556,6 +568,9 @@ def test_get_mod_filename(tmpdir, relative):
         _test('module.submod.mod1', subsubmod, submod/'mod1.py')
         _test('module.submod.submod', subsubmod, subsubmod/'__init__.py')
         _test('module.submod.submod.mod1', subsubmod, subsubmod/'mod1.py')
+        raises(RuntimeError, lambda: get_mod_filename('module.notreal', subsubmod))
+        raises(RuntimeError, lambda: get_mod_filename('module.submod.notreal', subsubmod))
+        raises(ExternalModuleError, lambda: get_mod_filename('notreal.notreal', subsubmod))
     finally:
         os.chdir(curdir)
 

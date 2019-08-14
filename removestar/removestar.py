@@ -173,6 +173,7 @@ def get_mod_filename(mod, directory):
 
         # Try to find an absolute import from the same module as the file
         head, tail = directory.parent, directory.name
+        same_module = False
         while True:
             # If directory is relative assume we
             # don't need to go higher than .
@@ -184,7 +185,11 @@ def get_mod_filename(mod, directory):
                 elif os.path.isfile(os.path.join(loc, '__init__.py')):
                     filename = os.path.join(loc, '__init__.py')
                     break
+                else:
+                    same_module = True
             if head in [Path('.'), Path('/')]:
+                if same_module:
+                    raise RuntimeError(f"Could not find the file for the module '{mod}'")
                 raise ExternalModuleError
             head, tail = head.parent, head.name
 
