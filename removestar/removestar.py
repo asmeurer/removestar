@@ -191,7 +191,7 @@ def get_mod_filename(mod, directory):
     return filename
 
 @lru_cache()
-def get_module_names(mod, directory, allow_dynamic=True):
+def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
     """
     Get the names defined in the module 'mod'
 
@@ -202,7 +202,7 @@ def get_module_names(mod, directory, allow_dynamic=True):
     the module directly.
     """
     try:
-        names = get_names_from_dir(mod, directory)
+        names = get_names_from_dir(mod, directory, _found=_found)
     except ExternalModuleError:
         if allow_dynamic:
             names = get_names_dynamically(mod)
@@ -218,18 +218,28 @@ def get_names_dynamically(mod):
         raise RuntimeError(f"Could not import {mod}")
     return d.keys() - set(MAGIC_GLOBALS)
 
-def get_names_from_dir(mod, directory):
-    filename = get_mod_filename(mod, directory)
+def get_names_from_dir(mod, directory, *, _found=()):
+    filename = Path(get_mod_filename(mod, directory))
 
     with open(filename) as f:
         code = f.read()
 
     try:
-        return get_names(code, filename)
+        names = get_names(code, filename)
     except SyntaxError as e:
         raise RuntimeError(f"Could not parse {filename}: {e}")
     except RuntimeError:
         raise RuntimeError(f"Could not parse the names from {filename}")
+
+    for name in names.copy():
+        if name.endswith('.*'):
+            names.remove(name)
+            rec_mod = name[:-2]
+            if rec_mod not in _found:
+                _found += (rec_mod,)
+                names = names.union(get_module_names(rec_mod, filename.parent, _found=_found))
+    return names
+
 
 def get_names(code, filename='<unknown>'):
     # TODO: Make the doctests work
