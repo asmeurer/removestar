@@ -71,12 +71,12 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dyn
 
         repls[mods[-1]].append(name)
 
-    code = replace_imports(code, repls, filename=filename, verbose=verbose,
+    code = replace_imports(code, repls, file=file, verbose=verbose,
     quiet=quiet, max_line_length=max_line_length)
 
     return code
 
-def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=False, quiet=False):
+def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False):
     """
     Replace the star imports in code
 
@@ -89,7 +89,7 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
     are line wrapped. If the "from module import" part of the import is longer
     than the max_line_length, it is not line wrapped.
 
-    If a filename is provided it is only used for the verbose messages.
+    If file is provided it is only used for the verbose messages.
 
     If verbose=True (default: True), a message is printed for each import that is replaced.
 
@@ -141,8 +141,8 @@ def replace_imports(code, repls, *, max_line_length=100, filename=None, verbose=
                 print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
         elif verbose:
             msg = f"Replacing 'from {mod} import *' with '{new_import}'"
-            if filename:
-                msg = f"{filename}: {msg}"
+            if file:
+                msg = f"{file}: {msg}"
             print(msg, file=sys.stderr)
         code = new_code
 
