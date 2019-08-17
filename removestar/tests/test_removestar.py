@@ -92,9 +92,7 @@ code_mod7 = """\
 from .mod6 import *
 """
 
-code_mod7_fixed = """\
-
-"""
+code_mod7_fixed = ""
 
 mod7_names = {'isfile', 'join'}
 
@@ -692,9 +690,7 @@ def test_fix_code(tmpdir, capsys):
     raises(RuntimeError, lambda: fix_code(submod_recursive))
 
     # TODO: It's not actually useful to test this
-    assert fix_code(submod_recursive/'__init__.py') == """\
-
-"""
+    assert fix_code(submod_recursive/'__init__.py') == ""
     out, err = capsys.readouterr()
     assert not out
     assert not err

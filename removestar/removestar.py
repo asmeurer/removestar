@@ -118,11 +118,11 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
     for mod in repls:
         names = sorted(repls[mod])
 
-        STAR_IMPORT = re.compile(rf'from +{re.escape(mod)} +import +\*')
+        STAR_IMPORT = re.compile(rf'from +{re.escape(mod)} +import +\*\n')
         if not names:
             new_import = ""
         else:
-            new_import = f"from {mod} import " + ', '.join(names)
+            new_import = f"from {mod} import " + ', '.join(names) + '\n'
             if len(new_import) - len(names[-1]) > max_line_length:
                 lines = []
                 line = f"from {mod} import ("
@@ -133,14 +133,14 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
                         line = indent
                     line += name + ', '
                 lines.append(line[:-2] + ')') # Remove last trailing comma
-                new_import = '\n'.join(lines)
+                new_import = '\n'.join(lines) + '\n'
 
         new_code = STAR_IMPORT.sub(new_import, code)
         if new_code == code:
             if not quiet:
                 print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
         elif verbose:
-            msg = f"Replacing 'from {mod} import *' with '{new_import}'"
+            msg = f"Replacing 'from {mod} import *' with '{new_import.strip()}'"
             if file:
                 msg = f"{file}: {msg}"
             print(msg, file=sys.stderr)
