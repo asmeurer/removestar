@@ -952,48 +952,6 @@ Warning: {directory}/mod5.py: could not find import for 'd'
 
     diffs = [
 f"""\
---- original/{directory}/submod/submod1.py
-+++ fixed/{directory}/submod/submod1.py
-@@ -1,7 +1,7 @@
--from ..mod1 import *
--from ..mod2 import *
-+from ..mod1 import a
-+from ..mod2 import b, c
- from ..mod3 import name
--from .submod3 import *
-+from .submod3 import e
- \n\
- def func():
-     return a + b + c + d + e + name\
-""",
-
-f"""\
---- original/{directory}/submod/submod4.py
-+++ fixed/{directory}/submod/submod4.py
-@@ -1,3 +1,3 @@
--from . import *
-+from . import func
- \n\
- func()\
-""",
-
-f"""\
---- original/{directory}/submod/submod2.py
-+++ fixed/{directory}/submod/submod2.py
-@@ -1,7 +1,7 @@
--from module.mod1 import *
--from module.mod2 import *
-+from module.mod1 import a
-+from module.mod2 import b, c
- from module.mod3 import name
--from module.submod.submod3 import *
-+from module.submod.submod3 import e
- \n\
- def func():
-     return a + b + c + d + e + name\
-""",
-
-f"""\
 --- original/{directory}/mod4.py
 +++ fixed/{directory}/mod4.py
 @@ -1,5 +1,5 @@
@@ -1017,6 +975,86 @@ f"""\
  from module.mod3 import name
  \n\
  def func():\
+""",
+
+f"""\
+--- original/{directory}/mod6.py
++++ fixed/{directory}/mod6.py
+@@ -1,2 +1,2 @@
+-from os.path import *
++from os.path import isfile, join
+ isfile(join('a', 'b'))\
+""",
+
+f"""\
+--- original/{directory}/mod7.py
++++ fixed/{directory}/mod7.py
+@@ -1 +0,0 @@
+-from .mod6 import *\
+""",
+
+f"""\
+--- original/{directory}/mod9.py
++++ fixed/{directory}/mod9.py
+@@ -1,4 +1,4 @@
+-from .mod8 import *
++from .mod8 import a, b
+ \n\
+ def func():
+     return a + b\
+""",
+
+f"""\
+--- original/{directory}/submod/submod1.py
++++ fixed/{directory}/submod/submod1.py
+@@ -1,7 +1,7 @@
+-from ..mod1 import *
+-from ..mod2 import *
++from ..mod1 import a
++from ..mod2 import b, c
+ from ..mod3 import name
+-from .submod3 import *
++from .submod3 import e
+ \n\
+ def func():
+     return a + b + c + d + e + name\
+""",
+
+f"""\
+--- original/{directory}/submod/submod2.py
++++ fixed/{directory}/submod/submod2.py
+@@ -1,7 +1,7 @@
+-from module.mod1 import *
+-from module.mod2 import *
++from module.mod1 import a
++from module.mod2 import b, c
+ from module.mod3 import name
+-from module.submod.submod3 import *
++from module.submod.submod3 import e
+ \n\
+ def func():
+     return a + b + c + d + e + name\
+""",
+
+f"""\
+--- original/{directory}/submod/submod4.py
++++ fixed/{directory}/submod/submod4.py
+@@ -1,3 +1,3 @@
+-from . import *
++from . import func
+ \n\
+ func()\
+""",
+
+f"""\
+--- original/{directory}/submod_recursive/submod2.py
++++ fixed/{directory}/submod_recursive/submod2.py
+@@ -1,4 +1,4 @@
+-from . import *
++from . import a
+ \n\
+ def func():
+     return a + 1\
 """,
     ]
     for d in diffs:
