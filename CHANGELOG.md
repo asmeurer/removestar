@@ -4,6 +4,7 @@
   `from .submod import *` now works when submod is a submodule whose
   `__init__.py` itself uses `import *` (removestar still skips `__init__.py`
   files by default).
+- `__all__` is now respected.
 - The full path to the file is printed for `--verbose` messages.
 - Catch all errors when importing external modules dynamically.
 - Better error message for same-module absolute imports that don't exist.

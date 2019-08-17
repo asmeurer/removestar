@@ -252,7 +252,7 @@ def get_names_from_dir(mod, directory, *, allow_dynamic=True, _found=()):
 def get_names(code, filename='<unknown>'):
     # TODO: Make the doctests work
     """
-    Get a set of defined top-level names from code
+    Get a set of defined top-level names from code.
 
     Example:
 
@@ -272,6 +272,17 @@ def get_names(code, filename='<unknown>'):
     ... ''') # doctest: +SKIP
     {'.mod1.*', 'module.mod2.*'}
 
+    __all__ is respected. Constructs supported by pyflakes like __all__ += [...] work.
+
+    >>> get_names('''
+    ... a = 1
+    ... b = 2
+    ... c = 3
+    ... __all__ = ['a']
+    ... __all__ += ['b']
+    ... ''') # doctest: +SKIP
+    {'a', 'b'}
+
     Returns a set of names, or raises SyntaxError if the code is not valid
     syntax.
     """
@@ -280,6 +291,11 @@ def get_names(code, filename='<unknown>'):
     checker = Checker(tree)
     for scope in checker.deadScopes:
         if isinstance(scope, ModuleScope):
-            return scope.keys() - set(dir(builtins)) - set(MAGIC_GLOBALS)
+            names = scope.keys() - set(dir(builtins)) - set(MAGIC_GLOBALS)
+            break
+    else:
+        raise RuntimeError(f"Could not parse the names")
 
-    raise RuntimeError(f"Could not parse the names")
+    if '__all__' in names:
+        return set(scope['__all__'].names)
+    return names
