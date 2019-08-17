@@ -1,4 +1,4 @@
-# 1.2 (???)
+# 1.2 (2019-08-16)
 ## New Features
 - removestar now works correctly with recursive star imports. In particular,
   `from .submod import *` now works when submod is a submodule whose
