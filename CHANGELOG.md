@@ -1,4 +1,19 @@
-# 1.1.1 (???)
+# 1.2 (???)
+## New Features
+- removestar now works correctly with recursive star imports. In particular,
+  `from .submod import *` now works when submod is a submodule whose
+  `__init__.py` itself uses `import *` (removestar still skips `__init__.py`
+  files by default).
+- The full path to the file is printed for `--verbose` messages.
+- Catch all errors when importing external modules dynamically.
+- Better error message for same-module absolute imports that don't exist.
+
+## Bug fixes
+- Don't consider `__builtins__` to be imported from external modules (even
+  though it technically is).
+- Make sure pytest-doctestplus is installed when running the tests.
+
+## Other
 - Include the LICENSE file in the distribution and the setup.py metadata.
 
 # 1.1 (2019-08-05)
