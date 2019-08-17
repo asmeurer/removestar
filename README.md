@@ -38,7 +38,7 @@ $ removestar file.py # Shows diff but does not edit file.py
 
 $ removestar -i file.py # Edits file.py in-place
 
-$ removestar module/ # Modifies every Python file in module recursively
+$ removestar -i module/ # Modifies every Python file in module/ recursively
 ```
 
 ## Example
