@@ -1,4 +1,4 @@
-# 1.2.1 (???)
+# 1.2.1 (2019-08-17)
 ## Bug fixes
 - Imports that are completely removed are no longer replaced with a blank line.
 
