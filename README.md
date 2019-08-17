@@ -8,7 +8,6 @@ Requires pyflakes.
 
 Current limitations:
 
-- Does not work correctly with recursive star imports.
 - Assumes only names in the current file are used by star imports (e.g., it
   won't work to replace star imports in `__init__.py`).
 
