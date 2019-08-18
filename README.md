@@ -123,7 +123,7 @@ y = 2
 Then `removestar` works like:
 
 ```
-$ removestar mymod
+$ removestar mymod/
 
 --- original/mymod/a.py
 +++ fixed/mymod/a.py
@@ -140,7 +140,7 @@ $ removestar mymod
 This does not edit `a.py` by default. The `-i` flag causes it to edit `a.py` in-place:
 
 ```
-$ removestar -i mymod
+$ removestar -i mymod/
 $ cat mymod/a.py
 # mymod/a.py
 from .b import y
