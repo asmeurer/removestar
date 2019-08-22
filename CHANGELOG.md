@@ -1,3 +1,7 @@
+# 1.2.2 (2019-08-22)
+## Bug fixes
+- Names that are used more than once no longer produce duplicate imports.
+
 # 1.2.1 (2019-08-17)
 ## Bug fixes
 - Imports that are completely removed are no longer replaced with a blank line.
