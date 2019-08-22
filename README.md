@@ -158,7 +158,7 @@ $ removestar --help
 usage: removestar [-h] [-i] [--version] [--no-skip-init]
                   [--no-dynamic-importing] [-v] [-q]
                   [--max-line-length MAX_LINE_LENGTH]
-                  paths [paths ...]
+                  PATH [PATH ...]
 
 Tool to automatically replace "import *" imports with explicit imports
 
@@ -173,7 +173,7 @@ $ removestar -i file.py # Edits file.py in-place
 $ removestar -i module/ # Modifies every Python file in module/ recursively
 
 positional arguments:
-  paths                 Files or directories to fix
+  PATH                  Files or directories to fix
 
 optional arguments:
   -h, --help            show this help message and exit
