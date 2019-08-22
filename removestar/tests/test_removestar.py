@@ -574,24 +574,22 @@ def test_fix_code(tmpdir, capsys):
     directory = tmpdir/'module'
     create_module(directory)
 
-    raises(RuntimeError, lambda: fix_code(directory/'notarealfile.py'))
-
-    assert fix_code(directory/'mod1.py') == code_mod1
+    assert fix_code(code_mod1, file=directory/'mod1.py') == code_mod1
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod2.py') == code_mod2
+    assert fix_code(code_mod2, file=directory/'mod2.py') == code_mod2
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod3.py') == code_mod3
+    assert fix_code(code_mod3, file=directory/'mod3.py') == code_mod3
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod4.py') == code_mod4_fixed
+    assert fix_code(code_mod4, file=directory/'mod4.py') == code_mod4_fixed
     out, err = capsys.readouterr()
     assert not out
     assert 'Warning' in err
@@ -603,7 +601,7 @@ def test_fix_code(tmpdir, capsys):
     assert "Using '.mod2'" in err
     assert "could not find import for 'd'" in err
 
-    assert fix_code(directory/'mod5.py') == code_mod5_fixed
+    assert fix_code(code_mod5, file=directory/'mod5.py') == code_mod5_fixed
     out, err = capsys.readouterr()
     assert not out
     assert 'Warning' in err
@@ -615,39 +613,38 @@ def test_fix_code(tmpdir, capsys):
     assert "Using 'module.mod2'" in err
     assert "could not find import for 'd'" in err
 
-    assert fix_code(directory/'mod6.py') == code_mod6_fixed
+    assert fix_code(code_mod6, file=directory/'mod6.py') == code_mod6_fixed
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert raises(NotImplementedError, lambda: fix_code(directory/'mod6.py', allow_dynamic=False))
+    assert raises(NotImplementedError, lambda: fix_code(code_mod6, file=directory/'mod6.py', allow_dynamic=False))
 
-    assert fix_code(directory/'mod7.py') == code_mod7_fixed
+    assert fix_code(code_mod7, file=directory/'mod7.py') == code_mod7_fixed
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert raises(NotImplementedError, lambda: fix_code(directory/'mod7.py', allow_dynamic=False))
+    assert raises(NotImplementedError, lambda: fix_code(code_mod7, file=directory/'mod7.py', allow_dynamic=False))
 
-    assert fix_code(directory/'mod8.py') == code_mod8
+    assert fix_code(code_mod8, file=directory/'mod8.py') == code_mod8
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(directory/'mod9.py') == code_mod9_fixed
+    assert fix_code(code_mod9, file=directory/'mod9.py') == code_mod9_fixed
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
     submod = directory/'submod'
-    raises(RuntimeError, lambda: fix_code(submod))
 
-    assert fix_code(submod/'__init__.py') == code_submod_init
+    assert fix_code(code_submod_init, file=submod/'__init__.py') == code_submod_init
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(submod/'submod1.py') == code_submod1_fixed
+    assert fix_code(code_submod1, file=submod/'submod1.py') == code_submod1_fixed
     out, err = capsys.readouterr()
     assert not out
     assert 'Warning' in err
@@ -661,7 +658,7 @@ def test_fix_code(tmpdir, capsys):
     assert "Using '..mod2'" in err
     assert "could not find import for 'd'" in err
 
-    assert fix_code(submod/'submod2.py') == code_submod2_fixed
+    assert fix_code(code_submod2, file=submod/'submod2.py') == code_submod2_fixed
     out, err = capsys.readouterr()
     assert not out
     assert 'Warning' in err
@@ -676,36 +673,35 @@ def test_fix_code(tmpdir, capsys):
     assert "Using 'module.mod2'" in err
     assert "could not find import for 'd'" in err
 
-    assert fix_code(submod/'submod3.py') == code_submod3
+    assert fix_code(code_submod3, file=submod/'submod3.py') == code_submod3
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(submod/'submod4.py') == code_submod4_fixed
+    assert fix_code(code_submod4, file=submod/'submod4.py') == code_submod4_fixed
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
     submod_recursive = directory/'submod_recursive'
-    raises(RuntimeError, lambda: fix_code(submod_recursive))
 
     # TODO: It's not actually useful to test this
-    assert fix_code(submod_recursive/'__init__.py') == ""
+    assert fix_code(code_submod_recursive_init, file=submod_recursive/'__init__.py') == ""
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(submod_recursive/'submod1.py') == code_submod_recursive_submod1
+    assert fix_code(code_submod_recursive_submod1, file=submod_recursive/'submod1.py') == code_submod_recursive_submod1
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    assert fix_code(submod_recursive/'submod2.py') == code_submod_recursive_submod2_fixed
+    assert fix_code(code_submod_recursive_submod2, file=submod_recursive/'submod2.py') == code_submod_recursive_submod2_fixed
     out, err = capsys.readouterr()
     assert not out
     assert not err
 
-    raises(RuntimeError, lambda: fix_code(directory/'mod_bad.py'))
+    raises(RuntimeError, lambda: fix_code(code_bad_syntax, file=directory/'mod_bad.py'))
     out, err = capsys.readouterr()
     assert not out
     assert not err
@@ -1155,3 +1151,10 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         assert f.read() == code_submod4_fixed
     with open(directory/'submod_recursive'/'submod2.py') as f:
         assert f.read() == code_submod_recursive_submod2_fixed
+
+    # Test error on nonexistent file
+    p = subprocess.run([sys.executable, '-m', 'removestar', directory/'notarealfile.py'],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       encoding='utf-8')
+    assert p.stderr == f'Error: {directory}/notarealfile.py: no such file or directory\n'
+    assert p.stdout == ''

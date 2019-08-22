@@ -27,21 +27,18 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True):
+def fix_code(code, *, file, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True):
     """
-    Return a fixed version of the code in `file`, or raise RuntimeError if it is is not valid Python.
+    Return a fixed version of the code `code` from the file `file`
+
+    Raises RuntimeError if it is is not valid Python.
 
     See the docstring of replace_imports() for the meaning of the keyword
     arguments to this function.
 
     If allow_dynamic=True, then external modules will be dynamically imported.
     """
-    if not os.path.isfile(file):
-        raise RuntimeError(f"{file} is not a file.")
-
     directory, filename = os.path.split(file)
-    with open(file) as f:
-        code = f.read()
 
     try:
         tree = ast.parse(code, filename=file)
@@ -71,10 +68,10 @@ def fix_code(file, *, max_line_length=100, verbose=False, quiet=False, allow_dyn
 
         repls[mods[-1]].append(name)
 
-    code = replace_imports(code, repls, file=file, verbose=verbose,
-    quiet=quiet, max_line_length=max_line_length)
+    new_code = replace_imports(code, repls, file=file, verbose=verbose,
+                               quiet=quiet, max_line_length=max_line_length)
 
-    return code
+    return new_code
 
 def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False):
     """

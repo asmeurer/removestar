@@ -52,32 +52,44 @@ def main():
     if args.max_line_length == 0:
         args.max_line_length = float('inf')
 
-    for path in args.paths:
-        if os.path.isdir(path):
-            path = path + '/**'
-        for file in glob.iglob(path, recursive=True):
-            directory, filename = os.path.split(file)
-            if path.endswith('*') and not filename.endswith('.py'):
-                continue
-            if args.skip_init and filename == '__init__.py':
-                continue
-            try:
-                new_code = fix_code(file, max_line_length=args.max_line_length,
-                                    verbose=args.verbose, quiet=args.quiet, allow_dynamic=args.allow_dynamic)
-            except (RuntimeError, NotImplementedError) as e:
-                if not args.quiet:
-                    print(f"Error with {file}: {e}", file=sys.stderr)
-                continue
+    for file in _iter_paths(args.paths):
+        directory, filename = os.path.split(file)
+        if args.skip_init and filename == '__init__.py':
+            continue
 
+        if not os.path.isfile(file):
+            print(f"Error: {file}: no such file or directory", file=sys.stderr)
+            continue
+
+        with open(file) as f:
+            code = f.read()
+
+        try:
+            new_code = fix_code(code, file=file, max_line_length=args.max_line_length,
+                                verbose=args.verbose, quiet=args.quiet, allow_dynamic=args.allow_dynamic)
+        except (RuntimeError, NotImplementedError) as e:
+            if not args.quiet:
+                print(f"Error with {file}: {e}", file=sys.stderr)
+            continue
+
+        if new_code != code:
             if args.in_place:
                 with open(file, 'w') as f:
                     f.write(new_code)
             else:
-                with open(file) as f:
-                    code = f.read()
 
                 print(get_diff_text(io.StringIO(code).readlines(),
                     io.StringIO(new_code).readlines(), file))
+
+def _iter_paths(paths):
+    for path in paths:
+        if os.path.isdir(path):
+            for file in glob.iglob(path + '/**', recursive=True):
+                if not file.endswith('.py'):
+                    continue
+                yield file
+        else:
+            yield path
 
 if __name__ == '__main__':
     main()
