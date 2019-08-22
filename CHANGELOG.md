@@ -1,6 +1,9 @@
 # 1.2.2 (2019-08-22)
 ## Bug fixes
 - Names that are used more than once no longer produce duplicate imports.
+- Files are no longer read redundantly.
+- Files are no longer written into if the code does not change.
+- A blank line is no longer printed for empty diffs.
 
 # 1.2.1 (2019-08-17)
 ## Bug fixes
