@@ -44,7 +44,7 @@ from .mod2 import *
 from .mod3 import name
 
 def func():
-    return a + b + c + d + name
+    return a + b + c + d + d + name
 """
 
 mod4_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
@@ -55,7 +55,7 @@ from .mod2 import b, c
 from .mod3 import name
 
 def func():
-    return a + b + c + d + name
+    return a + b + c + d + d + name
 """
 
 code_mod5 = """\
@@ -64,7 +64,7 @@ from module.mod2 import *
 from module.mod3 import name
 
 def func():
-    return a + b + c + d + name
+    return a + b + c + d + d + name
 """
 
 mod5_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
@@ -75,7 +75,7 @@ from module.mod2 import b, c
 from module.mod3 import name
 
 def func():
-    return a + b + c + d + name
+    return a + b + c + d + d + name
 """
 
 code_mod6 = """\
@@ -129,7 +129,7 @@ from ..mod3 import name
 from .submod3 import *
 
 def func():
-    return a + b + c + d + e + name
+    return a + b + c + d + d + e + name
 """
 
 submod1_names = {'a', 'aa', 'b', 'c', 'cc', 'e', 'name', 'func'}
@@ -141,7 +141,7 @@ from ..mod3 import name
 from .submod3 import e
 
 def func():
-    return a + b + c + d + e + name
+    return a + b + c + d + d + e + name
 """
 
 code_submod2 = """\
@@ -151,7 +151,7 @@ from module.mod3 import name
 from module.submod.submod3 import *
 
 def func():
-    return a + b + c + d + e + name
+    return a + b + c + d + d + e + name
 """
 
 submod2_names = {'a', 'aa', 'b', 'c', 'cc', 'e', 'name', 'func'}
@@ -163,7 +163,7 @@ from module.mod3 import name
 from module.submod.submod3 import e
 
 def func():
-    return a + b + c + d + e + name
+    return a + b + c + d + d + e + name
 """
 
 code_submod3 = """\
@@ -283,27 +283,27 @@ def test_names_to_replace():
                  code_submod3, code_submod_init, code_submod_recursive_init,
                  code_submod_recursive_submod1]:
         names = names_to_replace(Checker(ast.parse(code)))
-        assert names == []
+        assert names == set()
 
     for code in [code_mod4, code_mod5]:
         names = names_to_replace(Checker(ast.parse(code)))
-        assert names == ['a', 'b', 'c', 'd']
+        assert names == {'a', 'b', 'c', 'd'}
 
     for code in [code_submod1, code_submod2]:
         names = names_to_replace(Checker(ast.parse(code)))
-        assert names == ['a', 'b', 'c', 'd', 'e']
+        assert names == {'a', 'b', 'c', 'd', 'e'}
 
     names = names_to_replace(Checker(ast.parse(code_submod4)))
-    assert names == ['func']
+    assert names == {'func'}
 
     names = names_to_replace(Checker(ast.parse(code_mod6)))
-    assert names == ['isfile', 'join']
+    assert names == {'isfile', 'join'}
 
     names = names_to_replace(Checker(ast.parse(code_submod_recursive_submod2)))
-    assert names == ['a']
+    assert names == {'a'}
 
     names = names_to_replace(Checker(ast.parse(code_mod9)))
-    assert names == ['a', 'b']
+    assert names == {'a', 'b'}
 
 def test_star_imports():
     for code in [code_mod1, code_mod2, code_mod3, code_mod8, code_submod3,
@@ -1017,7 +1017,7 @@ f"""\
 +from .submod3 import e
  \n\
  def func():
-     return a + b + c + d + e + name\
+     return a + b + c + d + d + e + name\
 """,
 
 f"""\
@@ -1033,7 +1033,7 @@ f"""\
 +from module.submod.submod3 import e
  \n\
  def func():
-     return a + b + c + d + e + name\
+     return a + b + c + d + d + e + name\
 """,
 
 f"""\

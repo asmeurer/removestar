@@ -13,11 +13,11 @@ from pathlib import Path
 from functools import lru_cache
 
 def names_to_replace(checker):
-    names = []
+    names = set()
     for message in checker.messages:
         if isinstance(message, ImportStarUsage):
             name, *modules = message.message_args
-            names.append(name)
+            names.add(name)
     return names
 
 def star_imports(checker):
