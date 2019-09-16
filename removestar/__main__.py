@@ -20,6 +20,7 @@ import glob
 import io
 import os
 import sys
+import tokenize
 
 from .removestar import fix_code
 from .helper import get_diff_text
@@ -62,7 +63,13 @@ def main():
             print(f"Error: {file}: no such file or directory", file=sys.stderr)
             continue
 
-        with open(file) as f:
+        try:
+            encoding = tokenize.detect_encoding(open(file, 'br').readline)[0]
+        except SyntaxError as e:
+            print(f"Error detecting the encoding for {file}: {e}", file=sys.stderr)
+            continue
+
+        with open(file, encoding=encoding) as f:
             code = f.read()
 
         try:
