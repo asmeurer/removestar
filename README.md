@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/asmeurer/removestar.svg?branch=master)](https://travis-ci.com/asmeurer/removestar)
 
-Tool to automatically replace `import *` imports with explicit imports
+Tool to automatically replace `import *` imports in Python files with explicit imports
 
 Requires pyflakes.
 
