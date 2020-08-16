@@ -1,18 +1,18 @@
 language: python
-
-sudo: false
+os: linux
 dist: xenial
 python:
   - 3.6
   - 3.7
-  - 3.8-dev
+  - 3.8
+  - 3.9-dev
 
 install:
-  - pip install pyflakes pytest pytest-doctestplus
+  - pip install flake8 pytest pytest-doctestplus
 
 script:
   - set -e
-  - pyflakes .
+  - flake8 .
   - python -We:invalid -We::SyntaxWarning -m compileall -f -q removestar/
   - pytest
   # Make sure it installs
