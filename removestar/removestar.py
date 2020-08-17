@@ -291,7 +291,7 @@ def get_names(code, filename='<unknown>'):
             names = scope.keys() - set(dir(builtins)) - set(MAGIC_GLOBALS)
             break
     else:
-        raise RuntimeError(f"Could not parse the names")
+        raise RuntimeError("Could not parse the names")
 
     if '__all__' in names:
         return set(scope['__all__'].names)
