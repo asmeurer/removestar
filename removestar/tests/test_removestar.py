@@ -869,6 +869,29 @@ def test_replace_imports():
 
     assert replace_imports(code_mod_unfixable, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
 
+
+def test_replace_imports_warnings(capsys):
+    assert replace_imports(code_mod_unfixable, file='module/mod_unfixable.py', repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
+    out, err = capsys.readouterr()
+    assert set(err.splitlines()) == {
+        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod1'",
+        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'",
+        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod3'"
+    }
+
+    assert replace_imports(code_mod_unfixable, file=None, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
+    out, err = capsys.readouterr()
+    assert set(err.splitlines()) == {
+        "Warning: Could not find the star imports for '.mod1'",
+        "Warning: Could not find the star imports for '.mod2'",
+        "Warning: Could not find the star imports for '.mod3'"
+    }
+
+    assert replace_imports(code_mod_unfixable, quiet=True, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
+    out, err = capsys.readouterr()
+    assert err == ''
+
+
 def test_replace_imports_line_wrapping():
     code = """\
 from reallyreallylongmodulename import *
@@ -980,9 +1003,9 @@ Warning: {directory}/mod4.py: 'b' comes from multiple modules: '.mod1', '.mod2'.
 Warning: {directory}/mod4.py: could not find import for 'd'
 Warning: {directory}/mod5.py: 'b' comes from multiple modules: 'module.mod1', 'module.mod2'. Using 'module.mod2'.
 Warning: {directory}/mod5.py: could not find import for 'd'
-Warning: Could not find the star imports for '.mod1'
-Warning: Could not find the star imports for '.mod2'
-Warning: Could not find the star imports for '.mod3'
+Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod1'
+Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod2'
+Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod3'
 """.splitlines())
 
     error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (mod_bad.py, line 1)"
