@@ -201,6 +201,17 @@ code_bad_syntax = """\
 from mod
 """
 
+code_mod_unfixable = """\
+from .mod1 import *  # noqa: SOMECODE
+from .mod2 import *;
+from .mod3 import\t*
+
+def func():
+    return a + c + name
+"""
+
+mod_unfixable_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
+
 code_submod_recursive_init = """\
 from .submod1 import *
 """
@@ -257,6 +268,8 @@ def create_module(module):
         pass
     with open(module/'mod_bad.py', 'w') as f:
         f.write(code_bad_syntax)
+    with open(module/'mod_unfixable.py', 'w') as f:
+        f.write(code_mod_unfixable)
     submod = module/'submod'
     os.makedirs(submod)
     with open(submod/'__init__.py', 'w') as f:
@@ -305,6 +318,9 @@ def test_names_to_replace():
     names = names_to_replace(Checker(ast.parse(code_mod9)))
     assert names == {'a', 'b'}
 
+    names = names_to_replace(Checker(ast.parse(code_mod_unfixable)))
+    assert names == {'a', 'c', 'name'}
+
 def test_star_imports():
     for code in [code_mod1, code_mod2, code_mod3, code_mod8, code_submod3,
                  code_submod_init, code_submod_recursive_submod1]:
@@ -338,6 +354,9 @@ def test_star_imports():
 
     stars = star_imports(Checker(ast.parse(code_submod_recursive_init)))
     assert stars == ['.submod1']
+
+    stars = star_imports(Checker(ast.parse(code_mod_unfixable)))
+    assert stars == ['.mod1', '.mod2', '.mod3']
 
 def test_get_names():
     names = get_names(code_mod1)
@@ -380,6 +399,9 @@ def test_get_names():
 
     raises(SyntaxError, lambda: get_names(code_bad_syntax))
 
+    names = get_names(code_mod_unfixable)
+    assert names == {'.mod1.*', '.mod2.*', '.mod3.*', 'func'}
+
     names = get_names(code_submod_recursive_init)
     assert names == {'.submod1.*'}
 
@@ -412,6 +434,7 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(NotImplementedError, lambda: get_names_from_dir('.mod7', directory, allow_dynamic=False))
         assert get_names_from_dir('.mod8', directory) == mod8_names
         assert get_names_from_dir('.mod9', directory) == mod9_names
+        assert get_names_from_dir('.mod_unfixable', directory) == mod_unfixable_names
         assert get_names_from_dir('.submod', directory) == submod_names
         assert get_names_from_dir('.submod.submod1', directory) == submod1_names
         assert get_names_from_dir('.submod.submod2', directory) == submod2_names
@@ -432,6 +455,7 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(NotImplementedError, lambda: get_names_from_dir('module.mod7', directory, allow_dynamic=False))
         assert get_names_from_dir('module.mod8', directory) == mod8_names
         assert get_names_from_dir('module.mod9', directory) == mod9_names
+        assert get_names_from_dir('module.mod_unfixable', directory) == mod_unfixable_names
         assert get_names_from_dir('module.submod', directory) == submod_names
         assert get_names_from_dir('module.submod.submod1', directory) == submod1_names
         assert get_names_from_dir('module.submod.submod2', directory) == submod2_names
@@ -459,6 +483,7 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(NotImplementedError, lambda: get_names_from_dir('..mod7', submod, allow_dynamic=False))
         assert get_names_from_dir('..mod8', submod) == mod8_names
         assert get_names_from_dir('..mod9', submod) == mod9_names
+        assert get_names_from_dir('..mod_unfixable', submod) == mod_unfixable_names
         assert get_names_from_dir('..submod_recursive', submod) == submod_recursive_names
         assert get_names_from_dir('..submod_recursive.submod1', submod) == submod_recursive_submod1_names
         assert get_names_from_dir('..submod_recursive.submod2', submod) == submod_recursive_submod2_names
@@ -474,6 +499,7 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(NotImplementedError, lambda: get_names_from_dir('module.mod7', submod, allow_dynamic=False))
         assert get_names_from_dir('module.mod8', submod) == mod8_names
         assert get_names_from_dir('module.mod9', submod) == mod9_names
+        assert get_names_from_dir('module.mod_unfixable', submod) == mod_unfixable_names
         assert get_names_from_dir('module.submod', submod) == submod_names
         assert get_names_from_dir('module.submod.submod1', submod) == submod1_names
         assert get_names_from_dir('module.submod.submod2', submod) == submod2_names
@@ -500,6 +526,7 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(NotImplementedError, lambda: get_names_from_dir('..mod7', submod_recursive, allow_dynamic=False))
         assert get_names_from_dir('..mod8', submod_recursive) == mod8_names
         assert get_names_from_dir('..mod9', submod_recursive) == mod9_names
+        assert get_names_from_dir('..mod_unfixable', submod_recursive) == mod_unfixable_names
         assert get_names_from_dir('.', submod_recursive) == submod_recursive_names
         assert get_names_from_dir('..submod_recursive', submod_recursive) == submod_recursive_names
         assert get_names_from_dir('.submod1', submod_recursive) == submod_recursive_submod1_names
@@ -516,6 +543,7 @@ def test_get_names_from_dir(tmpdir, relative):
         raises(NotImplementedError, lambda: get_names_from_dir('module.mod7', submod, allow_dynamic=False))
         assert get_names_from_dir('module.mod8', submod_recursive) == mod8_names
         assert get_names_from_dir('module.mod9', submod_recursive) == mod9_names
+        assert get_names_from_dir('module.mod_unfixable', submod_recursive) == mod_unfixable_names
         assert get_names_from_dir('module.submod', submod_recursive) == submod_names
         assert get_names_from_dir('module.submod.submod1', submod_recursive) == submod1_names
         assert get_names_from_dir('module.submod.submod2', submod_recursive) == submod2_names
@@ -554,6 +582,7 @@ def test_get_names_dynamically(tmpdir):
         assert get_names_dynamically('module.mod7') == os_path
         assert get_names_dynamically('module.mod8') == mod8_names
         assert get_names_dynamically('module.mod9') == mod9_names
+        assert get_names_dynamically('module.mod_unfixable') == mod_unfixable_names
         assert get_names_dynamically('module.submod') == submod_dynamic_names
         assert get_names_dynamically('module.submod.submod1') == submod1_names
         assert get_names_dynamically('module.submod.submod2') == submod2_names
@@ -636,6 +665,14 @@ def test_fix_code(tmpdir, capsys):
     out, err = capsys.readouterr()
     assert not out
     assert not err
+
+    assert fix_code(code_mod_unfixable, file=directory/'mod_unfixable.py') == code_mod_unfixable
+    out, err = capsys.readouterr()
+    assert not out
+    assert 'Warning' in err
+    assert 'Could not find the star imports for' in err
+    for mod in ["'.mod1'", "'.mod2'", "'.mod3'"]:
+        assert mod in err
 
     submod = directory/'submod'
 
@@ -810,7 +847,7 @@ def test_get_mod_filename(tmpdir, relative):
 def test_replace_imports():
     # The verbose and quiet flags are already tested in test_fix_code
     for code in [code_mod1, code_mod2, code_mod3, code_mod8, code_submod3,
-                 code_submod_init, code_submod_recursive_submod1]:
+                 code_submod_init, code_submod_recursive_submod1, code_mod_unfixable]:
         assert replace_imports(code, repls={}, verbose=False, quiet=True) == code
 
     assert replace_imports(code_mod4, repls={'.mod1': ['a'], '.mod2': ['b', 'c']}, verbose=False, quiet=True) == code_mod4_fixed
@@ -829,6 +866,8 @@ def test_replace_imports():
     assert replace_imports(code_submod4, repls={'.': ['func']}, verbose=False, quiet=True) == code_submod4_fixed
 
     assert replace_imports(code_submod_recursive_submod2, repls={'.': ['a']}) == code_submod_recursive_submod2_fixed
+
+    assert replace_imports(code_mod_unfixable, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
 
 def test_replace_imports_line_wrapping():
     code = """\
@@ -941,6 +980,9 @@ Warning: {directory}/mod4.py: 'b' comes from multiple modules: '.mod1', '.mod2'.
 Warning: {directory}/mod4.py: could not find import for 'd'
 Warning: {directory}/mod5.py: 'b' comes from multiple modules: 'module.mod1', 'module.mod2'. Using 'module.mod2'.
 Warning: {directory}/mod5.py: could not find import for 'd'
+Warning: Could not find the star imports for '.mod1'
+Warning: Could not find the star imports for '.mod2'
+Warning: Could not find the star imports for '.mod3'
 """.splitlines())
 
     error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (mod_bad.py, line 1)"
@@ -1053,8 +1095,11 @@ f"""\
      return a + 1\
 """,
     ]
+    unchanged = ['__init__.py', 'mod_bad.py', 'mod_unfixable.py']
     for d in diffs:
         assert d in p.stdout, p.stdout
+    for mod_path in unchanged:
+        assert '--- original/{directory}/{mod_path}' not in p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
@@ -1151,6 +1196,10 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         assert f.read() == code_submod4_fixed
     with open(directory/'submod_recursive'/'submod2.py') as f:
         assert f.read() == code_submod_recursive_submod2_fixed
+    with open(directory/'mod_bad.py') as f:
+        assert f.read() == code_bad_syntax
+    with open(directory/'mod_unfixable.py') as f:
+        assert f.read() == code_mod_unfixable
 
     # Test error on nonexistent file
     p = subprocess.run([sys.executable, '-m', 'removestar', directory/'notarealfile.py'],
