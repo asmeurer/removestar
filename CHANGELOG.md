@@ -1,3 +1,8 @@
+# 1.2.3 (2021-08-16)
+## Bug fixes
+- Fix unformatted module name placeholder in "Could not find the star imports"
+  warning (thanks to [@h4l](https://github.com/h4l)).
+
 # 1.2.2 (2019-08-22)
 ## Bug fixes
 - Names that are used more than once no longer produce duplicate imports.
