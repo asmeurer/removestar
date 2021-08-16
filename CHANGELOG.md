@@ -1,3 +1,7 @@
+# 1.2.4 (2021-08-16)
+## Bug fixes
+- Fix an incorrectly done release from 1.2.3.
+
 # 1.2.3 (2021-08-16)
 ## Bug fixes
 - Fix unformatted module name placeholder in "Could not find the star imports"
