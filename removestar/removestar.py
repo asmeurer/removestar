@@ -135,7 +135,8 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
         new_code = STAR_IMPORT.sub(new_import, code)
         if new_code == code:
             if not quiet:
-                print("Warning: Could not find the star imports for '{mod}'", file=sys.stderr)
+                prefix = f"Warning: {file}:" if file else "Warning:"
+                print(f"{prefix} Could not find the star imports for '{mod}'", file=sys.stderr)
         elif verbose:
             msg = f"Replacing 'from {mod} import *' with '{new_import.strip()}'"
             if file:
@@ -291,7 +292,7 @@ def get_names(code, filename='<unknown>'):
             names = scope.keys() - set(dir(builtins)) - set(MAGIC_GLOBALS)
             break
     else:
-        raise RuntimeError(f"Could not parse the names")
+        raise RuntimeError("Could not parse the names")
 
     if '__all__' in names:
         return set(scope['__all__'].names)
