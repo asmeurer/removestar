@@ -112,14 +112,16 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
                                   name3)
 
     """
+    warning_prefix = f"Warning: {file}: " if file else "Warning: "
+    verbose_prefix = f"{file}: " if file else ""
+
     for mod in repls:
         names = sorted(repls[mod])
 
-        STAR_IMPORT = re.compile(rf'from +{re.escape(mod)} +import +\*\n')
         if not names:
             new_import = ""
         else:
-            new_import = f"from {mod} import " + ', '.join(names) + '\n'
+            new_import = f"from {mod} import " + ', '.join(names)
             if len(new_import) - len(names[-1]) > max_line_length:
                 lines = []
                 line = f"from {mod} import ("
@@ -130,21 +132,84 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
                         line = indent
                     line += name + ', '
                 lines.append(line[:-2] + ')') # Remove last trailing comma
-                new_import = '\n'.join(lines) + '\n'
+                new_import = '\n'.join(lines)
 
-        new_code = STAR_IMPORT.sub(new_import, code)
-        if new_code == code:
-            if not quiet:
-                prefix = f"Warning: {file}:" if file else "Warning:"
-                print(f"{prefix} Could not find the star imports for '{mod}'", file=sys.stderr)
-        elif verbose:
-            msg = f"Replacing 'from {mod} import *' with '{new_import.strip()}'"
-            if file:
-                msg = f"{file}: {msg}"
-            print(msg, file=sys.stderr)
+        def star_import_replacement(match):
+            original_import, after_import, comment = match.group(0, 1, 2)
+            if comment and is_noqa_comment_allowing_star_import(comment):
+                if verbose:
+                    print(f"{verbose_prefix}Retaining 'from {mod} import *' due to noqa comment",
+                          file=sys.stderr)
+                return original_import
+
+            if verbose:
+                print(f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'",
+                      file=sys.stderr)
+
+            if not new_import and comment:
+                if not quiet:
+                    print(f"{warning_prefix}The removed star import statement for '{mod}' "
+                          f"had an inline comment which may not make sense without the import",
+                          file=sys.stderr)
+                return f'{comment}\n'
+            if not (new_import or after_import):
+                return ''
+            return f'{new_import}{after_import or ""}\n'
+
+        star_import = re.compile(rf'from +{re.escape(mod)} +import +\*( *(#.*))?\n')
+        new_code, subs_made = star_import.subn(star_import_replacement, code)
+        if subs_made == 0 and not quiet:
+            print(f"{warning_prefix}Could not find the star imports for '{mod}'",
+                  file=sys.stderr)
         code = new_code
 
     return code
+
+# This regex is based on Flake8's noqa regex:
+#   https://github.com/PyCQA/flake8/blob/9815f4/src/flake8/defaults.py#L27
+# Our version is tweaked to prevent malformed comments being interpreted as bare
+# "noqa" comments (ignore everything). The original version has strict
+# requirements for spaces, while also allowing anything to follow a bare
+# "# noqa" comment, which can result in unintuitive behaviour.
+#
+# The Flake8 version treats these as bare noqa comments, silencing all warnings
+# instead of just E2:
+#
+#   "# noqa E2"    (colon is missing)
+#   "# noqa:  E2"  (two spaces after colon)
+#   "# noqa:\tE2"  (tab instead of space after colon)
+INLINE_NOQA_COMMENT_PATTERN = re.compile(r"""
+^[#][ \t]* noqa
+(?::[ \t]*
+    (?P<codes>
+        (?:[A-Z]+[0-9]+ (?:[, \t]+)?)+
+    )
+)?
+[ \t]*$
+""", flags=re.IGNORECASE | re.VERBOSE)
+NOQA_STAR_IMPORT_CODES = frozenset(['F401', 'F403'])
+
+def is_noqa_comment_allowing_star_import(comment):
+    """
+    Check if a comment string is a Flake8 noqa comment that permits star imports
+
+    The codes F401 and F403 are taken to permit star imports, as is a noqa
+    coment without codes.
+
+    Example:
+
+    >>> is_noqa_comment_allowing_star_import('# noqa')
+    True
+    >>> is_noqa_comment_allowing_star_import('# noqa: FOO12,F403,BAR12')
+    True
+    >>> is_noqa_comment_allowing_star_import('# generic comment')
+    False
+    """
+    match = INLINE_NOQA_COMMENT_PATTERN.match(comment)
+    return bool(match and (
+        match.group('codes') is None or
+        any(code.upper() in NOQA_STAR_IMPORT_CODES
+            for code in re.split(r'[, \t]+', match.group('codes')))))
 
 class ExternalModuleError(Exception):
     pass

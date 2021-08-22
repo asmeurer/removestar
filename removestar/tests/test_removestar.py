@@ -13,6 +13,7 @@ import pytest
 from ..removestar import (names_to_replace, star_imports, get_names,
                           get_names_from_dir, get_names_dynamically, fix_code,
                           get_mod_filename, replace_imports,
+                          is_noqa_comment_allowing_star_import,
                           ExternalModuleError)
 
 
@@ -202,15 +203,46 @@ from mod
 """
 
 code_mod_unfixable = """\
-from .mod1 import *  # noqa: SOMECODE
-from .mod2 import *;
-from .mod3 import\t*
+from .mod1 import *;
+from .mod2 import\t*
+
+def func():
+    return a + c
+"""
+
+mod_unfixable_names = {'a', 'aa', 'b', 'c', 'cc', 'func'}
+
+code_mod_commented_unused_star = """\
+from .mod1 import *  # comment about mod1
+from .mod2 import *  # noqa
+"""
+
+mod_commented_unused_star_names = {'a', 'aa', 'b', 'c', 'cc'}
+
+code_mod_commented_unused_star_fixed = """\
+# comment about mod1
+from .mod2 import *  # noqa
+"""
+
+code_mod_commented_star = """\
+from .mod1 import *  # noqa
+from .mod2 import *  # noqa: F401
+from .mod3 import *  # generic comment
 
 def func():
     return a + c + name
 """
 
-mod_unfixable_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
+mod_commented_star_names = {'a', 'aa', 'b', 'c', 'cc', 'name', 'func'}
+
+code_mod_commented_star_fixed = """\
+from .mod1 import *  # noqa
+from .mod2 import *  # noqa: F401
+from .mod3 import name  # generic comment
+
+def func():
+    return a + c + name
+"""
 
 code_submod_recursive_init = """\
 from .submod1 import *
@@ -270,6 +302,10 @@ def create_module(module):
         f.write(code_bad_syntax)
     with open(module/'mod_unfixable.py', 'w') as f:
         f.write(code_mod_unfixable)
+    with open(module/'mod_commented_unused_star.py', 'w') as f:
+        f.write(code_mod_commented_unused_star)
+    with open(module/'mod_commented_star.py', 'w') as f:
+        f.write(code_mod_commented_star)
     submod = module/'submod'
     os.makedirs(submod)
     with open(submod/'__init__.py', 'w') as f:
@@ -319,6 +355,12 @@ def test_names_to_replace():
     assert names == {'a', 'b'}
 
     names = names_to_replace(Checker(ast.parse(code_mod_unfixable)))
+    assert names == {'a', 'c'}
+
+    names = names_to_replace(Checker(ast.parse(code_mod_commented_unused_star)))
+    assert names == set()
+
+    names = names_to_replace(Checker(ast.parse(code_mod_commented_star)))
     assert names == {'a', 'c', 'name'}
 
 def test_star_imports():
@@ -356,6 +398,12 @@ def test_star_imports():
     assert stars == ['.submod1']
 
     stars = star_imports(Checker(ast.parse(code_mod_unfixable)))
+    assert stars == ['.mod1', '.mod2']
+
+    stars = star_imports(Checker(ast.parse(code_mod_commented_unused_star)))
+    assert stars == ['.mod1', '.mod2']
+
+    stars = star_imports(Checker(ast.parse(code_mod_commented_star)))
     assert stars == ['.mod1', '.mod2', '.mod3']
 
 def test_get_names():
@@ -400,6 +448,12 @@ def test_get_names():
     raises(SyntaxError, lambda: get_names(code_bad_syntax))
 
     names = get_names(code_mod_unfixable)
+    assert names == {'.mod1.*', '.mod2.*', 'func'}
+
+    names = get_names(code_mod_commented_unused_star)
+    assert names == {'.mod1.*', '.mod2.*'}
+
+    names = get_names(code_mod_commented_star)
     assert names == {'.mod1.*', '.mod2.*', '.mod3.*', 'func'}
 
     names = get_names(code_submod_recursive_init)
@@ -435,6 +489,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('.mod8', directory) == mod8_names
         assert get_names_from_dir('.mod9', directory) == mod9_names
         assert get_names_from_dir('.mod_unfixable', directory) == mod_unfixable_names
+        assert get_names_from_dir('.mod_commented_unused_star', directory) == mod_commented_unused_star_names
+        assert get_names_from_dir('.mod_commented_star', directory) == mod_commented_star_names
         assert get_names_from_dir('.submod', directory) == submod_names
         assert get_names_from_dir('.submod.submod1', directory) == submod1_names
         assert get_names_from_dir('.submod.submod2', directory) == submod2_names
@@ -456,6 +512,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.mod8', directory) == mod8_names
         assert get_names_from_dir('module.mod9', directory) == mod9_names
         assert get_names_from_dir('module.mod_unfixable', directory) == mod_unfixable_names
+        assert get_names_from_dir('module.mod_commented_unused_star', directory) == mod_commented_unused_star_names
+        assert get_names_from_dir('module.mod_commented_star', directory) == mod_commented_star_names
         assert get_names_from_dir('module.submod', directory) == submod_names
         assert get_names_from_dir('module.submod.submod1', directory) == submod1_names
         assert get_names_from_dir('module.submod.submod2', directory) == submod2_names
@@ -484,6 +542,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('..mod8', submod) == mod8_names
         assert get_names_from_dir('..mod9', submod) == mod9_names
         assert get_names_from_dir('..mod_unfixable', submod) == mod_unfixable_names
+        assert get_names_from_dir('..mod_commented_unused_star', submod) == mod_commented_unused_star_names
+        assert get_names_from_dir('..mod_commented_star', submod) == mod_commented_star_names
         assert get_names_from_dir('..submod_recursive', submod) == submod_recursive_names
         assert get_names_from_dir('..submod_recursive.submod1', submod) == submod_recursive_submod1_names
         assert get_names_from_dir('..submod_recursive.submod2', submod) == submod_recursive_submod2_names
@@ -500,6 +560,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.mod8', submod) == mod8_names
         assert get_names_from_dir('module.mod9', submod) == mod9_names
         assert get_names_from_dir('module.mod_unfixable', submod) == mod_unfixable_names
+        assert get_names_from_dir('module.mod_commented_unused_star', submod) == mod_commented_unused_star_names
+        assert get_names_from_dir('module.mod_commented_star', submod) == mod_commented_star_names
         assert get_names_from_dir('module.submod', submod) == submod_names
         assert get_names_from_dir('module.submod.submod1', submod) == submod1_names
         assert get_names_from_dir('module.submod.submod2', submod) == submod2_names
@@ -527,6 +589,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('..mod8', submod_recursive) == mod8_names
         assert get_names_from_dir('..mod9', submod_recursive) == mod9_names
         assert get_names_from_dir('..mod_unfixable', submod_recursive) == mod_unfixable_names
+        assert get_names_from_dir('..mod_commented_unused_star', submod_recursive) == mod_commented_unused_star_names
+        assert get_names_from_dir('..mod_commented_star', submod_recursive) == mod_commented_star_names
         assert get_names_from_dir('.', submod_recursive) == submod_recursive_names
         assert get_names_from_dir('..submod_recursive', submod_recursive) == submod_recursive_names
         assert get_names_from_dir('.submod1', submod_recursive) == submod_recursive_submod1_names
@@ -544,6 +608,8 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir('module.mod8', submod_recursive) == mod8_names
         assert get_names_from_dir('module.mod9', submod_recursive) == mod9_names
         assert get_names_from_dir('module.mod_unfixable', submod_recursive) == mod_unfixable_names
+        assert get_names_from_dir('module.mod_commented_unused_star', submod) == mod_commented_unused_star_names
+        assert get_names_from_dir('module.mod_commented_star', submod) == mod_commented_star_names
         assert get_names_from_dir('module.submod', submod_recursive) == submod_names
         assert get_names_from_dir('module.submod.submod1', submod_recursive) == submod1_names
         assert get_names_from_dir('module.submod.submod2', submod_recursive) == submod2_names
@@ -583,6 +649,8 @@ def test_get_names_dynamically(tmpdir):
         assert get_names_dynamically('module.mod8') == mod8_names
         assert get_names_dynamically('module.mod9') == mod9_names
         assert get_names_dynamically('module.mod_unfixable') == mod_unfixable_names
+        assert get_names_dynamically('module.mod_commented_unused_star') == mod_commented_unused_star_names
+        assert get_names_dynamically('module.mod_commented_star') == mod_commented_star_names
         assert get_names_dynamically('module.submod') == submod_dynamic_names
         assert get_names_dynamically('module.submod.submod1') == submod1_names
         assert get_names_dynamically('module.submod.submod2') == submod2_names
@@ -671,8 +739,20 @@ def test_fix_code(tmpdir, capsys):
     assert not out
     assert 'Warning' in err
     assert 'Could not find the star imports for' in err
-    for mod in ["'.mod1'", "'.mod2'", "'.mod3'"]:
+    for mod in ["'.mod1'", "'.mod2'"]:
         assert mod in err
+
+    assert fix_code(code_mod_commented_unused_star, file=directory/'mod_commented_unused_star.py') == code_mod_commented_unused_star_fixed
+    out, err = capsys.readouterr()
+    assert not out
+    assert 'Warning' in err
+    assert ("The removed star import statement for '.mod1' had an inline "
+            "comment which may not make sense without the import") in err
+
+    assert fix_code(code_mod_commented_star, file=directory/'mod_commented_star.py') == code_mod_commented_star_fixed
+    out, err = capsys.readouterr()
+    assert not out
+    assert not err
 
     submod = directory/'submod'
 
@@ -869,25 +949,85 @@ def test_replace_imports():
 
     assert replace_imports(code_mod_unfixable, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
 
+    assert replace_imports(code_mod_commented_unused_star, repls={'.mod1': [], '.mod2': []}) == code_mod_commented_unused_star_fixed
+
+    assert replace_imports(code_mod_commented_star, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_commented_star_fixed
+
+@pytest.mark.parametrize('verbose_enabled, verbose_kwarg', [
+    (False, {}), # Default is False
+    (False, {'verbose': False}),
+    (True, {'verbose': True}),
+], ids=['implicit no verbose', 'explicit no verbose', 'explicit verbose'])
+@pytest.mark.parametrize('kwargs, fixed_code, verbose_messages', [
+    (dict(code=code_mod4, repls={'.mod1': ['a'], '.mod2': ['b', 'c']}),
+     code_mod4_fixed, [
+        "Replacing 'from .mod1 import *' with 'from .mod1 import a'",
+        "Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"
+    ]),
+    (dict(code=code_mod4, repls={'.mod1': ['a'], '.mod2': ['b', 'c']}, file='directory/mod4.py'),
+     code_mod4_fixed, [
+        "directory/mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'",
+        "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"
+    ]),
+    (dict(code=code_mod_commented_star, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}),
+     code_mod_commented_star_fixed, [
+        "Replacing 'from .mod3 import *' with 'from .mod3 import name'",
+        "Retaining 'from .mod1 import *' due to noqa comment",
+        "Retaining 'from .mod2 import *' due to noqa comment"
+    ]),
+    (dict(code=code_mod_commented_star, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}, file='directory/mod_commented_star.py'),
+     code_mod_commented_star_fixed, [
+        "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'",
+        "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment",
+        "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment"
+    ]),
+], ids=[
+    'mod4 without file',
+    'mod4 with file',
+    'mod_commented_star without file',
+    'mod_commented_star with file'
+])
+def test_replace_imports_verbose_messages(kwargs, fixed_code, verbose_messages, verbose_enabled, verbose_kwarg, capsys):
+    assert replace_imports(**kwargs, **verbose_kwarg) == fixed_code
+    _, err = capsys.readouterr()
+    if verbose_enabled:
+        assert sorted(err.splitlines()) == verbose_messages
+    else:
+        assert err == ''
+
 
 def test_replace_imports_warnings(capsys):
-    assert replace_imports(code_mod_unfixable, file='module/mod_unfixable.py', repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
+    assert replace_imports(code_mod_unfixable, file='module/mod_unfixable.py', repls={'.mod1': ['a'], '.mod2': ['c']}) == code_mod_unfixable
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
         "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod1'",
-        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'",
-        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod3'"
+        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'"
     }
 
-    assert replace_imports(code_mod_unfixable, file=None, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
+    assert replace_imports(code_mod_unfixable, file=None, repls={'.mod1': ['a'], '.mod2': ['c']}) == code_mod_unfixable
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
         "Warning: Could not find the star imports for '.mod1'",
-        "Warning: Could not find the star imports for '.mod2'",
-        "Warning: Could not find the star imports for '.mod3'"
+        "Warning: Could not find the star imports for '.mod2'"
     }
 
-    assert replace_imports(code_mod_unfixable, quiet=True, repls={'.mod1': ['a'], '.mod2': ['c'], '.mod3': ['name']}) == code_mod_unfixable
+    assert replace_imports(code_mod_unfixable, quiet=True, repls={'.mod1': ['a'], '.mod2': ['c']}) == code_mod_unfixable
+    out, err = capsys.readouterr()
+    assert err == ''
+
+    assert replace_imports(code_mod_commented_unused_star, file='module/mod_commented_unused_star.py', repls={'.mod1': [], '.mod2': []}) == code_mod_commented_unused_star_fixed
+    out, err = capsys.readouterr()
+    assert set(err.splitlines()) == {
+        "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import",
+    }
+
+    assert replace_imports(code_mod_commented_unused_star, file=None, repls={'.mod1': [], '.mod2': []}) == code_mod_commented_unused_star_fixed
+    out, err = capsys.readouterr()
+    assert set(err.splitlines()) == {
+        "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import",
+    }
+
+    assert replace_imports(code_mod_commented_unused_star, quiet=True, repls={'.mod1': [], '.mod2': []}) == code_mod_commented_unused_star_fixed
     out, err = capsys.readouterr()
     assert err == ''
 
@@ -967,6 +1107,37 @@ from reallyreallylongmodulename import longname1, longname2, longname3, longname
     assert replace_imports(code, repls, max_line_length=float('inf')) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
 
+@pytest.mark.parametrize('case_permutation', [
+    lambda s: s,
+    lambda s: s.upper(),
+    lambda s: s.lower()
+], ids=['same case', 'upper case', 'lower case'])
+@pytest.mark.parametrize('allows_star, comment', [
+    (True, '# noqa'),
+    (True, '#noqa'),
+    (True, '#  noqa  '),
+    (False, '#  noqa foo bar'),
+    (False, '#  noqa:'),
+    (False, '#  noqa :'),
+    (True, '# noqa: F401'),
+    (True, '#noqa:F401'),
+    (True, '#  noqa:  F401  '),
+    (True, '#\tnoqa:\tF401\t'),
+    (True, '# noqa: F403'),
+    (True, '# noqa: A1,F403,A1'),
+    (True, '# noqa: A1 F401 A1'),
+    (True, '# noqa: A1, F401, A1'),
+    (True, '# noqa: A1 , F401 , A1'),
+    (False, '# generic comment'),
+    (False, '#'),
+    (False, ''),
+    (False, '# foo: F401'),
+    (False, '# F401'),
+    (False, '# noqa F401'), # missing : after noqa
+])
+def test_is_noqa_comment_allowing_star_import(case_permutation, allows_star, comment):
+    assert is_noqa_comment_allowing_star_import(case_permutation(comment)) is allows_star
+
 def _dirs_equal(cmp):
     if cmp.diff_files:
         return False
@@ -1005,7 +1176,7 @@ Warning: {directory}/mod5.py: 'b' comes from multiple modules: 'module.mod1', 'm
 Warning: {directory}/mod5.py: could not find import for 'd'
 Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod1'
 Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod2'
-Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod3'
+Warning: {directory}/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import
 """.splitlines())
 
     error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (mod_bad.py, line 1)"
@@ -1063,6 +1234,27 @@ f"""\
  \n\
  def func():
      return a + b\
+""",
+
+f"""\
+--- original/{directory}/mod_commented_unused_star.py
++++ fixed/{directory}/mod_commented_unused_star.py
+@@ -1,2 +1,2 @@
+-from .mod1 import *  # comment about mod1
++# comment about mod1
+ from .mod2 import *  # noqa\
+""",
+
+f"""\
+--- original/{directory}/mod_commented_star.py
++++ fixed/{directory}/mod_commented_star.py
+@@ -1,6 +1,6 @@
+ from .mod1 import *  # noqa
+ from .mod2 import *  # noqa: F401
+-from .mod3 import *  # generic comment
++from .mod3 import name  # generic comment
+ \n\
+ def func():\
 """,
 
 f"""\
@@ -1145,6 +1337,11 @@ f"""\
 {directory}/mod6.py: Replacing 'from os.path import *' with 'from os.path import isfile, join'
 {directory}/mod7.py: Replacing 'from .mod6 import *' with ''
 {directory}/mod9.py: Replacing 'from .mod8 import *' with 'from .mod8 import a, b'
+{directory}/mod_commented_unused_star.py: Replacing 'from .mod1 import *' with ''
+{directory}/mod_commented_unused_star.py: Retaining 'from .mod2 import *' due to noqa comment
+{directory}/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'
+{directory}/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment
+{directory}/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment
 {directory}/submod/submod1.py: Replacing 'from ..mod1 import *' with 'from ..mod1 import a'
 {directory}/submod/submod1.py: Replacing 'from ..mod2 import *' with 'from ..mod2 import b, c'
 {directory}/submod/submod1.py: Replacing 'from .submod3 import *' with 'from .submod3 import e'
@@ -1198,7 +1395,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
     assert p.stdout == ''
     cmp = dircmp(directory, directory_orig)
     assert not _dirs_equal(cmp)
-    assert cmp.diff_files == ['mod4.py', 'mod5.py', 'mod6.py', 'mod7.py', 'mod9.py']
+    assert cmp.diff_files == ['mod4.py', 'mod5.py', 'mod6.py', 'mod7.py', 'mod9.py', 'mod_commented_star.py', 'mod_commented_unused_star.py']
     assert cmp.subdirs['submod'].diff_files == ['submod1.py', 'submod2.py', 'submod4.py']
     assert cmp.subdirs['submod_recursive'].diff_files == ['submod2.py']
     with open(directory/'mod4.py') as f:
@@ -1211,6 +1408,10 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         assert f.read() == code_mod7_fixed
     with open(directory/'mod9.py') as f:
         assert f.read() == code_mod9_fixed
+    with open(directory/'mod_commented_unused_star.py') as f:
+        assert f.read() == code_mod_commented_unused_star_fixed
+    with open(directory/'mod_commented_star.py') as f:
+        assert f.read() == code_mod_commented_star_fixed
     with open(directory/'submod'/'submod1.py') as f:
         assert f.read() == code_submod1_fixed
     with open(directory/'submod'/'submod2.py') as f:
