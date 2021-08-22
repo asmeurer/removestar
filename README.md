@@ -195,6 +195,24 @@ optional arguments:
                         (default: 100)
 ```
 
+## Whitelisting star imports
+
+`removestar` does not replace star import lines that are marked with
+[Flake8 `noqa` comments][noqa-comments] that permit star imports (`F401` or
+`F403`).
+
+[noqa-comments]: https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html#in-line-ignoring-errors
+
+For example, the star imports in this module would be kept:
+
+```py
+from os import *  # noqa: F401
+from .b import *  # noqa
+
+def func(x):
+    return x + y
+```
+
 ## Changelog
 
 See the [CHANGELOG](CHANGELOG.md) file.
