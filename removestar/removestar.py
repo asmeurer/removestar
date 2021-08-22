@@ -129,7 +129,7 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
                         lines.append(line.rstrip())
                         line = indent
                     line += name + ', '
-                lines.append(line[:-2] + ')') # Remove last trailing comma
+                lines.append(line[:-2] + ')')  # Remove last trailing comma
                 new_import = '\n'.join(lines) + '\n'
 
         new_code = STAR_IMPORT.sub(new_import, code)

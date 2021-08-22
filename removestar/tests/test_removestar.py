@@ -929,7 +929,6 @@ from reallyreallylongmodulename import (longname1,
                                         longname8,
                                         longname9)''')
 
-
     assert replace_imports(code, repls, max_line_length=50) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import (longname1,
                                         longname2,
@@ -940,8 +939,6 @@ from reallyreallylongmodulename import (longname1,
                                         longname7,
                                         longname8,
                                         longname9)''')
-
-
 
     assert replace_imports(code, repls, max_line_length=51) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import (longname1,
@@ -954,12 +951,9 @@ from reallyreallylongmodulename import (longname1,
                                         longname8,
                                         longname9)''')
 
-
-
     assert replace_imports(code, repls, max_line_length=120) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7,
                                         longname8, longname9)''')
-
 
     assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
@@ -1160,7 +1154,6 @@ f"""\
         assert d in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
-
 
     p = subprocess.run([sys.executable, '-m', 'removestar', '--no-dynamic-importing', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,

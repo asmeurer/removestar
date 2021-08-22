@@ -24,10 +24,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyflakes pytest pytest-doctestplus
+          pip install flake8 pytest pytest-doctestplus
       - name: Lint
         run: |
-          pyflakes .
+          flake8 --ignore=E122,E128,E226,E302,E402,W504 \
+                 --max-complexity=18 --max-line-length=263 \
+                 --show-source --statistics
           python -We:invalid -We::SyntaxWarning -m compileall -f -q removestar/
       - name: Test
         run: |

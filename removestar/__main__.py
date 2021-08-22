@@ -92,5 +92,6 @@ def _iter_paths(paths):
         else:
             yield path
 
+
 if __name__ == '__main__':
     main()
