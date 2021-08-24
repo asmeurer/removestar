@@ -1,21 +1,30 @@
+# 1.3 (2021-08-24)
+
+## New Features
+- Lines with star imports can now contain comments.
+- Star imports can be whitelisted using `# noqa` comments.
+- Replaced Travis CI with GitHub Actions.
+
+Thanks to [@h4l](https://github.com/h4l) for these improvements.
+
 # 1.2.4 (2021-08-16)
-## Bug fixes
+## Bug Fixes
 - Fix an incorrectly done release from 1.2.3.
 
 # 1.2.3 (2021-08-16)
-## Bug fixes
+## Bug Fixes
 - Fix unformatted module name placeholder in "Could not find the star imports"
   warning (thanks to [@h4l](https://github.com/h4l)).
 
 # 1.2.2 (2019-08-22)
-## Bug fixes
+## Bug Fixes
 - Names that are used more than once no longer produce duplicate imports.
 - Files are no longer read redundantly.
 - Files are no longer written into if the code does not change.
 - A blank line is no longer printed for empty diffs.
 
 # 1.2.1 (2019-08-17)
-## Bug fixes
+## Bug Fixes
 - Imports that are completely removed are no longer replaced with a blank line.
 
 # 1.2 (2019-08-16)
@@ -29,7 +38,7 @@
 - Catch all errors when importing external modules dynamically.
 - Better error message for same-module absolute imports that don't exist.
 
-## Bug fixes
+## Bug Fixes
 - Don't consider `__builtins__` to be imported from external modules (even
   though it technically is).
 - Make sure pytest-doctestplus is installed when running the tests.
