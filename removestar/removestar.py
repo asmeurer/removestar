@@ -122,7 +122,7 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
             new_import = ""
         else:
             new_import = f"from {mod} import " + ', '.join(names)
-            if len(new_import) - len(names[-1]) > max_line_length:
+            if len(new_import) > max_line_length:
                 lines = []
                 line = f"from {mod} import ("
                 indent = ' '*len(line)

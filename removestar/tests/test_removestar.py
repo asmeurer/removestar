@@ -1100,6 +1100,17 @@ from reallyreallylongmodulename import (longname1,
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7,
                                         longname8, longname9)''')
 
+    assert len("from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9") == 136
+
+    assert replace_imports(code, repls, max_line_length=137) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
+
+    assert replace_imports(code, repls, max_line_length=136) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
+
+    assert replace_imports(code, repls, max_line_length=135) == code_fixed.format(imp='''\
+from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8,
+                                        longname9)''')
 
     assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(imp='''\
 from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9''')
