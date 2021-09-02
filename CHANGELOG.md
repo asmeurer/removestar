@@ -1,3 +1,10 @@
+# 1.3.1 (2021-09-02)
+
+## Bug Fixes
+- Fix the line wrapping logic to always wrap import lines if they are greater
+  than the max line length (previously it would not account for the last
+  imported name in the line).
+
 # 1.3 (2021-08-24)
 
 ## New Features
