@@ -62,7 +62,7 @@ def main():
             print(f"Error: {file}: no such file or directory", file=sys.stderr)
             continue
 
-        with open(file) as f:
+        with open(file, encoding='utf-8') as f:
             code = f.read()
 
         try:
@@ -75,7 +75,7 @@ def main():
 
         if new_code != code:
             if args.in_place:
-                with open(file, 'w') as f:
+                with open(file, 'w', encoding='utf-8') as f:
                     f.write(new_code)
             else:
 
