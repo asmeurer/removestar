@@ -2,6 +2,35 @@
 requires = ["setuptools>=42.2", "versioneer[toml]"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "removestar"
+authors = [{name = "Aaron Meurer", email = "asmeurer@gmail.com"}]
+license = {text = "MIT"}
+description = "A tool to automatically replace 'import *' imports with explicit imports in files"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.6"
+dependencies = ["pyflakes"]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://www.asmeurer.com/removestar/"
+"Source Code" = "https://github.com/asmeurer/removestar"
+"Bug Tracker" = "https://github.com/asmeurer/removestar/issues"
+
+[project.scripts]
+removestar = "removestar.__main__:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
 [tool.versioneer]
 VCS = "git"
 style = "pep440"
