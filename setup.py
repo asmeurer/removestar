@@ -15,6 +15,10 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://www.asmeurer.com/removestar/",
+    project_urls = {
+        "Source Code": "https://github.com/asmeurer/removestar",
+        "Bug Tracker": "https://github.com/asmeurer/removestar/issues",
+    },
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
