@@ -1325,7 +1325,7 @@ f"""\
     for d in diffs:
         assert d in p.stdout, p.stdout
     for mod_path in unchanged:
-        assert '--- original/{directory}/{mod_path}' not in p.stdout
+        assert f'--- original/{directory}/{mod_path}' not in p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
