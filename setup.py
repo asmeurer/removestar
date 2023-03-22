@@ -30,5 +30,6 @@ setuptools.setup(
     install_requires=[
         'pyflakes'
     ],
+    extras_require={'nb':['nbformat','nbconvert']},
     license='MIT',
 )
