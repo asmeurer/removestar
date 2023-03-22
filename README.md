@@ -34,11 +34,19 @@ conda install -c conda-forge removestar
 ## Usage
 
 ```
+## scripts
+
 $ removestar file.py # Shows diff but does not edit file.py
 
 $ removestar -i file.py # Edits file.py in-place
 
 $ removestar -i module/ # Modifies every Python file in module/ recursively
+
+## notebooks
+
+$ removestar file.ipynb # Shows diff but does not edit file.ipynb
+
+$ removestar -i file.ipynb # Edits file.ipynb in-place
 ```
 
 ## Why is `import *` so bad?
@@ -92,6 +100,15 @@ Unfortunately, if you come across a file in the wild that uses `import *`, it
 can be hard to fix it, because you need to find every name in the file that is
 imported from the `*`. Removestar makes this easy by finding which names come
 from `*` imports and replacing the import lines in the file automatically.
+
+One exception where `import *` can be bneficial:  
+At the early stages of code development, a definite set of required
+functions can be difficult to determine. In such a context, wildcard imports could be 
+beneficial by avoiding constantly curating the set of required functions. For example,
+at the development stage usage of `from os.path import *` can save time from curating
+required functions. Post-development, the wld card imports could be determined using 
+`removestar`. Having said that, because of the multiple said reasons, wildcard imports
+should be avoided.
 
 ## Example
 
