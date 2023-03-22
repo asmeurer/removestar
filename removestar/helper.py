@@ -39,3 +39,4 @@ def get_diff_text(old, new, filename):
             text += newline + r'\ No newline at end of file' + newline
 
     return text
+

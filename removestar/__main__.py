@@ -21,7 +21,7 @@ import io
 import os
 import sys
 
-from .removestar import fix_code
+from .removestar import fix_code, removestar_nb
 from .helper import get_diff_text
 
 class RawDescriptionHelpArgumentDefaultsHelpFormatter(argparse.RawDescriptionHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
@@ -37,6 +37,7 @@ def main():
     parser.add_argument('--no-skip-init', action='store_false',
                         dest='skip_init', help="Don't skip __init__.py files (they are skipped by default)")
     parser.add_argument('--no-dynamic-importing', action='store_false', dest='allow_dynamic', help="""Don't dynamically import modules to determine the list of names. This is required for star imports from external modules and modules in the standard library.""")
+    parser.add_argument('-o', '--out', help="""Path to the output file. Applicable to notebooks only""")
     parser.add_argument('-v', '--verbose', action='store_true', help="""Print information about every imported name that is replaced.""")
     parser.add_argument('-q', '--quiet', action='store_true', help="""Don't print any warning messages.""")
     parser.add_argument('--max-line-length', type=int, default=100,
@@ -61,26 +62,36 @@ def main():
         if not os.path.isfile(file):
             print(f"Error: {file}: no such file or directory", file=sys.stderr)
             continue
+        if file.endswith('.py'):
+            with open(file, encoding='utf-8') as f:
+                code = f.read()
 
-        with open(file, encoding='utf-8') as f:
-            code = f.read()
+            try:
+                new_code = fix_code(code, file=file, max_line_length=args.max_line_length,
+                                    verbose=args.verbose, quiet=args.quiet, allow_dynamic=args.allow_dynamic)
+            except (RuntimeError, NotImplementedError) as e:
+                if not args.quiet:
+                    print(f"Error with {file}: {e}", file=sys.stderr)
+                continue
 
-        try:
-            new_code = fix_code(code, file=file, max_line_length=args.max_line_length,
-                                verbose=args.verbose, quiet=args.quiet, allow_dynamic=args.allow_dynamic)
-        except (RuntimeError, NotImplementedError) as e:
-            if not args.quiet:
-                print(f"Error with {file}: {e}", file=sys.stderr)
-            continue
+            if new_code != code:
+                if args.in_place:
+                    with open(file, 'w', encoding='utf-8') as f:
+                        f.write(new_code)
+                else:
 
-        if new_code != code:
-            if args.in_place:
-                with open(file, 'w', encoding='utf-8') as f:
-                    f.write(new_code)
-            else:
-
-                print(get_diff_text(io.StringIO(code).readlines(),
-                    io.StringIO(new_code).readlines(), file))
+                    print(get_diff_text(io.StringIO(code).readlines(),
+                        io.StringIO(new_code).readlines(), file))
+        elif file.endswith('.ipynb'):
+            kws_fix_code=dict(quiet=args.quiet, allow_dynamic=args.allow_dynamic,max_line_length=args.max_line_length)
+            removestar_nb(
+                nb_path=file,
+                output_path=args.out,
+                py_path=None,
+                in_place=args.in_place,
+                verbose=args.verbose,
+                **kws_fix_code,
+                )            
 
 def _iter_paths(paths):
     for path in paths:

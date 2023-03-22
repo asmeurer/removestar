@@ -27,7 +27,7 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(code, *, file, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True):
+def fix_code(code, *, file, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True, **kws_replace_imports):
     """
     Return a fixed version of the code `code` from the file `file`
 
@@ -67,12 +67,12 @@ def fix_code(code, *, file, max_line_length=100, verbose=False, quiet=False, all
 
         repls[mods[-1]].append(name)
 
-    new_code = replace_imports(code, repls, file=file, verbose=verbose,
-                               quiet=quiet, max_line_length=max_line_length)
+    output = replace_imports(code, repls, file=file, verbose=verbose,
+                               quiet=quiet, max_line_length=max_line_length,**kws_replace_imports)
 
-    return new_code
+    return output
 
-def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False):
+def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False,return_replacements=False):
     """
     Replace the star imports in code
 
@@ -114,6 +114,8 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
     warning_prefix = f"Warning: {file}: " if file else "Warning: "
     verbose_prefix = f"{file}: " if file else ""
 
+    if return_replacements:
+        repls_strings={}
     for mod in repls:
         names = sorted(repls[mod])
 
@@ -154,14 +156,23 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
             if not (new_import or after_import):
                 return ''
             return f'{new_import}{after_import or ""}\n'
-
+            
         star_import = re.compile(rf'from +{re.escape(mod)} +import +\*( *(#.*))?\n')
         new_code, subs_made = star_import.subn(star_import_replacement, code)
         if subs_made == 0 and not quiet:
             print(f"{warning_prefix}Could not find the star imports for '{mod}'",
                   file=sys.stderr)
+        else:
+            if return_replacements:
+                # repls_strings[f'from {mod} import *']=[]
+                for match in star_import.finditer(code):
+                    # repls_strings[f'from {mod} import *']+=[star_import_replacement(match)]
+                    repls_strings[f'from {mod} import *']=star_import_replacement(match).strip()
+                    break
         code = new_code
 
+    if return_replacements:
+        return repls_strings
     return code
 
 # This regex is based on Flake8's noqa regex:
@@ -361,3 +372,110 @@ def get_names(code, filename='<unknown>'):
     if '__all__' in names:
         return set(scope['__all__'].names)
     return names
+
+## for jupyter notebooks with .ipynb extension
+def replace_in_nb(
+    nb,
+    replaces: dict,
+    cell_type: str='code',
+    ):
+    """
+    Replace text in a jupyter notebook.
+    
+    Parameters
+        nb: notebook object obtained from `nbformat.reads`.
+        replaces (dict): mapping of text to 'replace from' to the one to 'replace with'.
+        cell_type (str): the type of the cell.
+    
+    Returns:
+        new_nb: notebook object.        
+    """
+    new_nb=nb.copy()
+    for replace_from, replace_to in replaces.items():
+        break_early= str(nb).count(replace_from)==1
+        for i,d in enumerate(new_nb['cells']):
+            if d['cell_type']==cell_type:
+                if replace_from in d['source']:
+                    d['source']=d['source'].replace(replace_from,replace_to)            
+                    new_nb['cells'][i]=d
+                    if break_early:
+                        break
+    return new_nb
+
+def removestar_nb(
+    nb_path: str,
+    output_path: str=None,
+    py_path: str=None,
+    in_place: bool=False,
+    verbose: bool=False,
+    test: bool=False,
+    **kws_fix_code,
+    ) -> str:
+    """
+    Remove stars in a jupyter notebook.
+    
+    Parameters
+        nb_path (str): path to the notebook.
+        output_path (str): path to the output.
+        py_path (str): path to the intermediate .py file.
+        in_place (bool): whether to carry out the modification in place.
+        verbose (bool): verbose toggle.
+        test (bool): test-mode if output file not provided and in-place modification not allowed.
+    
+    Returns:
+        output_path (str): path to the modified notebook.            
+    """
+    try:
+        import nbformat
+        from nbconvert import PythonExporter, NotebookExporter
+    except ImportError as error:
+        logging.error(f'Install missing requirements using: pip install removestar[nb]')
+    # from removestar.removestar import fix_code
+    
+    ## infer input parameters
+    if output_path is None:
+        if in_place:
+            output_path=nb_path
+        else:
+            test=True
+            verbose=True
+    if py_path is None:
+        import tempfile
+        py_fh=tempfile.NamedTemporaryFile()
+        py_path=py_fh.name
+    else:
+        py_fh=open(py_path, 'w+')
+    
+    ## read nb
+    with open(nb_path) as fh:
+        nb = nbformat.reads(fh.read(), nbformat.NO_CONVERT)
+    
+    ## save as py
+    exporter = PythonExporter()
+    source, meta = exporter.from_notebook_node(nb)
+    py_fh.write(source.encode('utf-8'))
+    
+    ## get replaces
+    replaces=fix_code(
+        code=source,
+        file=py_path, # probably unnecessary parameter in this context?
+        verbose=verbose,
+        return_replacements=True, # new parameter
+        **kws_fix_code,
+    )
+    py_fh.close()
+
+    ## apply replaces
+    new_nb=replace_in_nb(
+        nb,
+        replaces,
+        cell_type='code',
+        )
+
+    ## save new nb
+    to_nb=NotebookExporter()
+    source_nb,_=to_nb.from_notebook_node(new_nb)
+    if not test:
+        with open(output_path, 'w+') as fh:
+            fh.writelines(source_nb)
+        return output_path
