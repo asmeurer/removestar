@@ -1,5 +1,15 @@
 # removestar
 
+[![Actions Status][actions-badge]][actions-link]
+[![pre-commit.ci status][pre-commit-badge]][pre-commit-link]
+[![codecov percentage][codecov-badge]][codecov-link]
+[![GitHub Discussion][github-discussions-badge]][github-discussions-link]
+
+[![PyPI platforms][pypi-platforms]][pypi-link]
+[![PyPI version][pypi-version]][pypi-link]
+[![LICENSE][license-badge]][license-link]
+[![Ruff][ruff-badge]][ruff-link]
+
 [![Build Status](https://github.com/asmeurer/removestar/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/asmeurer/removestar/actions?query=branch:master)
 
 Tool to automatically replace `import *` imports in Python files with explicit imports
@@ -220,3 +230,19 @@ See the [CHANGELOG](CHANGELOG.md) file.
 ## License
 
 [MIT](LICENSE)
+
+[actions-badge]: https://github.com/asmeurer/removestar/workflows/CI/badge.svg
+[actions-link]: https://github.com/asmeurer/removestar/actions
+[codecov-badge]: https://codecov.io/gh/asmeurer/removestar/branch/main/graph/badge.svg?token=YBv60ueORQ
+[codecov-link]: https://codecov.io/gh/asmeurer/removestar
+[github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
+[github-discussions-link]: https://github.com/asmeurer/removestar/discussions
+[license-badge]: https://img.shields.io/badge/MIT-blue.svg
+[license-link]: https://opensource.org/licenses/MIT
+[pre-commit-badge]: https://results.pre-commit.ci/badge/github/asmeurer/removestar/develop.svg
+[pre-commit-link]: https://results.pre-commit.ci/repo/github/asmeurer/removestar
+[pypi-link]: https://pypi.org/project/rmstar/
+[pypi-platforms]: https://img.shields.io/pypi/pyversions/rmstar
+[pypi-version]: https://badge.fury.io/py/rmstar.svg
+[ruff-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+[ruff-link]: https://github.com/astral-sh/ruff
