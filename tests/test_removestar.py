@@ -1170,12 +1170,12 @@ def test_cli(tmpdir):
 
     # Make sure we are running the command for the right file
     p = subprocess.run([sys.executable, '-m', 'removestar', '--_this-file', 'none'],
-                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', check=True)
     assert p.stderr == ''
     assert p.stdout == __file__
 
     p = subprocess.run([sys.executable, '-m', 'removestar', directory],
-                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', check=True)
     warnings = set(f"""\
 Warning: {directory}/submod/submod1.py: 'b' comes from multiple modules: '..mod1', '..mod2'. Using '..mod2'.
 Warning: {directory}/submod/submod1.py: could not find import for 'd'
@@ -1330,7 +1330,7 @@ f"""\
     assert _dirs_equal(cmp)
 
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', directory],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', check=True)
     assert p.stderr == ''
     for d in diffs:
         assert d in p.stdout
@@ -1339,7 +1339,7 @@ f"""\
 
     p = subprocess.run([sys.executable, '-m', 'removestar', '--verbose', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       encoding='utf-8')
+                       encoding='utf-8', check=True)
     changes = set(f"""\
 {directory}/mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'
 {directory}/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'
@@ -1372,7 +1372,7 @@ f"""\
 
     p = subprocess.run([sys.executable, '-m', 'removestar', '--no-dynamic-importing', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       encoding='utf-8')
+                       encoding='utf-8', check=True)
     static_error = set(f"""\
 Error with {directory}/mod6.py: Static determination of external module imports is not supported.
 Error with {directory}/mod7.py: Static determination of external module imports is not supported.
@@ -1389,7 +1389,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
     # Test --quiet hides both errors
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '--no-dynamic-importing', directory],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       encoding='utf-8')
+                       encoding='utf-8', check=True)
     assert p.stderr == ''
     for d in diffs:
         if 'mod6' in d:
@@ -1401,7 +1401,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
 
     # XXX: This modifies directory, so keep it at the end of the test
     p = subprocess.run([sys.executable, '-m', 'removestar', '--quiet', '-i', directory],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', check=True)
     assert p.stderr == ''
     assert p.stdout == ''
     cmp = dircmp(directory, directory_orig)
@@ -1439,6 +1439,6 @@ Error with {directory}/mod7.py: Static determination of external module imports 
     # Test error on nonexistent file
     p = subprocess.run([sys.executable, '-m', 'removestar', directory/'notarealfile.py'],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       encoding='utf-8')
+                       encoding='utf-8', check=True)
     assert p.stderr == f'Error: {directory}/notarealfile.py: no such file or directory\n'
     assert p.stdout == ''

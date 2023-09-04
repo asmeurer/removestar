@@ -27,7 +27,7 @@ jobs:
           pip install pyflakes pytest pytest-doctestplus ruff
       - name: Lint
         run: |
-          ruff --select=A,B,E,F,PLC,PLE,PLW,SIM,W --ignore=B023,B904,E402,PLC1901,SIM115 --line-length=263 --statistics .
+          ruff --select=A,B,E,F,PLC,PLE,PLW,SIM,W --ignore=B023,B904,E402,PLC1901,SIM115,B018 --line-length=263 --statistics .
           python -We:invalid -We::SyntaxWarning -m compileall -f -q removestar/
       - name: Test
         run: |
