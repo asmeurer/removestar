@@ -122,14 +122,13 @@ def main():
             if args.in_place:
                 with open(file, "w", encoding="utf-8") as f:
                     f.write(new_code)
-            else:
-                print(
-                    get_diff_text(
-                        io.StringIO(code).readlines(),
-                        io.StringIO(new_code).readlines(),
-                        file,
-                    )
+            print(
+                get_diff_text(
+                    io.StringIO(code).readlines(),
+                    io.StringIO(new_code).readlines(),
+                    file,
                 )
+            )
 
     if exit_1:
         sys.exit(1)
