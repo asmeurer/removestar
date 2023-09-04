@@ -10,8 +10,6 @@
 [![LICENSE][license-badge]][license-link]
 [![Ruff][ruff-badge]][ruff-link]
 
-[![Build Status](https://github.com/asmeurer/removestar/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/asmeurer/removestar/actions?query=branch:master)
-
 Tool to automatically replace `import *` imports in Python files with explicit imports
 
 Requires pyflakes.
@@ -241,8 +239,8 @@ See the [CHANGELOG](CHANGELOG.md) file.
 [license-link]: https://opensource.org/licenses/MIT
 [pre-commit-badge]: https://results.pre-commit.ci/badge/github/asmeurer/removestar/develop.svg
 [pre-commit-link]: https://results.pre-commit.ci/repo/github/asmeurer/removestar
-[pypi-link]: https://pypi.org/project/rmstar/
-[pypi-platforms]: https://img.shields.io/pypi/pyversions/rmstar
-[pypi-version]: https://badge.fury.io/py/rmstar.svg
+[pypi-link]: https://pypi.org/project/removestar/
+[pypi-platforms]: https://img.shields.io/pypi/pyversions/removestar
+[pypi-version]: https://badge.fury.io/py/removestar.svg
 [ruff-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
 [ruff-link]: https://github.com/astral-sh/ruff
