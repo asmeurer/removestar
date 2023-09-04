@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "removestar"
+readme = { file = "README.md", content-type = "text/markdown" }
+dynamic = ["version"]
+description = "A tool to automatically replace 'import *' imports with explicit imports in files"
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
+]
+maintainers = [
+    {name = "Saransh Chopra", email = "saransh0701@gmail.com"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "pyflakes",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=6",
+  "pytest-cov>=3",
+  "pytest-doctestplus"
+]
+
+
+[project.scripts]
+removestar = "removestar.__main__:main"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/asmeurer/removestar/issues"
+Homepage = "https://www.asmeurer.com/removestar/"
+"Source Code" = "https://github.com/asmeurer/removestar"
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "removestar/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/removestar",
+]
+
+[tool.ruff]
+select = [
+  "E", "F", "W", # flake8
+  "B", "B904",   # flake8-bugbear
+  "I",           # isort
+  "C4",          # flake8-comprehensions
+  "ISC",         # flake8-implicit-str-concat
+  "PGH",         # pygrep-hooks
+  "PIE",         # flake8-pie
+  "PL",          # pylint
+  "PT",          # flake8-pytest-style
+  "RUF",         # Ruff-specific
+  "SIM",         # flake8-simplify
+  "T20",         # flake8-print
+  "UP",          # pyupgrade
+  "YTT",         # flake8-2020
+]
+extend-ignore = [
+  "E501",  # Line too long
+]
+src = ["src"]
+unfixable = [
+  "T20",  # Removes print statements
+  "F841", # Removes unused variables
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+xfail_strict = true
+addopts = [
+    "--doctest-modules"
+]
+testpaths = [
+    "tests",
+]
+log_cli_level = "DEBUG"
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
