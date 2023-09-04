@@ -42,9 +42,9 @@ dev = [
 removestar = "removestar.__main__:main"
 
 [project.urls]
-"Bug Tracker" = "https://github.com/Saransh-cpp/removestar/issues"
-Homepage = "https://www.asmeurer.com/Saransh-cpp/"
-"Source Code" = "https://github.com/Saransh-cpp/removestar"
+"Bug Tracker" = "https://github.com/asmeurer/removestar/issues"
+Homepage = "https://www.asmeurer.com/removestar/"
+"Source Code" = "https://github.com/asmeurer/removestar"
 
 [tool.hatch]
 version.source = "vcs"
