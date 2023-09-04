@@ -12,21 +12,6 @@
 
 Tool to automatically replace `import *` imports in Python files with explicit imports
 
-Requires pyflakes.
-
-Current limitations:
-
-- Assumes only names in the current file are used by star imports (e.g., it
-  won't work to replace star imports in `__init__.py`).
-
-For files within the same module, removestar determines missing imported names
-statically. For external library imports, including imports of standard
-library modules, it dynamically imports the module to determine the names.
-This can be disabled with the `--no-dynamic-importing` flag.
-
-See the [issue tracker](https://github.com/asmeurer/removestar/issues). Pull
-requests are welcome.
-
 ## Installation
 
 ```
@@ -220,6 +205,21 @@ from .b import *  # noqa
 def func(x):
     return x + y
 ```
+
+## Current limitations
+
+- Assumes only names in the current file are used by star imports (e.g., it
+  won't work to replace star imports in `__init__.py`).
+
+- For files within the same module, removestar determines missing imported names
+  statically. For external library imports, including imports of standard
+  library modules, it dynamically imports the module to determine the names.
+  This can be disabled with the `--no-dynamic-importing` flag.
+
+## Contributing
+
+See the [issue tracker](https://github.com/asmeurer/removestar/issues). Pull
+requests are welcome.
 
 ## Changelog
 
