@@ -36,13 +36,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install rmstar
+      - name: Install removestar
         run: |
           python -m pip install -e ".[dev]"
 
-      - name: Test rmstar
+      - name: Test removestar
         run: |
-          pytest --cov=rmstar .
+          pytest --cov=removestar .
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3.1.4
