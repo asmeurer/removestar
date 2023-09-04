@@ -73,7 +73,12 @@ select = [
   "YTT",         # flake8-2020
 ]
 extend-ignore = [
-  "E501",  # Line too long
+  "E501",        # Line too long
+  "PLR0915",     # Too many statements
+  "PLR0913",     # Too many arguments to function call
+  "T201",        # Print statements
+  "B904",        # Raise exception with `raise ... from err`
+  "B023",        # Function definition does not bind loop variable
 ]
 src = ["src"]
 unfixable = [

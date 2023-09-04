@@ -1,0 +1,69 @@
+ci:
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
+  autofix_commit_msg: "style: pre-commit fixes"
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black-jupyter
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-yaml
+      - id: debug-statements
+      - id: end-of-file-fixer
+        exclude: ^docs
+      - id: mixed-line-ending
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: "v0.0.282"
+    hooks:
+      - id: ruff
+        args: ["--fix", "--show-fixes"]
+
+  # TODO: add static types
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.4.1
+  #   hooks:
+  #     - id: mypy
+  #       files: src
+  #       args: []
+  #       additional_dependencies:
+  #         - numpy
+  #         - packaging
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v3.0.1"
+    hooks:
+      - id: prettier
+        types_or: [yaml, markdown, html, css, scss, javascript, json]
+        exclude: assets/js/webapp\.js
+
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.15.0
+    hooks:
+      - id: blacken-docs
+        args: ["-E"]
+        additional_dependencies: [black==23.1.0]
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-type-ignore
+        exclude: ^src/vector/backends/_numba_object.py$
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
