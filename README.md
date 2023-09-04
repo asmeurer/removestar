@@ -65,7 +65,7 @@ Some reasons why `import *` is bad:
   underscore) name defined in the module file. This can often include things
   like standard library imports or loop variables defined at the top-level of
   the file. For imports from modules (from `__init__.py`), `from module import
-  *` will include every submodule defined in that module. Using `__all__` in
+*` will include every submodule defined in that module. Using `__all__` in
   modules and `__init__.py` files is also good practice, as these things are
   also often confusing even for interactive use where `import *` is
   acceptable.

@@ -1,16 +1,17 @@
-from pyflakes.checker import Checker, _MAGIC_GLOBALS, ModuleScope
+import ast
+import builtins
+import os
+import re
+import sys
+from functools import lru_cache
+from pathlib import Path
+
+from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
 # quit and exit are not included in old versions of pyflakes
-MAGIC_GLOBALS = set(_MAGIC_GLOBALS).union({'quit', 'exit'})
+MAGIC_GLOBALS = set(_MAGIC_GLOBALS).union({"quit", "exit"})
 
-import sys
-import ast
-import os
-import re
-import builtins
-from pathlib import Path
-from functools import lru_cache
 
 def names_to_replace(checker):
     names = set()
@@ -20,6 +21,7 @@ def names_to_replace(checker):
             names.add(name)
     return names
 
+
 def star_imports(checker):
     stars = []
     for message in checker.messages:
@@ -27,7 +29,10 @@ def star_imports(checker):
             stars.append(message.message_args[0])
     return stars
 
-def fix_code(code, *, file, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True):
+
+def fix_code(
+    code, *, file, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True
+):
     """
     Return a fixed version of the code `code` from the file `file`
 
@@ -59,20 +64,34 @@ def fix_code(code, *, file, max_line_length=100, verbose=False, quiet=False, all
         mods = [mod for mod in mod_names if name in mod_names[mod]]
         if not mods:
             if not quiet:
-                print(f"Warning: {file}: could not find import for '{name}'", file=sys.stderr)
+                print(
+                    f"Warning: {file}: could not find import for '{name}'",
+                    file=sys.stderr,
+                )
             continue
         if len(mods) > 1 and not quiet:
-            print(f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
-              file=sys.stderr)
+            print(
+                f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
+                file=sys.stderr,
+            )
 
         repls[mods[-1]].append(name)
 
-    new_code = replace_imports(code, repls, file=file, verbose=verbose,
-                               quiet=quiet, max_line_length=max_line_length)
+    new_code = replace_imports(
+        code,
+        repls,
+        file=file,
+        verbose=verbose,
+        quiet=quiet,
+        max_line_length=max_line_length,
+    )
 
     return new_code
 
-def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False):
+
+def replace_imports(
+    code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False
+):
     """
     Replace the star imports in code
 
@@ -120,49 +139,58 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
         if not names:
             new_import = ""
         else:
-            new_import = f"from {mod} import " + ', '.join(names)
+            new_import = f"from {mod} import " + ", ".join(names)
             if len(new_import) > max_line_length:
                 lines = []
                 line = f"from {mod} import ("
-                indent = ' '*len(line)
+                indent = " " * len(line)
                 for name in names:
-                    if len(line + name + ',') > max_line_length and line[-1] != '(':
+                    if len(line + name + ",") > max_line_length and line[-1] != "(":
                         lines.append(line.rstrip())
                         line = indent
-                    line += name + ', '
-                lines.append(line[:-2] + ')') # Remove last trailing comma
-                new_import = '\n'.join(lines)
+                    line += name + ", "
+                lines.append(line[:-2] + ")")  # Remove last trailing comma
+                new_import = "\n".join(lines)
 
         def star_import_replacement(match):
             original_import, after_import, comment = match.group(0, 1, 2)
             if comment and is_noqa_comment_allowing_star_import(comment):
                 if verbose:
-                    print(f"{verbose_prefix}Retaining 'from {mod} import *' due to noqa comment",
-                          file=sys.stderr)
+                    print(
+                        f"{verbose_prefix}Retaining 'from {mod} import *' due to noqa comment",
+                        file=sys.stderr,
+                    )
                 return original_import
 
             if verbose:
-                print(f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'",
-                      file=sys.stderr)
+                print(
+                    f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'",
+                    file=sys.stderr,
+                )
 
             if not new_import and comment:
                 if not quiet:
-                    print(f"{warning_prefix}The removed star import statement for '{mod}' "
-                          f"had an inline comment which may not make sense without the import",
-                          file=sys.stderr)
-                return f'{comment}\n'
+                    print(
+                        f"{warning_prefix}The removed star import statement for '{mod}' "
+                        f"had an inline comment which may not make sense without the import",
+                        file=sys.stderr,
+                    )
+                return f"{comment}\n"
             if not (new_import or after_import):
-                return ''
+                return ""
             return f'{new_import}{after_import or ""}\n'
 
-        star_import = re.compile(rf'from +{re.escape(mod)} +import +\*( *(#.*))?\n')
+        star_import = re.compile(rf"from +{re.escape(mod)} +import +\*( *(#.*))?\n")
         new_code, subs_made = star_import.subn(star_import_replacement, code)
         if subs_made == 0 and not quiet:
-            print(f"{warning_prefix}Could not find the star imports for '{mod}'",
-                  file=sys.stderr)
+            print(
+                f"{warning_prefix}Could not find the star imports for '{mod}'",
+                file=sys.stderr,
+            )
         code = new_code
 
     return code
+
 
 # This regex is based on Flake8's noqa regex:
 #   https://github.com/PyCQA/flake8/blob/9815f4/src/flake8/defaults.py#L27
@@ -174,10 +202,11 @@ def replace_imports(code, repls, *, max_line_length=100, file=None, verbose=Fals
 # The Flake8 version treats these as bare noqa comments, silencing all warnings
 # instead of just E2:
 #
-#   "# noqa E2"    (colon is missing)
-#   "# noqa:  E2"  (two spaces after colon)
+#   "# E2"    (colon is missing)
+#   "# "  (two spaces after colon)
 #   "# noqa:\tE2"  (tab instead of space after colon)
-INLINE_NOQA_COMMENT_PATTERN = re.compile(r"""
+INLINE_NOQA_COMMENT_PATTERN = re.compile(
+    r"""
 ^[#][ \t]* noqa
 (?::[ \t]*
     (?P<codes>
@@ -185,8 +214,11 @@ INLINE_NOQA_COMMENT_PATTERN = re.compile(r"""
     )
 )?
 [ \t]*$
-""", flags=re.IGNORECASE | re.VERBOSE)
-NOQA_STAR_IMPORT_CODES = frozenset(['F401', 'F403'])
+""",
+    flags=re.IGNORECASE | re.VERBOSE,
+)
+NOQA_STAR_IMPORT_CODES = frozenset(["F401", "F403"])
+
 
 def is_noqa_comment_allowing_star_import(comment):
     """
@@ -205,13 +237,21 @@ def is_noqa_comment_allowing_star_import(comment):
     False
     """
     match = INLINE_NOQA_COMMENT_PATTERN.match(comment)
-    return bool(match and (
-        match.group('codes') is None or
-        any(code.upper() in NOQA_STAR_IMPORT_CODES
-            for code in re.split(r'[, \t]+', match.group('codes')))))
+    return bool(
+        match
+        and (
+            match.group("codes") is None
+            or any(
+                code.upper() in NOQA_STAR_IMPORT_CODES
+                for code in re.split(r"[, \t]+", match.group("codes"))
+            )
+        )
+    )
+
 
 class ExternalModuleError(Exception):
     pass
+
 
 def get_mod_filename(mod, directory):
     """
@@ -220,18 +260,20 @@ def get_mod_filename(mod, directory):
     # TODO: Use the import machinery to do this.
     directory = Path(directory)
 
-    dots = re.compile(r'(\.+)(.*)')
+    dots = re.compile(r"(\.+)(.*)")
     m = dots.match(mod)
     if m:
         # Relative import
-        loc = directory.joinpath(*['..']*(len(m.group(1))-1), *m.group(2).split('.'))
-        filename = Path(str(loc) + '.py')
+        loc = directory.joinpath(
+            *[".."] * (len(m.group(1)) - 1), *m.group(2).split(".")
+        )
+        filename = Path(str(loc) + ".py")
         if not filename.is_file():
-            filename = loc/'__init__.py'
+            filename = loc / "__init__.py"
         if not filename.is_file():
             raise RuntimeError(f"Could not find the file for the module '{mod}'")
     else:
-        top, *rest = mod.split('.')
+        top, *rest = mod.split(".")
 
         # Try to find an absolute import from the same module as the file
         head, tail = directory.parent, directory.name
@@ -241,21 +283,24 @@ def get_mod_filename(mod, directory):
             # don't need to go higher than .
             if tail == top:
                 loc = os.path.join(head, tail, *rest)
-                if os.path.isfile(loc + '.py'):
-                    filename = loc + '.py'
+                if os.path.isfile(loc + ".py"):
+                    filename = loc + ".py"
                     break
-                elif os.path.isfile(os.path.join(loc, '__init__.py')):
-                    filename = os.path.join(loc, '__init__.py')
+                elif os.path.isfile(os.path.join(loc, "__init__.py")):
+                    filename = os.path.join(loc, "__init__.py")
                     break
                 else:
                     same_module = True
-            if head in [Path('.'), Path('/')]:
+            if head in [Path("."), Path("/")]:
                 if same_module:
-                    raise RuntimeError(f"Could not find the file for the module '{mod}'")
+                    raise RuntimeError(
+                        f"Could not find the file for the module '{mod}'"
+                    )
                 raise ExternalModuleError
             head, tail = head.parent, head.name
 
     return filename
+
 
 @lru_cache()
 def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
@@ -269,23 +314,29 @@ def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
     the module directly.
     """
     try:
-        names = get_names_from_dir(mod, directory, allow_dynamic=allow_dynamic, _found=_found)
+        names = get_names_from_dir(
+            mod, directory, allow_dynamic=allow_dynamic, _found=_found
+        )
     except ExternalModuleError:
         if allow_dynamic:
             names = get_names_dynamically(mod)
         else:
-            raise NotImplementedError("Static determination of external module imports is not supported.")
+            raise NotImplementedError(
+                "Static determination of external module imports is not supported."
+            )
     return names
+
 
 def get_names_dynamically(mod):
     d = {}
     try:
-        exec(f'from {mod} import *', d)
+        exec(f"from {mod} import *", d)
     except ImportError:
         raise RuntimeError(f"Could not import {mod}")
     except Exception as e:
         raise RuntimeError(f"Error importing {mod}: {e}")
     return d.keys() - set(MAGIC_GLOBALS)
+
 
 def get_names_from_dir(mod, directory, *, allow_dynamic=True, _found=()):
     filename = Path(get_mod_filename(mod, directory))
@@ -301,17 +352,23 @@ def get_names_from_dir(mod, directory, *, allow_dynamic=True, _found=()):
         raise RuntimeError(f"Could not parse the names from {filename}")
 
     for name in names.copy():
-        if name.endswith('.*'):
+        if name.endswith(".*"):
             names.remove(name)
             rec_mod = name[:-2]
             if rec_mod not in _found:
                 _found += (rec_mod,)
-                names = names.union(get_module_names(rec_mod, filename.parent,
-                    allow_dynamic=allow_dynamic, _found=_found))
+                names = names.union(
+                    get_module_names(
+                        rec_mod,
+                        filename.parent,
+                        allow_dynamic=allow_dynamic,
+                        _found=_found,
+                    )
+                )
     return names
 
 
-def get_names(code, filename='<unknown>'):
+def get_names(code, filename="<unknown>"):
     # TODO: Make the doctests work
     """
     Get a set of defined top-level names from code.
@@ -358,6 +415,6 @@ def get_names(code, filename='<unknown>'):
     else:
         raise RuntimeError("Could not parse the names")
 
-    if '__all__' in names:
-        return set(scope['__all__'].names)
+    if "__all__" in names:
+        return set(scope["__all__"].names)
     return names
