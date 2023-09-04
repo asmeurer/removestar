@@ -10,11 +10,11 @@ import subprocess
 from pytest import raises
 import pytest
 
-from ..removestar import (names_to_replace, star_imports, get_names,
-                          get_names_from_dir, get_names_dynamically, fix_code,
-                          get_mod_filename, replace_imports,
-                          is_noqa_comment_allowing_star_import,
-                          ExternalModuleError)
+from removestar.removestar import (names_to_replace, star_imports, get_names,
+                                   get_names_from_dir, get_names_dynamically, fix_code,
+                                   get_mod_filename, replace_imports,
+                                   is_noqa_comment_allowing_star_import,
+                                   ExternalModuleError)
 
 
 code_mod1 = """\
@@ -1157,7 +1157,7 @@ def _dirs_equal(cmp):
     return all(_dirs_equal(c) for c in cmp.subdirs.values())
 
 def test_cli(tmpdir):
-    from ..__main__ import __file__
+    from removestar.__main__ import __file__
 
     # TODO: Test the verbose and quiet flags
     directory_orig = tmpdir/'orig'/'module'
