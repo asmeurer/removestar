@@ -37,7 +37,7 @@ def main():
         formatter_class=RawDescriptionHelpArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
-        "paths", nargs="+", help="Files or directories to fix", metavar="PATH"
+        "paths", nargs="*", help="Files or directories to fix", metavar="PATH"
     )
     parser.add_argument(
         "-i", "--in-place", action="store_true", help="Edit the files in-place."
