@@ -1,4 +1,4 @@
-name: Build removestar
+name: CI
 
 on:
   push:
