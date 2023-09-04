@@ -90,8 +90,9 @@ def main():
     if args.max_line_length == 0:
         args.max_line_length = float("inf")
 
+    exit_1 = False
     for file in _iter_paths(args.paths):
-        directory, filename = os.path.split(file)
+        _, filename = os.path.split(file)
         if args.skip_init and filename == "__init__.py":
             continue
 
@@ -117,6 +118,7 @@ def main():
             continue
 
         if new_code != code:
+            exit_1 = True
             if args.in_place:
                 with open(file, "w", encoding="utf-8") as f:
                     f.write(new_code)
@@ -128,6 +130,9 @@ def main():
                         file,
                     )
                 )
+
+    if exit_1:
+        sys.exit(1)
 
 
 def _iter_paths(paths):
