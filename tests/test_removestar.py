@@ -1532,13 +1532,13 @@ from reallyreallylongmodulename import (longname1, longname2, longname3, longnam
                                         longname8, longname9)"""
     )
 
-    val = 136
+    assert_to = 136
 
     assert (
         len(
             "from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"
         )
-        == val
+        == assert_to
     )
 
     assert replace_imports(code, repls, max_line_length=137) == code_fixed.format(
@@ -1632,7 +1632,6 @@ def test_cli(tmpdir):
         [sys.executable, "-m", "removestar", "--_this-file", "none"],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     assert p.stderr == ""
     assert p.stdout == __file__
@@ -1641,7 +1640,6 @@ def test_cli(tmpdir):
         [sys.executable, "-m", "removestar", directory],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     warnings = set(
         f"""\
@@ -1792,7 +1790,6 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
         [sys.executable, "-m", "removestar", "--quiet", directory],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     assert p.stderr == ""
     for d in diffs:
@@ -1804,7 +1801,6 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
         [sys.executable, "-m", "removestar", "--verbose", directory],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     changes = set(
         f"""\
@@ -1841,7 +1837,6 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
         [sys.executable, "-m", "removestar", "--no-dynamic-importing", directory],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     static_error = set(
         f"""\
@@ -1870,7 +1865,6 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         ],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     assert p.stderr == ""
     for d in diffs:
@@ -1886,7 +1880,6 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         [sys.executable, "-m", "removestar", "--quiet", "-i", directory],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     assert p.stderr == ""
     assert p.stdout == ""
@@ -1939,7 +1932,6 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         [sys.executable, "-m", "removestar", directory / "notarealfile.py"],
         capture_output=True,
         encoding="utf-8",
-        check=True,
     )
     assert (
         p.stderr == f"Error: {directory}/notarealfile.py: no such file or directory\n"

@@ -14,19 +14,45 @@ Tool to automatically replace `import *` imports in Python files with explicit i
 
 ## Installation
 
-```
+Install `removestar` globally to use it through CLI -
+
+```bash
 pip install removestar
 ```
 
-or if you use conda
+or add `removestar` in `.pre-commit-config.yaml` -
 
-```
-conda install -c conda-forge removestar
+```yaml
+- repo: https://github.com/asmeurer/removestar
+  rev: v1.4
+  hooks:
+    - id: removestar
+      args: [-i] # See docs for all args (-i edits file in-place)
+      additional_dependencies: # The libraries or packages your code imports
+        - ... # Should be . if running inside a library (to install the library itself in the environment)
 ```
 
 ## Usage
 
+### pre-commit hook
+
+Once `removestar` is added in `.pre-commit-config.yaml`, executing the following
+will always run it (and other pre-commits) before every commit -
+
+```bash
+pre-commit install
 ```
+
+Optionally, the pre-commits (including `removestar`) can be manually triggered for
+all the files using -
+
+```bash
+pre-commit run --all-files
+```
+
+### CLI
+
+```bash
 $ removestar file.py # Shows diff but does not edit file.py
 
 $ removestar -i file.py # Edits file.py in-place
@@ -90,7 +116,7 @@ from `*` imports and replacing the import lines in the file automatically.
 
 Suppose you have a module `mymod` like
 
-```
+```bash
 mymod/
   | __init__.py
   | a.py
@@ -115,7 +141,7 @@ y = 2
 
 Then `removestar` works like:
 
-```
+```bash
 $ removestar mymod/
 
 --- original/mymod/a.py
@@ -132,7 +158,7 @@ $ removestar mymod/
 
 This does not edit `a.py` by default. The `-i` flag causes it to edit `a.py` in-place:
 
-```
+```bash
 $ removestar -i mymod/
 $ cat mymod/a.py
 # mymod/a.py
@@ -146,7 +172,7 @@ def func(x):
 
 <!-- TODO: Autogenerate this somehow -->
 
-```
+```bash
 $ removestar --help
 usage: removestar [-h] [-i] [--version] [--no-skip-init]
                   [--no-dynamic-importing] [-v] [-q]
