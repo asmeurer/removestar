@@ -21,6 +21,7 @@ import sys
 
 from . import __version__
 from .helper import get_diff_text
+from .output import get_colored_diff, red
 from .removestar import fix_code
 
 
@@ -97,7 +98,7 @@ def main():
             continue
 
         if not os.path.isfile(file):
-            print(f"Error: {file}: no such file or directory", file=sys.stderr)
+            print(red(f"Error: {file}: no such file or directory"), file=sys.stderr)
             continue
 
         with open(file, encoding="utf-8") as f:
@@ -114,7 +115,7 @@ def main():
             )
         except (RuntimeError, NotImplementedError) as e:
             if not args.quiet:
-                print(f"Error with {file}: {e}", file=sys.stderr)
+                print(red(f"Error with {file}: {e}"), file=sys.stderr)
             continue
 
         if new_code != code:
@@ -122,13 +123,26 @@ def main():
             if args.in_place:
                 with open(file, "w", encoding="utf-8") as f:
                     f.write(new_code)
-            print(
-                get_diff_text(
-                    io.StringIO(code).readlines(),
-                    io.StringIO(new_code).readlines(),
-                    file,
+                # if not args.quiet:
+                #     print(
+                #         get_colored_diff(
+                #                 get_diff_text(
+                #                 io.StringIO(code).readlines(),
+                #                 io.StringIO(new_code).readlines(),
+                #                 file,
+                #             )
+                #         )
+                #     )
+            else:
+                print(
+                    get_colored_diff(
+                        get_diff_text(
+                            io.StringIO(code).readlines(),
+                            io.StringIO(new_code).readlines(),
+                            file,
+                        )
+                    )
                 )
-            )
 
     if exit_1:
         sys.exit(1)

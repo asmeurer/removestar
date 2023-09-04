@@ -9,6 +9,8 @@ from pathlib import Path
 from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
+from .output import yellow
+
 # quit and exit are not included in old versions of pyflakes
 MAGIC_GLOBALS = set(_MAGIC_GLOBALS).union({"quit", "exit"})
 
@@ -65,13 +67,15 @@ def fix_code(
         if not mods:
             if not quiet:
                 print(
-                    f"Warning: {file}: could not find import for '{name}'",
+                    yellow(f"Warning: {file}: could not find import for '{name}'"),
                     file=sys.stderr,
                 )
             continue
         if len(mods) > 1 and not quiet:
             print(
-                f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'.",
+                yellow(
+                    f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'."
+                ),
                 file=sys.stderr,
             )
 
@@ -171,8 +175,10 @@ def replace_imports(
             if not new_import and comment:
                 if not quiet:
                     print(
-                        f"{warning_prefix}The removed star import statement for '{mod}' "
-                        f"had an inline comment which may not make sense without the import",
+                        yellow(
+                            f"{warning_prefix}The removed star import statement for '{mod}' "
+                            f"had an inline comment which may not make sense without the import"
+                        ),
                         file=sys.stderr,
                     )
                 return f"{comment}\n"
@@ -184,7 +190,7 @@ def replace_imports(
         new_code, subs_made = star_import.subn(star_import_replacement, code)
         if subs_made == 0 and not quiet:
             print(
-                f"{warning_prefix}Could not find the star imports for '{mod}'",
+                yellow(f"{warning_prefix}Could not find the star imports for '{mod}'"),
                 file=sys.stderr,
             )
         code = new_code

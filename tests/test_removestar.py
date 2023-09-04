@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from pyflakes.checker import Checker
+from removestar.output import get_colored_diff, red, yellow
 from removestar.removestar import (
     ExternalModuleError,
     fix_code,
@@ -1388,8 +1389,12 @@ def test_replace_imports_warnings(capsys):
     )
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
-        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod1'",
-        "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'",
+        yellow(
+            "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod1'"
+        ),
+        yellow(
+            "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'"
+        ),
     }
 
     assert (
@@ -1400,8 +1405,8 @@ def test_replace_imports_warnings(capsys):
     )
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
-        "Warning: Could not find the star imports for '.mod1'",
-        "Warning: Could not find the star imports for '.mod2'",
+        yellow("Warning: Could not find the star imports for '.mod1'"),
+        yellow("Warning: Could not find the star imports for '.mod2'"),
     }
 
     assert (
@@ -1423,7 +1428,9 @@ def test_replace_imports_warnings(capsys):
     )
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
-        "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import",
+        yellow(
+            "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"
+        ),
     }
 
     assert (
@@ -1434,7 +1441,9 @@ def test_replace_imports_warnings(capsys):
     )
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
-        "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import",
+        yellow(
+            "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"
+        ),
     }
 
     assert (
@@ -1656,9 +1665,12 @@ Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod
 Warning: {directory}/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import
 """.splitlines()
     )
+    colored_warnings = {yellow(warning) for warning in warnings}
 
-    error = f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (mod_bad.py, line 1)"
-    assert set(p.stderr.splitlines()) == warnings.union({error})
+    error = red(
+        f"Error with {directory}/mod_bad.py: SyntaxError: invalid syntax (mod_bad.py, line 1)"
+    )
+    assert set(p.stderr.splitlines()) == colored_warnings.union({error})
 
     diffs = [
         f"""\
@@ -1780,7 +1792,7 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
     ]
     unchanged = ["__init__.py", "mod_bad.py", "mod_unfixable.py"]
     for d in diffs:
-        assert d in p.stdout, p.stdout
+        assert get_colored_diff(d) in p.stdout, p.stdout
     for mod_path in unchanged:
         assert f"--- original/{directory}/{mod_path}" not in p.stdout
     cmp = dircmp(directory, directory_orig)
@@ -1793,7 +1805,7 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
     )
     assert p.stderr == ""
     for d in diffs:
-        assert d in p.stdout
+        assert get_colored_diff(d) in p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
@@ -1827,9 +1839,9 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
 """.splitlines()
     )
 
-    assert set(p.stderr.splitlines()) == changes.union({error}).union(warnings)
+    assert set(p.stderr.splitlines()) == changes.union({error}).union(colored_warnings)
     for d in diffs:
-        assert d in p.stdout, p.stdout
+        assert get_colored_diff(d) in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
@@ -1844,12 +1856,15 @@ Error with {directory}/mod6.py: Static determination of external module imports 
 Error with {directory}/mod7.py: Static determination of external module imports is not supported.
 """.splitlines()
     )
-    assert set(p.stderr.splitlines()) == {error}.union(static_error).union(warnings)
+    colored_static_error = {red(err) for err in static_error}
+    assert set(p.stderr.splitlines()) == {error}.union(colored_static_error).union(
+        colored_warnings
+    )
     for d in diffs:
         if "mod6" in d:
-            assert d not in p.stdout
+            assert get_colored_diff(d) not in p.stdout
         else:
-            assert d in p.stdout, p.stdout
+            assert get_colored_diff(d) in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
@@ -1869,9 +1884,9 @@ Error with {directory}/mod7.py: Static determination of external module imports 
     assert p.stderr == ""
     for d in diffs:
         if "mod6" in d:
-            assert d not in p.stdout
+            assert get_colored_diff(d) not in p.stdout
         else:
-            assert d in p.stdout, p.stdout
+            assert get_colored_diff(d) in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
     assert _dirs_equal(cmp)
 
@@ -1934,6 +1949,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         encoding="utf-8",
     )
     assert (
-        p.stderr == f"Error: {directory}/notarealfile.py: no such file or directory\n"
+        p.stderr
+        == red(f"Error: {directory}/notarealfile.py: no such file or directory") + "\n"
     )
     assert p.stdout == ""
