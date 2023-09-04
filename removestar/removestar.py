@@ -9,7 +9,7 @@ from pathlib import Path
 from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
-from .output import yellow
+from .output import green, yellow
 
 # quit and exit are not included in old versions of pyflakes
 MAGIC_GLOBALS = set(_MAGIC_GLOBALS).union({"quit", "exit"})
@@ -161,14 +161,18 @@ def replace_imports(
             if comment and is_noqa_comment_allowing_star_import(comment):
                 if verbose:
                     print(
-                        f"{verbose_prefix}Retaining 'from {mod} import *' due to noqa comment",
+                        green(
+                            f"{verbose_prefix}Retaining 'from {mod} import *' due to noqa comment"
+                        ),
                         file=sys.stderr,
                     )
                 return original_import
 
             if verbose:
                 print(
-                    f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'",
+                    green(
+                        f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'"
+                    ),
                     file=sys.stderr,
                 )
 

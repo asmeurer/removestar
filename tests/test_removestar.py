@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from pyflakes.checker import Checker
-from removestar.output import get_colored_diff, red, yellow
+from removestar.output import get_colored_diff, green, red, yellow
 from removestar.removestar import (
     ExternalModuleError,
     fix_code,
@@ -1318,8 +1318,8 @@ def test_replace_imports():
             {"code": code_mod4, "repls": {".mod1": ["a"], ".mod2": ["b", "c"]}},
             code_mod4_fixed,
             [
-                "Replacing 'from .mod1 import *' with 'from .mod1 import a'",
-                "Replacing 'from .mod2 import *' with 'from .mod2 import b, c'",
+                green("Replacing 'from .mod1 import *' with 'from .mod1 import a'"),
+                green("Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"),
             ],
         ),
         (
@@ -1330,8 +1330,12 @@ def test_replace_imports():
             },
             code_mod4_fixed,
             [
-                "directory/mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'",
-                "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'",
+                green(
+                    "directory/mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'"
+                ),
+                green(
+                    "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"
+                ),
             ],
         ),
         (
@@ -1341,9 +1345,9 @@ def test_replace_imports():
             },
             code_mod_commented_star_fixed,
             [
-                "Replacing 'from .mod3 import *' with 'from .mod3 import name'",
-                "Retaining 'from .mod1 import *' due to noqa comment",
-                "Retaining 'from .mod2 import *' due to noqa comment",
+                green("Replacing 'from .mod3 import *' with 'from .mod3 import name'"),
+                green("Retaining 'from .mod1 import *' due to noqa comment"),
+                green("Retaining 'from .mod2 import *' due to noqa comment"),
             ],
         ),
         (
@@ -1354,9 +1358,15 @@ def test_replace_imports():
             },
             code_mod_commented_star_fixed,
             [
-                "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'",
-                "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment",
-                "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment",
+                green(
+                    "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'"
+                ),
+                green(
+                    "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment"
+                ),
+                green(
+                    "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment"
+                ),
             ],
         ),
     ],
@@ -1838,8 +1848,11 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
 {directory}/submod_recursive/submod2.py: Replacing 'from . import *' with 'from . import a'
 """.splitlines()
     )
+    colored_changes = {green(change) for change in changes}
 
-    assert set(p.stderr.splitlines()) == changes.union({error}).union(colored_warnings)
+    assert set(p.stderr.splitlines()) == colored_changes.union({error}).union(
+        colored_warnings
+    )
     for d in diffs:
         assert get_colored_diff(d) in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
