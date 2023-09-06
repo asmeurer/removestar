@@ -9,6 +9,7 @@
 
 - Turn off verbose output for pre-commit hook.
 - Add git archive support for auto versioning.
+- Use utf-8 encoding in the command line interface.
 
 ## Maintenance
 
@@ -19,6 +20,10 @@
   getting rid of `setup.py`, `setup.cfg`, `MANIFEST.in`, `versioneer.py`,
   `conftest.py`, `pytest.ini`, and introducing `pyproject.toml`/
 - Move the tests directory out of the removestar directory.
+- Ruff: Ignore a new pylint rule.
+- Upgrade linter from pyflakes to ruff.
+- Upgrade GitHub Actions.
+- Add `project_urls` to the metadata.
 
 # 1.3.1 (2021-09-02)
 
