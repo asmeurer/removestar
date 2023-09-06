@@ -13,7 +13,8 @@ authors = [
     { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
 ]
 maintainers = [
-    {name = "Saransh Chopra", email = "saransh0701@gmail.com"}
+    { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
+    { name = "Saransh Chopra", email = "saransh0701@gmail.com" }
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

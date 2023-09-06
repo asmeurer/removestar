@@ -1,3 +1,25 @@
+# 1.4.0 (2023-09-06)
+
+## Features
+
+- removestar can now be used as a pre-commit hook.
+- removestar now outputs colored text.
+
+## Bug fixes
+
+- Turn off verbose output for pre-commit hook.
+- Add git archive support for auto versioning.
+
+## Maintenance
+
+- Use trusted publisher deployment for PyPI uploads.
+- Revamp the CI pipeline and create a CD pipeline.
+- Enable pre-commit for formatting and linting.
+- Migrate the build-backend to `hatch` and use `hatch-vcs` for versioning,
+  getting rid of `setup.py`, `setup.cfg`, `MANIFEST.in`, `versioneer.py`,
+  `conftest.py`, `pytest.ini`, and introducing `pyproject.toml`/
+- Move the tests directory out of the removestar directory.
+
 # 1.3.1 (2021-09-02)
 
 ## Bug Fixes
