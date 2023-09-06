@@ -130,6 +130,7 @@ With
 # mymod/a.py
 from .b import *
 
+
 def func(x):
     return x + y
 ```
@@ -228,6 +229,7 @@ For example, the star imports in this module would be kept:
 ```py
 from os import *  # noqa: F401
 from .b import *  # noqa
+
 
 def func(x):
     return x + y

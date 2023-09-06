@@ -46,14 +46,14 @@ repos:
       - id: codespell
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: "v3.0.1"
+    rev: "v3.0.3"
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
         exclude: assets/js/webapp\.js
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: 1.15.0
+    rev: 1.16.0
     hooks:
       - id: blacken-docs
         args: ["-E"]
