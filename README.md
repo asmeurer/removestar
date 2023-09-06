@@ -1,14 +1,15 @@
 # removestar
 
 [![Actions Status][actions-badge]][actions-link]
+[![PyPI version][pypi-version]][pypi-link]
+[![PyPI platforms][pypi-platforms]][pypi-link]
+[![Ruff][ruff-badge]][ruff-link]
+
+<!-- TODO:
 [![pre-commit.ci status][pre-commit-badge]][pre-commit-link]
 [![codecov percentage][codecov-badge]][codecov-link]
 [![GitHub Discussion][github-discussions-badge]][github-discussions-link]
-
-[![PyPI platforms][pypi-platforms]][pypi-link]
-[![PyPI version][pypi-version]][pypi-link]
-[![LICENSE][license-badge]][license-link]
-[![Ruff][ruff-badge]][ruff-link]
+-->
 
 Tool to automatically replace `import *` imports in Python files with explicit imports
 
