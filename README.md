@@ -2,7 +2,10 @@
 
 [![Actions Status][actions-badge]][actions-link]
 [![PyPI version][pypi-version]][pypi-link]
+[![Anaconda-Server Badge][conda-version]][conda-link]
 [![PyPI platforms][pypi-platforms]][pypi-link]
+[![Downloads][pypi-downloads]][pypi-link]
+[![Conda Downloads][conda-downloads]][conda-link]
 [![Ruff][ruff-badge]][ruff-link]
 
 <!-- TODO:
@@ -15,10 +18,16 @@ Tool to automatically replace `import *` imports in Python files with explicit i
 
 ## Installation
 
-Install `removestar` globally to use it through CLI -
+Install `removestar` globally to use it through CLI using `pypi` -
 
 ```bash
 pip install removestar
+```
+
+or `conda` -
+
+```bash
+conda install -c conda-forge pybamm
 ```
 
 or add `removestar` in `.pre-commit-config.yaml` -
@@ -260,14 +269,18 @@ See the [CHANGELOG](CHANGELOG.md) file.
 [actions-link]: https://github.com/asmeurer/removestar/actions
 [codecov-badge]: https://codecov.io/gh/asmeurer/removestar/branch/main/graph/badge.svg?token=YBv60ueORQ
 [codecov-link]: https://codecov.io/gh/asmeurer/removestar
+[conda-downloads]: https://img.shields.io/conda/dn/conda-forge/removestar?color=green
+[conda-link]: https://anaconda.org/conda-forge/removestar
+[conda-version]: https://img.shields.io/conda/vn/conda-forge/removestar?color=green
 [github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
 [github-discussions-link]: https://github.com/asmeurer/removestar/discussions
 [license-badge]: https://img.shields.io/badge/MIT-blue.svg
 [license-link]: https://opensource.org/licenses/MIT
+[pypi-downloads]: https://static.pepy.tech/badge/removestar
 [pre-commit-badge]: https://results.pre-commit.ci/badge/github/asmeurer/removestar/develop.svg
 [pre-commit-link]: https://results.pre-commit.ci/repo/github/asmeurer/removestar
 [pypi-link]: https://pypi.org/project/removestar/
 [pypi-platforms]: https://img.shields.io/pypi/pyversions/removestar
-[pypi-version]: https://badge.fury.io/py/removestar.svg
+[pypi-version]: https://img.shields.io/pypi/v/removestar?color=blue
 [ruff-badge]: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
 [ruff-link]: https://github.com/astral-sh/ruff
