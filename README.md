@@ -27,7 +27,7 @@ pip install removestar
 or `conda` -
 
 ```bash
-conda install -c conda-forge pybamm
+conda install -c conda-forge removestar
 ```
 
 or add `removestar` in `.pre-commit-config.yaml` -
