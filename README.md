@@ -50,7 +50,7 @@ Once `removestar` is added in `.pre-commit-config.yaml`, executing the following
 will always run it (and other pre-commits) before every commit -
 
 ```bash
-pre-commit
+pre-commit install
 ```
 
 Optionally, the pre-commits (including `removestar`) can be manually triggered for
