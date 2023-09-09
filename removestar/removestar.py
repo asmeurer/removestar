@@ -25,11 +25,11 @@ def names_to_replace(checker):
 
 
 def star_imports(checker):
-    stars = []
-    for message in checker.messages:
-        if isinstance(message, ImportStarUsed):
-            stars.append(message.message_args[0])
-    return stars
+    return [
+        message.message_args[0]
+        for message in checker.messages
+        if isinstance(message, ImportStarUsed)
+    ]
 
 
 def fix_code(

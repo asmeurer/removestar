@@ -59,10 +59,13 @@ include = [
 [tool.ruff]
 select = [
   "E", "F", "W", # flake8
-  "B", "B904",   # flake8-bugbear
-  "I",           # isort
+  "ASYNC",       # flake8-async
+  "B",           # flake8-bugbear
   "C4",          # flake8-comprehensions
+  "C9",          # mccabe cyclomatic complexity
+  "I",           # isort
   "ISC",         # flake8-implicit-str-concat
+  "PERF",        # flake8-perf
   "PGH",         # pygrep-hooks
   "PIE",         # flake8-pie
   "PL",          # pylint
@@ -74,18 +77,24 @@ select = [
   "YTT",         # flake8-2020
 ]
 extend-ignore = [
-  "E501",        # Line too long
-  "PLR0915",     # Too many statements
-  "PLR0913",     # Too many arguments to function call
-  "T201",        # Print statements
-  "B904",        # Raise exception with `raise ... from err`
   "B023",        # Function definition does not bind loop variable
+  "B904",        # Raise exception with `raise ... from err`
+  "PLW1510",     # `subprocess.run` without explicit `check` argument
+  "T201",        # Print statements
 ]
+line-length = 177  # Default is 88
 src = ["src"]
 unfixable = [
-  "T20",  # Removes print statements
   "F841", # Removes unused variables
+  "T20",  # Removes print statements
 ]
+
+[tool.ruff.mccabe]
+max-complexity = 14  # Default is 10
+
+[tool.ruff.pylint]
+max-args = 6  # Default is 5
+max-statements = 177  # Default is 50
 
 [tool.pytest.ini_options]
 minversion = "6.0"
