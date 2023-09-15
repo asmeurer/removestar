@@ -29,6 +29,8 @@ classifiers = [
 ]
 dependencies = [
     "pyflakes",
+    "nbformat",
+    "nbconvert",
 ]
 
 [project.optional-dependencies]
