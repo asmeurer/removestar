@@ -1,13 +1,12 @@
 import ast
 import builtins
-import logging
 import os
 import re
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
 
+from nbconvert import NotebookExporter
 from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
@@ -213,7 +212,7 @@ def replace_imports(  # noqa: C901,PLR0913
         new_code, subs_made = star_import.subn(star_import_replacement, code)
         if subs_made == 0 and not quiet:
             print(
-                f"{warning_prefix}Could not find the star imports for '{mod}'",
+                yellow(f"{warning_prefix}Could not find the star imports for '{mod}'"),
                 file=sys.stderr,
             )
         else:  # noqa: PLR5501
@@ -227,9 +226,7 @@ def replace_imports(  # noqa: C901,PLR0913
                     break
         code = new_code
 
-    if return_replacements:
-        return repls_strings
-    return code
+    return repls_strings if return_replacements else code
 
 
 # This regex is based on Flake8's noqa regex:
@@ -475,7 +472,7 @@ def replace_in_nb(
         cell_type (str): the type of the cell.
 
     Returns:
-        new_nb: notebook object.
+        source_nb: Fixed code.
     """
     new_nb = nb.copy()
     for replace_from, replace_to in replaces.items():
@@ -486,84 +483,9 @@ def replace_in_nb(
                 new_nb["cells"][i] = d
                 if break_early:
                     break
-    return new_nb
-
-
-def removestar_nb(
-    nb_path: str,
-    output_path: Optional[str] = None,
-    py_path: Optional[str] = None,
-    in_place: bool = False,
-    verbose: bool = False,
-    test: bool = False,
-    **kws_fix_code,
-) -> str:
-    """
-    Remove stars in a jupyter notebook.
-
-    Parameters
-        nb_path (str): path to the notebook.
-        output_path (str): path to the output.
-        py_path (str): path to the intermediate .py file.
-        in_place (bool): whether to carry out the modification in place.
-        verbose (bool): verbose toggle.
-        test (bool): test-mode if output file not provided and in-place modification not allowed.
-
-    Returns:
-        output_path (str): path to the modified notebook.
-    """
-    try:
-        import nbformat
-        from nbconvert import NotebookExporter, PythonExporter
-    except ImportError:
-        logging.error("Install missing requirements using: pip install removestar[nb]")
-    # from removestar.removestar import fix_code
-
-    ## infer input parameters
-    if output_path is None:
-        if in_place:
-            output_path = nb_path
-        else:
-            test = True
-            verbose = True
-    if py_path is None:
-        import tempfile
-
-        py_fh = tempfile.NamedTemporaryFile()
-        py_path = py_fh.name
-    else:
-        py_fh = open(py_path, "w+")  # noqa: SIM115
-
-    ## read nb
-    with open(nb_path) as fh:
-        nb = nbformat.reads(fh.read(), nbformat.NO_CONVERT)
-
-    ## save as py
-    exporter = PythonExporter()
-    source, meta = exporter.from_notebook_node(nb)
-    py_fh.write(source.encode("utf-8"))
-
-    ## get replaces
-    replaces = fix_code(
-        code=source,
-        file=py_path,  # probably unnecessary parameter in this context?
-        verbose=verbose,
-        return_replacements=True,  # new parameter
-        **kws_fix_code,
-    )
-    py_fh.close()
-
-    ## apply replaces
-    new_nb = replace_in_nb(
-        nb,
-        replaces,
-        cell_type="code",
-    )
 
     ## save new nb
     to_nb = NotebookExporter()
     source_nb, _ = to_nb.from_notebook_node(new_nb)
-    if not test:
-        with open(output_path, "w+") as fh:
-            fh.writelines(source_nb)
-        return output_path
+
+    return source_nb

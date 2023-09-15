@@ -18,11 +18,15 @@ import glob
 import io
 import os
 import sys
+import tempfile
+
+import nbformat
+from nbconvert import PythonExporter
 
 from . import __version__
 from .helper import get_diff_text
 from .output import get_colored_diff, red
-from .removestar import fix_code, removestar_nb
+from .removestar import fix_code, replace_in_nb
 
 
 class RawDescriptionHelpArgumentDefaultsHelpFormatter(
@@ -31,7 +35,7 @@ class RawDescriptionHelpArgumentDefaultsHelpFormatter(
     pass
 
 
-def main():  # noqa: PLR0912
+def main():  # noqa: PLR0912, C901
     parser = argparse.ArgumentParser(
         description=__doc__,
         prog="removestar",
@@ -147,29 +151,81 @@ def main():  # noqa: PLR0912
                         )
                     )
         elif file.endswith(".ipynb"):
-            kws_fix_code = {
-                "quiet": args.quiet,
-                "allow_dynamic": args.allow_dynamic,
-                "max_line_length": args.max_line_length,
-            }
-            removestar_nb(
-                nb_path=file,
-                output_path=args.out,
-                py_path=None,
-                in_place=args.in_place,
-                verbose=args.verbose,
-                **kws_fix_code,
-            )
+            tmp_file = tempfile.NamedTemporaryFile()
+            tmp_path = tmp_file.name
 
-        if exit_1:
-            sys.exit(1)
+            with open(file) as f:
+                nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
+
+            ## save as py
+            exporter = PythonExporter()
+            code, _ = exporter.from_notebook_node(nb)
+            tmp_file.write(code.encode("utf-8"))
+
+            new_code = fix_code(
+                code=code,
+                file=tmp_path,
+                max_line_length=args.max_line_length,
+                verbose=args.verbose,
+                quiet=args.quiet,
+                allow_dynamic=args.allow_dynamic,
+                return_replacements=True,
+            )
+            new_code_not_dict = fix_code(
+                code=code,
+                file=tmp_path,
+                max_line_length=args.max_line_length,
+                verbose=args.verbose,
+                quiet=args.quiet,
+                allow_dynamic=args.allow_dynamic,
+                return_replacements=False,
+            )
+            tmp_file.close()
+
+            if new_code_not_dict != code:
+                exit_1 = True
+                if args.in_place:
+                    with open(file) as f:
+                        nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
+                        fixed_code = replace_in_nb(
+                            nb,
+                            new_code,
+                            cell_type="code",
+                        )
+
+                    with open(file, "w+") as f:
+                        f.writelines(fixed_code)
+
+                    if not args.quiet:
+                        print(
+                            get_colored_diff(
+                                get_diff_text(
+                                    io.StringIO(code).readlines(),
+                                    io.StringIO(new_code_not_dict).readlines(),
+                                    file,
+                                )
+                            )
+                        )
+                else:
+                    print(
+                        get_colored_diff(
+                            get_diff_text(
+                                io.StringIO(code).readlines(),
+                                io.StringIO(new_code_not_dict).readlines(),
+                                file,
+                            )
+                        )
+                    )
+
+    if exit_1:
+        sys.exit(1)
 
 
 def _iter_paths(paths):
     for path in paths:
         if os.path.isdir(path):
             for file in glob.iglob(path + "/**", recursive=True):
-                if not file.endswith(".py"):
+                if not file.endswith(".py") and not file.endswith(".ipynb"):
                     continue
                 yield file
         else:
