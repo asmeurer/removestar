@@ -162,24 +162,30 @@ def main():  # noqa: PLR0912, C901
             code, _ = exporter.from_notebook_node(nb)
             tmp_file.write(code.encode("utf-8"))
 
-            new_code = fix_code(
-                code=code,
-                file=tmp_path,
-                max_line_length=args.max_line_length,
-                verbose=args.verbose,
-                quiet=args.quiet,
-                allow_dynamic=args.allow_dynamic,
-                return_replacements=True,
-            )
-            new_code_not_dict = fix_code(
-                code=code,
-                file=tmp_path,
-                max_line_length=args.max_line_length,
-                verbose=args.verbose,
-                quiet=args.quiet,
-                allow_dynamic=args.allow_dynamic,
-                return_replacements=False,
-            )
+            try:
+                new_code = fix_code(
+                    code=code,
+                    file=tmp_path,
+                    max_line_length=args.max_line_length,
+                    verbose=args.verbose,
+                    quiet=args.quiet,
+                    allow_dynamic=args.allow_dynamic,
+                    return_replacements=True,
+                )
+                new_code_not_dict = fix_code(
+                    code=code,
+                    file=tmp_path,
+                    max_line_length=args.max_line_length,
+                    verbose=args.verbose,
+                    quiet=args.quiet,
+                    allow_dynamic=args.allow_dynamic,
+                    return_replacements=False,
+                )
+            except (RuntimeError, NotImplementedError) as e:
+                if not args.quiet:
+                    print(red(f"Error with {file}: {e}"), file=sys.stderr)
+                continue
+
             tmp_file.close()
 
             if new_code_not_dict != code:
