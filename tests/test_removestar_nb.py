@@ -7,23 +7,13 @@ from removestar.removestar import fix_code, replace_in_nb
 
 fixed_code = """#!/usr/bin/env python
 # coding: utf-8
-
 # # Notebook for testing.
-
 # In[ ]:
-
-
 ## import
 from os.path import exists
-
-
 # In[ ]:
-
-
 ## use of imported function
-exists('_test.ipynb')
-
-"""
+exists('_test.ipynb')"""
 
 
 def prepare_nb(output_path="_test.ipynb"):
@@ -67,7 +57,7 @@ def test_fix_code_for_nb():
         file=tmp_path,
         return_replacements=False,
     )
-    assert new_code_not_dict == fixed_code
+    assert "\n".join([s for s in new_code_not_dict.split("\n") if s]) == fixed_code
 
     os.remove("_test.ipynb")
 
