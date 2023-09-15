@@ -1,3 +1,0 @@
-include versioneer.py
-include removestar/_version.py
-include LICENSE

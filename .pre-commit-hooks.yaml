@@ -1,0 +1,10 @@
+- id: removestar
+  name: removestar
+  description: "Automatically replace `import *` imports in Python files with explicit imports"
+  entry: removestar
+  language: python
+  types_or: [python, pyi]
+  args: []
+  require_serial: true
+  additional_dependencies: ["pyflakes"]
+  minimum_pre_commit_version: "2.9.2"

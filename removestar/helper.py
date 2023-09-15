@@ -1,5 +1,6 @@
 import difflib
 
+
 def get_diff_text(old, new, filename):
     # Taken from https://github.com/myint/autoflake/blob/master/autoflake.py
     # Copyright (C) 2012-2018 Steven Myint
@@ -23,20 +24,17 @@ def get_diff_text(old, new, filename):
     # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     """Return text of unified diff between old and new."""
-    newline = '\n'
+    newline = "\n"
     diff = difflib.unified_diff(
-        old, new,
-        'original/' + filename,
-        'fixed/' + filename,
-        lineterm=newline)
+        old, new, "original/" + filename, "fixed/" + filename, lineterm=newline
+    )
 
-    text = ''
+    text = ""
     for line in diff:
         text += line
 
         # Work around missing newline (http://bugs.python.org/issue2142).
         if not line.endswith(newline):
-            text += newline + r'\ No newline at end of file' + newline
+            text += newline + r"\ No newline at end of file" + newline
 
     return text
-
