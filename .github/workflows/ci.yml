@@ -43,7 +43,7 @@ jobs:
 
       - name: Test removestar
         run: |
-          pytest --cov=removestar .
+          pytest --cov=removestar . -vv
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3.1.4
