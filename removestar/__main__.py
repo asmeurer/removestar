@@ -66,9 +66,6 @@ def main():  # noqa: PLR0912, C901
         help="""Don't dynamically import modules to determine the list of names. This is required for star imports from external modules and modules in the standard library.""",
     )
     parser.add_argument(
-        "-o", "--out", help="""Path to the output file. Applicable to notebooks only"""
-    )
-    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
