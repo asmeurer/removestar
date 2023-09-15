@@ -89,7 +89,7 @@ def fix_code(
 
         repls[mods[-1]].append(name)
 
-    output = replace_imports(
+    new_code = replace_imports(
         code,
         repls,
         file=file,
@@ -99,7 +99,7 @@ def fix_code(
         **kws_replace_imports,
     )
 
-    return output
+    return new_code
 
 
 def replace_imports(  # noqa: C901,PLR0913
