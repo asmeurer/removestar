@@ -1,3 +1,10 @@
+# 1.5.0 (2023-09-18)
+
+## Features
+
+- removestar can now be used to get rid of \* imports in jupyter
+  notebooks (`.ipynb` files)
+
 # 1.4.0 (2023-09-06)
 
 ## Features
