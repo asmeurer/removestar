@@ -18,11 +18,15 @@ import glob
 import io
 import os
 import sys
+import tempfile
+
+import nbformat
+from nbconvert import PythonExporter
 
 from . import __version__
 from .helper import get_diff_text
 from .output import get_colored_diff, red
-from .removestar import fix_code
+from .removestar import fix_code, replace_in_nb
 
 
 class RawDescriptionHelpArgumentDefaultsHelpFormatter(
@@ -31,7 +35,7 @@ class RawDescriptionHelpArgumentDefaultsHelpFormatter(
     pass
 
 
-def main():  # noqa: PLR0912
+def main():  # noqa: PLR0912, C901
     parser = argparse.ArgumentParser(
         description=__doc__,
         prog="removestar",
@@ -100,30 +104,40 @@ def main():  # noqa: PLR0912
         if not os.path.isfile(file):
             print(red(f"Error: {file}: no such file or directory"), file=sys.stderr)
             continue
+        if file.endswith(".py"):
+            with open(file, encoding="utf-8") as f:
+                code = f.read()
 
-        with open(file, encoding="utf-8") as f:
-            code = f.read()
-
-        try:
-            new_code = fix_code(
-                code,
-                file=file,
-                max_line_length=args.max_line_length,
-                verbose=args.verbose,
-                quiet=args.quiet,
-                allow_dynamic=args.allow_dynamic,
-            )
-        except (RuntimeError, NotImplementedError) as e:
-            if not args.quiet:
-                print(red(f"Error with {file}: {e}"), file=sys.stderr)
-            continue
-
-        if new_code != code:
-            exit_1 = True
-            if args.in_place:
-                with open(file, "w", encoding="utf-8") as f:
-                    f.write(new_code)
+            try:
+                new_code = fix_code(
+                    code,
+                    file=file,
+                    max_line_length=args.max_line_length,
+                    verbose=args.verbose,
+                    quiet=args.quiet,
+                    allow_dynamic=args.allow_dynamic,
+                )
+            except (RuntimeError, NotImplementedError) as e:
                 if not args.quiet:
+                    print(red(f"Error with {file}: {e}"), file=sys.stderr)
+                continue
+
+            if new_code != code:
+                exit_1 = True
+                if args.in_place:
+                    with open(file, "w", encoding="utf-8") as f:
+                        f.write(new_code)
+                    if not args.quiet:
+                        print(
+                            get_colored_diff(
+                                get_diff_text(
+                                    io.StringIO(code).readlines(),
+                                    io.StringIO(new_code).readlines(),
+                                    file,
+                                )
+                            )
+                        )
+                else:
                     print(
                         get_colored_diff(
                             get_diff_text(
@@ -133,16 +147,78 @@ def main():  # noqa: PLR0912
                             )
                         )
                     )
-            else:
-                print(
-                    get_colored_diff(
-                        get_diff_text(
-                            io.StringIO(code).readlines(),
-                            io.StringIO(new_code).readlines(),
-                            file,
+        elif file.endswith(".ipynb"):
+            tmp_file = tempfile.NamedTemporaryFile()
+            tmp_path = tmp_file.name
+
+            with open(file) as f:
+                nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
+
+            ## save as py
+            exporter = PythonExporter()
+            code, _ = exporter.from_notebook_node(nb)
+            tmp_file.write(code.encode("utf-8"))
+
+            try:
+                new_code = fix_code(
+                    code=code,
+                    file=tmp_path,
+                    max_line_length=args.max_line_length,
+                    verbose=args.verbose,
+                    quiet=args.quiet,
+                    allow_dynamic=args.allow_dynamic,
+                    return_replacements=True,
+                )
+                new_code_not_dict = fix_code(
+                    code=code,
+                    file=tmp_path,
+                    max_line_length=args.max_line_length,
+                    verbose=False,
+                    quiet=True,
+                    allow_dynamic=args.allow_dynamic,
+                    return_replacements=False,
+                )
+            except (RuntimeError, NotImplementedError) as e:
+                if not args.quiet:
+                    print(red(f"Error with {file}: {e}"), file=sys.stderr)
+                continue
+
+            tmp_file.close()
+
+            if new_code_not_dict != code:
+                exit_1 = True
+                if args.in_place:
+                    with open(file) as f:
+                        nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
+                        fixed_code = replace_in_nb(
+                            nb,
+                            new_code,
+                            cell_type="code",
+                        )
+
+                    with open(file, "w+") as f:
+                        f.writelines(fixed_code)
+
+                    if not args.quiet:
+                        print(
+                            get_colored_diff(
+                                get_diff_text(
+                                    io.StringIO(code).readlines(),
+                                    io.StringIO(new_code_not_dict).readlines(),
+                                    file,
+                                )
+                            )
+                        )
+                else:
+                    print(
+                        get_colored_diff(
+                            get_diff_text(
+                                io.StringIO(code).readlines(),
+                                io.StringIO(new_code_not_dict).readlines(),
+                                file,
+                            )
                         )
                     )
-                )
 
     if exit_1:
         sys.exit(1)
@@ -152,7 +228,7 @@ def _iter_paths(paths):
     for path in paths:
         if os.path.isdir(path):
             for file in glob.iglob(path + "/**", recursive=True):
-                if not file.endswith(".py"):
+                if not file.endswith(".py") and not file.endswith(".ipynb"):
                     continue
                 yield file
         else:

@@ -6,6 +6,7 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+from nbconvert import NotebookExporter
 from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
@@ -33,7 +34,14 @@ def star_imports(checker):
 
 
 def fix_code(
-    code, *, file, max_line_length=100, verbose=False, quiet=False, allow_dynamic=True
+    code,
+    *,
+    file,
+    max_line_length=100,
+    verbose=False,
+    quiet=False,
+    allow_dynamic=True,
+    **kws_replace_imports,
 ):
     """
     Return a fixed version of the code `code` from the file `file`
@@ -88,13 +96,21 @@ def fix_code(
         verbose=verbose,
         quiet=quiet,
         max_line_length=max_line_length,
+        **kws_replace_imports,
     )
 
     return new_code
 
 
-def replace_imports(
-    code, repls, *, max_line_length=100, file=None, verbose=False, quiet=False
+def replace_imports(  # noqa: C901,PLR0913
+    code,
+    repls,
+    *,
+    max_line_length=100,
+    file=None,
+    verbose=False,
+    quiet=False,
+    return_replacements=False,
 ):
     """
     Replace the star imports in code
@@ -137,6 +153,8 @@ def replace_imports(
     warning_prefix = f"Warning: {file}: " if file else "Warning: "
     verbose_prefix = f"{file}: " if file else ""
 
+    if return_replacements:
+        repls_strings = {}
     for mod in repls:
         names = sorted(repls[mod])
 
@@ -156,7 +174,7 @@ def replace_imports(
                 lines.append(line[:-2] + ")")  # Remove last trailing comma
                 new_import = "\n".join(lines)
 
-        def star_import_replacement(match):
+        def star_import_replacement(match, verbose=verbose, quiet=quiet):
             original_import, after_import, comment = match.group(0, 1, 2)
             if comment and is_noqa_comment_allowing_star_import(comment):
                 if verbose:
@@ -197,9 +215,19 @@ def replace_imports(
                 yellow(f"{warning_prefix}Could not find the star imports for '{mod}'"),
                 file=sys.stderr,
             )
+
+        if return_replacements:
+            for match in star_import.finditer(code):
+                repls_strings[f"from {mod} import *"] = star_import_replacement(
+                    match,
+                    verbose=False,
+                    quiet=True,
+                ).strip()
+                break
+
         code = new_code
 
-    return code
+    return repls_strings if return_replacements else code
 
 
 # This regex is based on Flake8's noqa regex:
@@ -428,3 +456,37 @@ def get_names(code, filename="<unknown>"):
     if "__all__" in names:
         return set(scope["__all__"].names)
     return names
+
+
+## for jupyter notebooks with .ipynb extension
+def replace_in_nb(
+    nb,
+    replaces: dict,
+    cell_type: str = "code",
+):
+    """
+    Replace text in a jupyter notebook.
+
+    Parameters
+        nb: notebook object obtained from `nbformat.reads`.
+        replaces (dict): mapping of text to 'replace from' to the one to 'replace with'.
+        cell_type (str): the type of the cell.
+
+    Returns:
+        source_nb: Fixed code.
+    """
+    new_nb = nb.copy()
+    for replace_from, replace_to in replaces.items():
+        break_early = str(nb).count(replace_from) == 1
+        for i, d in enumerate(new_nb["cells"]):
+            if d["cell_type"] == cell_type and replace_from in d["source"]:
+                d["source"] = d["source"].replace(replace_from, replace_to)
+                new_nb["cells"][i] = d
+                if break_early:
+                    break
+
+    ## save new nb
+    to_nb = NotebookExporter()
+    source_nb, _ = to_nb.from_notebook_node(new_nb)
+
+    return source_nb
