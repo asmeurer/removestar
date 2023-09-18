@@ -5,6 +5,16 @@
 - removestar can now be used to get rid of \* imports in jupyter
   notebooks (`.ipynb` files)
 
+## Docs
+
+- Fix typos in `README.md`
+
+## Maintenance
+
+- GitHub Actions: Add Python 3.12 release candidate to the testing
+- Ruff: Set upper limits on code complexity
+- Pre-commit autoupdate
+
 # 1.4.0 (2023-09-06)
 
 ## Features
