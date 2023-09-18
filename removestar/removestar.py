@@ -174,7 +174,7 @@ def replace_imports(  # noqa: C901,PLR0913
                 lines.append(line[:-2] + ")")  # Remove last trailing comma
                 new_import = "\n".join(lines)
 
-        def star_import_replacement(match):
+        def star_import_replacement(match, verbose=verbose, quiet=quiet):
             original_import, after_import, comment = match.group(0, 1, 2)
             if comment and is_noqa_comment_allowing_star_import(comment):
                 if verbose:
@@ -215,13 +215,16 @@ def replace_imports(  # noqa: C901,PLR0913
                 yellow(f"{warning_prefix}Could not find the star imports for '{mod}'"),
                 file=sys.stderr,
             )
-        else:  # noqa: PLR5501
-            if return_replacements:
-                for match in star_import.finditer(code):
-                    repls_strings[f"from {mod} import *"] = star_import_replacement(
-                        match
-                    ).strip()
-                    break
+
+        if return_replacements:
+            for match in star_import.finditer(code):
+                repls_strings[f"from {mod} import *"] = star_import_replacement(
+                    match,
+                    verbose=False,
+                    quiet=True,
+                ).strip()
+                break
+
         code = new_code
 
     return repls_strings if return_replacements else code

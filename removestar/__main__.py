@@ -173,8 +173,8 @@ def main():  # noqa: PLR0912, C901
                     code=code,
                     file=tmp_path,
                     max_line_length=args.max_line_length,
-                    verbose=args.verbose,
-                    quiet=args.quiet,
+                    verbose=False,
+                    quiet=True,
                     allow_dynamic=args.allow_dynamic,
                     return_replacements=False,
                 )
