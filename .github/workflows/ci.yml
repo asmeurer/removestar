@@ -49,7 +49,7 @@ jobs:
         run: |
           python -m pip install -e ".[dev,nb]"
 
-      - name: Test removestar (lite)
+      - name: Test removestar (nb)
         run: |
           pytest --cov=removestar . -vv
 
