@@ -1,9 +1,11 @@
 import os
 import tempfile
 
-import nbformat as nbf
-from nbconvert import NotebookExporter, PythonExporter
+import pytest
 from removestar.removestar import fix_code, replace_in_nb
+
+nbf = pytest.importorskip("nbformat")
+nbc = pytest.importorskip("nbconvert")
 
 fixed_code = """#!/usr/bin/env python
 # coding: utf-8
@@ -34,7 +36,7 @@ def prepare_nb(output_path="_test.ipynb"):
     with open(output_path) as f:
         nb = nbf.reads(f.read(), nbf.NO_CONVERT)
 
-    exporter = PythonExporter()
+    exporter = nbc.PythonExporter()
     code, _ = exporter.from_notebook_node(nb)
     tmp_file.write(code.encode("utf-8"))
 
@@ -77,7 +79,7 @@ def test_replace_nb():
     with open("_test.ipynb", "w+") as f:
         f.writelines(fixed_code)
 
-    exporter = NotebookExporter()
+    exporter = nbc.NotebookExporter()
     code, _ = exporter.from_filename("_test.ipynb")
 
     assert code == fixed_code

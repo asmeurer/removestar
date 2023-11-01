@@ -37,11 +37,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      - name: Install removestar
+      - name: Install removestar (lite)
         run: |
           python -m pip install -e ".[dev]"
 
-      - name: Test removestar
+      - name: Test removestar (lite)
+        run: |
+          pytest --cov=removestar . -vv
+
+      - name: Install removestar (nb)
+        run: |
+          python -m pip install -e ".[dev,nb]"
+
+      - name: Test removestar (lite)
         run: |
           pytest --cov=removestar . -vv
 
