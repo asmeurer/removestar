@@ -23,7 +23,7 @@ import tempfile
 
 from . import __version__
 from .helper import get_diff_text
-from .output import get_colored_diff, red, yellow
+from .output import get_colored_diff, red
 from .removestar import fix_code
 
 
@@ -95,9 +95,7 @@ def main():  # noqa: PLR0912, C901
 
         from .removestar import replace_in_nb
     except ImportError:
-        not args.quiet and print(
-            yellow("Warning: Install nbconvert and nbformat for .ipynb file support")
-        )
+        pass
 
     exit_1 = False
     for file in _iter_paths(args.paths):
