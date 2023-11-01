@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from pyflakes.checker import Checker
+
 from removestar.output import get_colored_diff, green, red, yellow
 from removestar.removestar import (
     ExternalModuleError,
@@ -510,16 +511,12 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir(".mod3", directory) == mod3_names
         assert get_names_from_dir(".mod4", directory) == mod4_names
         assert get_names_from_dir(".mod5", directory) == mod5_names
-        assert get_names_from_dir(".mod6", directory) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir(".mod6", directory) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir(".mod6", directory, allow_dynamic=False),
         )
-        assert get_names_from_dir(".mod7", directory) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir(".mod7", directory) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir(".mod7", directory, allow_dynamic=False),
@@ -531,18 +528,13 @@ def test_get_names_from_dir(tmpdir, relative):
             get_names_from_dir(".mod_commented_unused_star", directory)
             == mod_commented_unused_star_names
         )
-        assert (
-            get_names_from_dir(".mod_commented_star", directory)
-            == mod_commented_star_names
-        )
+        assert get_names_from_dir(".mod_commented_star", directory) == mod_commented_star_names
         assert get_names_from_dir(".submod", directory) == submod_names
         assert get_names_from_dir(".submod.submod1", directory) == submod1_names
         assert get_names_from_dir(".submod.submod2", directory) == submod2_names
         assert get_names_from_dir(".submod.submod3", directory) == submod3_names
         assert get_names_from_dir(".submod.submod4", directory) == submod4_names
-        assert (
-            get_names_from_dir(".submod_recursive", directory) == submod_recursive_names
-        )
+        assert get_names_from_dir(".submod_recursive", directory) == submod_recursive_names
         assert (
             get_names_from_dir(".submod_recursive.submod1", directory)
             == submod_recursive_submod1_names
@@ -557,42 +549,32 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir("module.mod3", directory) == mod3_names
         assert get_names_from_dir("module.mod4", directory) == mod4_names
         assert get_names_from_dir("module.mod5", directory) == mod5_names
-        assert get_names_from_dir("module.mod6", directory) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir("module.mod6", directory) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("module.mod6", directory, allow_dynamic=False),
         )
-        assert get_names_from_dir("module.mod7", directory) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir("module.mod7", directory) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("module.mod7", directory, allow_dynamic=False),
         )
         assert get_names_from_dir("module.mod8", directory) == mod8_names
         assert get_names_from_dir("module.mod9", directory) == mod9_names
-        assert (
-            get_names_from_dir("module.mod_unfixable", directory) == mod_unfixable_names
-        )
+        assert get_names_from_dir("module.mod_unfixable", directory) == mod_unfixable_names
         assert (
             get_names_from_dir("module.mod_commented_unused_star", directory)
             == mod_commented_unused_star_names
         )
         assert (
-            get_names_from_dir("module.mod_commented_star", directory)
-            == mod_commented_star_names
+            get_names_from_dir("module.mod_commented_star", directory) == mod_commented_star_names
         )
         assert get_names_from_dir("module.submod", directory) == submod_names
         assert get_names_from_dir("module.submod.submod1", directory) == submod1_names
         assert get_names_from_dir("module.submod.submod2", directory) == submod2_names
         assert get_names_from_dir("module.submod.submod3", directory) == submod3_names
         assert get_names_from_dir("module.submod.submod4", directory) == submod4_names
-        assert (
-            get_names_from_dir("module.submod_recursive", directory)
-            == submod_recursive_names
-        )
+        assert get_names_from_dir("module.submod_recursive", directory) == submod_recursive_names
         assert (
             get_names_from_dir("module.submod_recursive.submod1", directory)
             == submod_recursive_submod1_names
@@ -631,13 +613,8 @@ def test_get_names_from_dir(tmpdir, relative):
             get_names_from_dir("..mod_commented_unused_star", submod)
             == mod_commented_unused_star_names
         )
-        assert (
-            get_names_from_dir("..mod_commented_star", submod)
-            == mod_commented_star_names
-        )
-        assert (
-            get_names_from_dir("..submod_recursive", submod) == submod_recursive_names
-        )
+        assert get_names_from_dir("..mod_commented_star", submod) == mod_commented_star_names
+        assert get_names_from_dir("..submod_recursive", submod) == submod_recursive_names
         assert (
             get_names_from_dir("..submod_recursive.submod1", submod)
             == submod_recursive_submod1_names
@@ -652,16 +629,12 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir("module.mod3", submod) == mod3_names
         assert get_names_from_dir("module.mod4", submod) == mod4_names
         assert get_names_from_dir("module.mod5", submod) == mod5_names
-        assert get_names_from_dir("module.mod6", submod) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir("module.mod6", submod) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("module.mod6", submod, allow_dynamic=False),
         )
-        assert get_names_from_dir("module.mod7", submod) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir("module.mod7", submod) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("module.mod7", submod, allow_dynamic=False),
@@ -673,19 +646,13 @@ def test_get_names_from_dir(tmpdir, relative):
             get_names_from_dir("module.mod_commented_unused_star", submod)
             == mod_commented_unused_star_names
         )
-        assert (
-            get_names_from_dir("module.mod_commented_star", submod)
-            == mod_commented_star_names
-        )
+        assert get_names_from_dir("module.mod_commented_star", submod) == mod_commented_star_names
         assert get_names_from_dir("module.submod", submod) == submod_names
         assert get_names_from_dir("module.submod.submod1", submod) == submod1_names
         assert get_names_from_dir("module.submod.submod2", submod) == submod2_names
         assert get_names_from_dir("module.submod.submod3", submod) == submod3_names
         assert get_names_from_dir("module.submod.submod4", submod) == submod4_names
-        assert (
-            get_names_from_dir("module.submod_recursive", submod)
-            == submod_recursive_names
-        )
+        assert get_names_from_dir("module.submod_recursive", submod) == submod_recursive_names
         assert (
             get_names_from_dir("module.submod_recursive.submod1", submod)
             == submod_recursive_submod1_names
@@ -706,98 +673,63 @@ def test_get_names_from_dir(tmpdir, relative):
         assert get_names_from_dir("..mod3", submod_recursive) == mod3_names
         assert get_names_from_dir("..mod4", submod_recursive) == mod4_names
         assert get_names_from_dir("..mod5", submod_recursive) == mod5_names
-        assert get_names_from_dir("..mod6", submod_recursive) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir("..mod6", submod_recursive) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("..mod6", submod_recursive, allow_dynamic=False),
         )
-        assert get_names_from_dir("..mod7", submod_recursive) == get_names_dynamically(
-            "os.path"
-        )
+        assert get_names_from_dir("..mod7", submod_recursive) == get_names_dynamically("os.path")
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("..mod7", submod_recursive, allow_dynamic=False),
         )
         assert get_names_from_dir("..mod8", submod_recursive) == mod8_names
         assert get_names_from_dir("..mod9", submod_recursive) == mod9_names
-        assert (
-            get_names_from_dir("..mod_unfixable", submod_recursive)
-            == mod_unfixable_names
-        )
+        assert get_names_from_dir("..mod_unfixable", submod_recursive) == mod_unfixable_names
         assert (
             get_names_from_dir("..mod_commented_unused_star", submod_recursive)
             == mod_commented_unused_star_names
         )
         assert (
-            get_names_from_dir("..mod_commented_star", submod_recursive)
-            == mod_commented_star_names
+            get_names_from_dir("..mod_commented_star", submod_recursive) == mod_commented_star_names
         )
         assert get_names_from_dir(".", submod_recursive) == submod_recursive_names
-        assert (
-            get_names_from_dir("..submod_recursive", submod_recursive)
-            == submod_recursive_names
-        )
-        assert (
-            get_names_from_dir(".submod1", submod_recursive)
-            == submod_recursive_submod1_names
-        )
-        assert (
-            get_names_from_dir(".submod2", submod_recursive)
-            == submod_recursive_submod2_names
-        )
+        assert get_names_from_dir("..submod_recursive", submod_recursive) == submod_recursive_names
+        assert get_names_from_dir(".submod1", submod_recursive) == submod_recursive_submod1_names
+        assert get_names_from_dir(".submod2", submod_recursive) == submod_recursive_submod2_names
 
         assert get_names_from_dir("module.mod1", submod_recursive) == mod1_names
         assert get_names_from_dir("module.mod2", submod_recursive) == mod2_names
         assert get_names_from_dir("module.mod3", submod_recursive) == mod3_names
         assert get_names_from_dir("module.mod4", submod_recursive) == mod4_names
         assert get_names_from_dir("module.mod5", submod_recursive) == mod5_names
-        assert get_names_from_dir(
-            "module.mod6", submod_recursive
-        ) == get_names_dynamically("os.path")
+        assert get_names_from_dir("module.mod6", submod_recursive) == get_names_dynamically(
+            "os.path"
+        )
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("module.mod6", submod, allow_dynamic=False),
         )
-        assert get_names_from_dir(
-            "module.mod7", submod_recursive
-        ) == get_names_dynamically("os.path")
+        assert get_names_from_dir("module.mod7", submod_recursive) == get_names_dynamically(
+            "os.path"
+        )
         pytest.raises(
             NotImplementedError,
             lambda: get_names_from_dir("module.mod7", submod, allow_dynamic=False),
         )
         assert get_names_from_dir("module.mod8", submod_recursive) == mod8_names
         assert get_names_from_dir("module.mod9", submod_recursive) == mod9_names
-        assert (
-            get_names_from_dir("module.mod_unfixable", submod_recursive)
-            == mod_unfixable_names
-        )
+        assert get_names_from_dir("module.mod_unfixable", submod_recursive) == mod_unfixable_names
         assert (
             get_names_from_dir("module.mod_commented_unused_star", submod)
             == mod_commented_unused_star_names
         )
-        assert (
-            get_names_from_dir("module.mod_commented_star", submod)
-            == mod_commented_star_names
-        )
+        assert get_names_from_dir("module.mod_commented_star", submod) == mod_commented_star_names
         assert get_names_from_dir("module.submod", submod_recursive) == submod_names
-        assert (
-            get_names_from_dir("module.submod.submod1", submod_recursive)
-            == submod1_names
-        )
-        assert (
-            get_names_from_dir("module.submod.submod2", submod_recursive)
-            == submod2_names
-        )
-        assert (
-            get_names_from_dir("module.submod.submod3", submod_recursive)
-            == submod3_names
-        )
-        assert (
-            get_names_from_dir("module.submod.submod4", submod_recursive)
-            == submod4_names
-        )
+        assert get_names_from_dir("module.submod.submod1", submod_recursive) == submod1_names
+        assert get_names_from_dir("module.submod.submod2", submod_recursive) == submod2_names
+        assert get_names_from_dir("module.submod.submod3", submod_recursive) == submod3_names
+        assert get_names_from_dir("module.submod.submod4", submod_recursive) == submod4_names
         assert (
             get_names_from_dir("module.submod_recursive", submod_recursive)
             == submod_recursive_names
@@ -811,19 +743,11 @@ def test_get_names_from_dir(tmpdir, relative):
             == submod_recursive_submod2_names
         )
 
-        pytest.raises(
-            ExternalModuleError, lambda: get_names_from_dir("os.path", directory)
-        )
-        pytest.raises(
-            ExternalModuleError, lambda: get_names_from_dir("os.path", submod)
-        )
+        pytest.raises(ExternalModuleError, lambda: get_names_from_dir("os.path", directory))
+        pytest.raises(ExternalModuleError, lambda: get_names_from_dir("os.path", submod))
         pytest.raises(RuntimeError, lambda: get_names_from_dir(".mod_bad", directory))
-        pytest.raises(
-            RuntimeError, lambda: get_names_from_dir("module.mod_bad", directory)
-        )
-        pytest.raises(
-            RuntimeError, lambda: get_names_from_dir(".mod_doesnt_exist", directory)
-        )
+        pytest.raises(RuntimeError, lambda: get_names_from_dir("module.mod_bad", directory))
+        pytest.raises(RuntimeError, lambda: get_names_from_dir(".mod_doesnt_exist", directory))
         pytest.raises(
             RuntimeError,
             lambda: get_names_from_dir("module.mod_doesnt_exist", directory),
@@ -857,21 +781,13 @@ def test_get_names_dynamically(tmpdir):
             get_names_dynamically("module.mod_commented_unused_star")
             == mod_commented_unused_star_names
         )
-        assert (
-            get_names_dynamically("module.mod_commented_star")
-            == mod_commented_star_names
-        )
+        assert get_names_dynamically("module.mod_commented_star") == mod_commented_star_names
         assert get_names_dynamically("module.submod") == submod_dynamic_names
         assert get_names_dynamically("module.submod.submod1") == submod1_names
         assert get_names_dynamically("module.submod.submod2") == submod2_names
         assert get_names_dynamically("module.submod.submod3") == submod3_names
-        pytest.raises(
-            RuntimeError, lambda: get_names_dynamically("module.submod.submod4")
-        )
-        assert (
-            get_names_dynamically("module.submod_recursive")
-            == submod_recursive_dynamic_names
-        )
+        pytest.raises(RuntimeError, lambda: get_names_dynamically("module.submod.submod4"))
+        assert get_names_dynamically("module.submod_recursive") == submod_recursive_dynamic_names
         assert (
             get_names_dynamically("module.submod_recursive.submod1")
             == submod_recursive_submod1_names
@@ -962,10 +878,7 @@ def test_fix_code(tmpdir, capsys):
     assert not out
     assert not err
 
-    assert (
-        fix_code(code_mod_unfixable, file=directory / "mod_unfixable.py")
-        == code_mod_unfixable
-    )
+    assert fix_code(code_mod_unfixable, file=directory / "mod_unfixable.py") == code_mod_unfixable
     out, err = capsys.readouterr()
     assert not out
     assert "Warning" in err
@@ -1045,10 +958,7 @@ def test_fix_code(tmpdir, capsys):
     submod_recursive = directory / "submod_recursive"
 
     # TODO: It's not actually useful to test this
-    assert (
-        fix_code(code_submod_recursive_init, file=submod_recursive / "__init__.py")
-        == ""
-    )
+    assert fix_code(code_submod_recursive_init, file=submod_recursive / "__init__.py") == ""
     out, err = capsys.readouterr()
     assert not out
     assert not err
@@ -1069,9 +979,7 @@ def test_fix_code(tmpdir, capsys):
     assert not out
     assert not err
 
-    pytest.raises(
-        RuntimeError, lambda: fix_code(code_bad_syntax, file=directory / "mod_bad.py")
-    )
+    pytest.raises(RuntimeError, lambda: fix_code(code_bad_syntax, file=directory / "mod_bad.py"))
     out, err = capsys.readouterr()
     assert not out
     assert not err
@@ -1125,12 +1033,8 @@ def test_get_mod_filename(tmpdir, relative):
         _test("module.submod.submod", module, subsubmod / "__init__.py")
         _test("module.submod.submod.mod1", module, subsubmod / "mod1.py")
         pytest.raises(RuntimeError, lambda: get_mod_filename("module.notreal", module))
-        pytest.raises(
-            RuntimeError, lambda: get_mod_filename("module.submod.notreal", module)
-        )
-        pytest.raises(
-            ExternalModuleError, lambda: get_mod_filename("notreal.notreal", module)
-        )
+        pytest.raises(RuntimeError, lambda: get_mod_filename("module.submod.notreal", module))
+        pytest.raises(ExternalModuleError, lambda: get_mod_filename("notreal.notreal", module))
 
         _test("..", submod, module / "__init__.py")
         _test("..mod1", submod, module / "mod1.py")
@@ -1152,12 +1056,8 @@ def test_get_mod_filename(tmpdir, relative):
         _test("module.submod.submod", submod, subsubmod / "__init__.py")
         _test("module.submod.submod.mod1", submod, subsubmod / "mod1.py")
         pytest.raises(RuntimeError, lambda: get_mod_filename("module.notreal", submod))
-        pytest.raises(
-            RuntimeError, lambda: get_mod_filename("module.submod.notreal", submod)
-        )
-        pytest.raises(
-            ExternalModuleError, lambda: get_mod_filename("notreal.notreal", submod)
-        )
+        pytest.raises(RuntimeError, lambda: get_mod_filename("module.submod.notreal", submod))
+        pytest.raises(ExternalModuleError, lambda: get_mod_filename("notreal.notreal", submod))
 
         _test("...", subsubmod, module / "__init__.py")
         _test("...mod1", subsubmod, module / "mod1.py")
@@ -1181,15 +1081,9 @@ def test_get_mod_filename(tmpdir, relative):
         _test("module.submod.mod1", subsubmod, submod / "mod1.py")
         _test("module.submod.submod", subsubmod, subsubmod / "__init__.py")
         _test("module.submod.submod.mod1", subsubmod, subsubmod / "mod1.py")
-        pytest.raises(
-            RuntimeError, lambda: get_mod_filename("module.notreal", subsubmod)
-        )
-        pytest.raises(
-            RuntimeError, lambda: get_mod_filename("module.submod.notreal", subsubmod)
-        )
-        pytest.raises(
-            ExternalModuleError, lambda: get_mod_filename("notreal.notreal", subsubmod)
-        )
+        pytest.raises(RuntimeError, lambda: get_mod_filename("module.notreal", subsubmod))
+        pytest.raises(RuntimeError, lambda: get_mod_filename("module.submod.notreal", subsubmod))
+        pytest.raises(ExternalModuleError, lambda: get_mod_filename("notreal.notreal", subsubmod))
     finally:
         os.chdir(curdir)
 
@@ -1238,9 +1132,7 @@ def test_replace_imports():
         == code_mod7_fixed
     )
     assert (
-        replace_imports(
-            code_mod9, repls={".mod8": ["a", "b"]}, verbose=False, quiet=False
-        )
+        replace_imports(code_mod9, repls={".mod8": ["a", "b"]}, verbose=False, quiet=False)
         == code_mod9_fixed
     )
 
@@ -1287,9 +1179,7 @@ def test_replace_imports():
     )
 
     assert (
-        replace_imports(
-            code_mod_commented_unused_star, repls={".mod1": [], ".mod2": []}
-        )
+        replace_imports(code_mod_commented_unused_star, repls={".mod1": [], ".mod2": []})
         == code_mod_commented_unused_star_fixed
     )
 
@@ -1334,7 +1224,7 @@ def test_replace_imports():
                     "directory/mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'"
                 ),
                 green(
-                    "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"
+                    "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"  # noqa: E501
                 ),
             ],
         ),
@@ -1359,13 +1249,13 @@ def test_replace_imports():
             code_mod_commented_star_fixed,
             [
                 green(
-                    "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'"
+                    "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'"  # noqa: E501
                 ),
                 green(
-                    "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment"
+                    "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment"  # noqa: E501
                 ),
                 green(
-                    "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment"
+                    "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment"  # noqa: E501
                 ),
             ],
         ),
@@ -1399,18 +1289,12 @@ def test_replace_imports_warnings(capsys):
     )
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
-        yellow(
-            "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod1'"
-        ),
-        yellow(
-            "Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'"
-        ),
+        yellow("Warning: module/mod_unfixable.py: Could not find the star imports for '.mod1'"),
+        yellow("Warning: module/mod_unfixable.py: Could not find the star imports for '.mod2'"),
     }
 
     assert (
-        replace_imports(
-            code_mod_unfixable, file=None, repls={".mod1": ["a"], ".mod2": ["c"]}
-        )
+        replace_imports(code_mod_unfixable, file=None, repls={".mod1": ["a"], ".mod2": ["c"]})
         == code_mod_unfixable
     )
     out, err = capsys.readouterr()
@@ -1420,9 +1304,7 @@ def test_replace_imports_warnings(capsys):
     }
 
     assert (
-        replace_imports(
-            code_mod_unfixable, quiet=True, repls={".mod1": ["a"], ".mod2": ["c"]}
-        )
+        replace_imports(code_mod_unfixable, quiet=True, repls={".mod1": ["a"], ".mod2": ["c"]})
         == code_mod_unfixable
     )
     out, err = capsys.readouterr()
@@ -1439,20 +1321,18 @@ def test_replace_imports_warnings(capsys):
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
         yellow(
-            "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"
+            "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"  # noqa: E501
         ),
     }
 
     assert (
-        replace_imports(
-            code_mod_commented_unused_star, file=None, repls={".mod1": [], ".mod2": []}
-        )
+        replace_imports(code_mod_commented_unused_star, file=None, repls={".mod1": [], ".mod2": []})
         == code_mod_commented_unused_star_fixed
     )
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
         yellow(
-            "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"
+            "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"  # noqa: E501
         ),
     }
 
@@ -1548,44 +1428,42 @@ from reallyreallylongmodulename import (longname1,
     assert replace_imports(code, repls, max_line_length=120) == code_fixed.format(
         imp="""\
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7,
-                                        longname8, longname9)"""
+                                        longname8, longname9)"""  # noqa: E501
     )
 
     assert_to = 136
 
     assert (
         len(
-            "from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"
+            "from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"  # noqa: E501
         )
         == assert_to
     )
 
     assert replace_imports(code, repls, max_line_length=137) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
     assert replace_imports(code, repls, max_line_length=136) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
     assert replace_imports(code, repls, max_line_length=135) == code_fixed.format(
         imp="""\
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8,
-                                        longname9)"""
+                                        longname9)"""  # noqa: E501
     )
 
     assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
-    assert replace_imports(
-        code, repls, max_line_length=float("inf")
-    ) == code_fixed.format(
+    assert replace_imports(code, repls, max_line_length=float("inf")) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
 
@@ -1621,9 +1499,7 @@ from reallyreallylongmodulename import longname1, longname2, longname3, longname
     ],
 )
 def test_is_noqa_comment_allowing_star_import(case_permutation, allows_star, comment):
-    assert (
-        is_noqa_comment_allowing_star_import(case_permutation(comment)) is allows_star
-    )
+    assert is_noqa_comment_allowing_star_import(case_permutation(comment)) is allows_star
 
 
 def _dirs_equal(cmp):
@@ -1673,7 +1549,7 @@ Warning: {directory}/mod5.py: could not find import for 'd'
 Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod1'
 Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod2'
 Warning: {directory}/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import
-""".splitlines()
+""".splitlines()  # noqa: E501
     )
     colored_warnings = {yellow(warning) for warning in warnings}
 
@@ -1846,13 +1722,11 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
 {directory}/submod/submod2.py: Replacing 'from module.mod2 import *' with 'from module.mod2 import b, c'
 {directory}/submod/submod2.py: Replacing 'from module.submod.submod3 import *' with 'from module.submod.submod3 import e'
 {directory}/submod_recursive/submod2.py: Replacing 'from . import *' with 'from . import a'
-""".splitlines()
+""".splitlines()  # noqa: E501
     )
     colored_changes = {green(change) for change in changes}
 
-    assert set(p.stderr.splitlines()) == colored_changes.union({error}).union(
-        colored_warnings
-    )
+    assert set(p.stderr.splitlines()) == colored_changes.union({error}).union(colored_warnings)
     for d in diffs:
         assert get_colored_diff(d) in p.stdout, p.stdout
     cmp = dircmp(directory, directory_orig)
@@ -1870,9 +1744,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
 """.splitlines()
     )
     colored_static_error = {red(err) for err in static_error}
-    assert set(p.stderr.splitlines()) == {error}.union(colored_static_error).union(
-        colored_warnings
-    )
+    assert set(p.stderr.splitlines()) == {error}.union(colored_static_error).union(colored_warnings)
     for d in diffs:
         if "mod6" in d:
             assert get_colored_diff(d) not in p.stdout
@@ -1961,8 +1833,5 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         capture_output=True,
         encoding="utf-8",
     )
-    assert (
-        p.stderr
-        == red(f"Error: {directory}/notarealfile.py: no such file or directory") + "\n"
-    )
+    assert p.stderr == red(f"Error: {directory}/notarealfile.py: no such file or directory") + "\n"
     assert p.stdout == ""

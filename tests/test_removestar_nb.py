@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import pytest
+
 from removestar.removestar import fix_code, replace_in_nb
 
 nbf = pytest.importorskip("nbformat")

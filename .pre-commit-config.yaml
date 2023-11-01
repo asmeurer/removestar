@@ -3,13 +3,8 @@ ci:
   autofix_commit_msg: "style: pre-commit fixes"
 
 repos:
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black-jupyter
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -24,10 +19,11 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.0.290"
+    rev: "v0.1.3"
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]
+      - id: ruff-format
 
   # TODO: add static types
   # - repo: https://github.com/pre-commit/mirrors-mypy
@@ -41,7 +37,7 @@ repos:
   #         - packaging
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
 

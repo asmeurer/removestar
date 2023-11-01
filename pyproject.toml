@@ -61,7 +61,10 @@ include = [
 ]
 
 [tool.ruff]
-select = [
+line-length = 100  # Default is 88
+
+[tool.ruff.lint]
+extend-select = [
   "E", "F", "W", # flake8
   "ASYNC",       # flake8-async
   "B",           # flake8-bugbear
@@ -80,23 +83,22 @@ select = [
   "UP",          # pyupgrade
   "YTT",         # flake8-2020
 ]
-extend-ignore = [
+ignore = [
   "B023",        # Function definition does not bind loop variable
   "B904",        # Raise exception with `raise ... from err`
   "PLW1510",     # `subprocess.run` without explicit `check` argument
   "T201",        # Print statements
+  "ISC001",      # Conflicts with the formatter in 0.1.2
 ]
-line-length = 177  # Default is 88
-src = ["src"]
 unfixable = [
   "F841", # Removes unused variables
   "T20",  # Removes print statements
 ]
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 14  # Default is 10
 
-[tool.ruff.pylint]
+[tool.ruff.lint.pylint]
 max-args = 6  # Default is 5
 max-statements = 177  # Default is 50
 
