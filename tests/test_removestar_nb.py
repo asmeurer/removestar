@@ -3,6 +3,7 @@ import tempfile
 
 import nbformat as nbf
 from nbconvert import NotebookExporter, PythonExporter
+
 from removestar.removestar import fix_code, replace_in_nb
 
 fixed_code = """#!/usr/bin/env python

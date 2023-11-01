@@ -41,12 +41,8 @@ def main():  # noqa: PLR0912, C901
         prog="removestar",
         formatter_class=RawDescriptionHelpArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "paths", nargs="*", help="Files or directories to fix", metavar="PATH"
-    )
-    parser.add_argument(
-        "-i", "--in-place", action="store_true", help="Edit the files in-place."
-    )
+    parser.add_argument("paths", nargs="*", help="Files or directories to fix", metavar="PATH")
+    parser.add_argument("-i", "--in-place", action="store_true", help="Edit the files in-place.")
     parser.add_argument(
         "--version",
         action="version",
