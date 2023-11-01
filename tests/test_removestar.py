@@ -1334,7 +1334,7 @@ def test_replace_imports():
                     "directory/mod4.py: Replacing 'from .mod1 import *' with 'from .mod1 import a'"
                 ),
                 green(
-                    "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"
+                    "directory/mod4.py: Replacing 'from .mod2 import *' with 'from .mod2 import b, c'"  # noqa: E501
                 ),
             ],
         ),
@@ -1359,13 +1359,13 @@ def test_replace_imports():
             code_mod_commented_star_fixed,
             [
                 green(
-                    "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'"
+                    "directory/mod_commented_star.py: Replacing 'from .mod3 import *' with 'from .mod3 import name'"  # noqa: E501
                 ),
                 green(
-                    "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment"
+                    "directory/mod_commented_star.py: Retaining 'from .mod1 import *' due to noqa comment"  # noqa: E501
                 ),
                 green(
-                    "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment"
+                    "directory/mod_commented_star.py: Retaining 'from .mod2 import *' due to noqa comment"  # noqa: E501
                 ),
             ],
         ),
@@ -1439,7 +1439,7 @@ def test_replace_imports_warnings(capsys):
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
         yellow(
-            "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"
+            "Warning: module/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"  # noqa: E501
         ),
     }
 
@@ -1452,7 +1452,7 @@ def test_replace_imports_warnings(capsys):
     out, err = capsys.readouterr()
     assert set(err.splitlines()) == {
         yellow(
-            "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"
+            "Warning: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import"  # noqa: E501
         ),
     }
 
@@ -1548,44 +1548,44 @@ from reallyreallylongmodulename import (longname1,
     assert replace_imports(code, repls, max_line_length=120) == code_fixed.format(
         imp="""\
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7,
-                                        longname8, longname9)"""
+                                        longname8, longname9)"""  # noqa: E501
     )
 
     assert_to = 136
 
     assert (
         len(
-            "from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"
+            "from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"  # noqa: E501
         )
         == assert_to
     )
 
     assert replace_imports(code, repls, max_line_length=137) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
     assert replace_imports(code, repls, max_line_length=136) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
     assert replace_imports(code, repls, max_line_length=135) == code_fixed.format(
         imp="""\
 from reallyreallylongmodulename import (longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8,
-                                        longname9)"""
+                                        longname9)"""  # noqa: E501
     )
 
     assert replace_imports(code, repls, max_line_length=200) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
     assert replace_imports(
         code, repls, max_line_length=float("inf")
     ) == code_fixed.format(
         imp="""\
-from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""
+from reallyreallylongmodulename import longname1, longname2, longname3, longname4, longname5, longname6, longname7, longname8, longname9"""  # noqa: E501
     )
 
 
@@ -1673,7 +1673,7 @@ Warning: {directory}/mod5.py: could not find import for 'd'
 Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod1'
 Warning: {directory}/mod_unfixable.py: Could not find the star imports for '.mod2'
 Warning: {directory}/mod_commented_unused_star.py: The removed star import statement for '.mod1' had an inline comment which may not make sense without the import
-""".splitlines()
+""".splitlines()  # noqa: E501
     )
     colored_warnings = {yellow(warning) for warning in warnings}
 
@@ -1846,7 +1846,7 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
 {directory}/submod/submod2.py: Replacing 'from module.mod2 import *' with 'from module.mod2 import b, c'
 {directory}/submod/submod2.py: Replacing 'from module.submod.submod3 import *' with 'from module.submod.submod3 import e'
 {directory}/submod_recursive/submod2.py: Replacing 'from . import *' with 'from . import a'
-""".splitlines()
+""".splitlines()  # noqa: E501
     )
     colored_changes = {green(change) for change in changes}
 

@@ -82,7 +82,7 @@ def fix_code(
         if len(mods) > 1 and not quiet:
             print(
                 yellow(
-                    f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'."
+                    f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'."  # noqa: E501
                 ),
                 file=sys.stderr,
             )
@@ -189,7 +189,7 @@ def replace_imports(  # noqa: C901,PLR0913
             if verbose:
                 print(
                     green(
-                        f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'"
+                        f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'"  # noqa: E501
                     ),
                     file=sys.stderr,
                 )
