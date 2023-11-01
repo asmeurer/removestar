@@ -82,7 +82,7 @@ def fix_code(
         if len(mods) > 1 and not quiet:
             print(
                 yellow(
-                    f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'."
+                    f"Warning: {file}: '{name}' comes from multiple modules: {', '.join(map(repr, mods))}. Using '{mods[-1]}'."  # noqa: E501
                 ),
                 file=sys.stderr,
             )
@@ -189,7 +189,7 @@ def replace_imports(  # noqa: C901,PLR0913
             if verbose:
                 print(
                     green(
-                        f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'"
+                        f"{verbose_prefix}Replacing 'from {mod} import *' with '{new_import.strip()}'"  # noqa: E501
                     ),
                     file=sys.stderr,
                 )
@@ -302,9 +302,7 @@ def get_mod_filename(mod, directory):
     m = dots.match(mod)
     if m:
         # Relative import
-        loc = directory.joinpath(
-            *[".."] * (len(m.group(1)) - 1), *m.group(2).split(".")
-        )
+        loc = directory.joinpath(*[".."] * (len(m.group(1)) - 1), *m.group(2).split("."))
         filename = Path(str(loc) + ".py")
         if not filename.is_file():
             filename = loc / "__init__.py"
@@ -331,9 +329,7 @@ def get_mod_filename(mod, directory):
                     same_module = True
             if head in [Path("."), Path("/")]:
                 if same_module:
-                    raise RuntimeError(
-                        f"Could not find the file for the module '{mod}'"
-                    )
+                    raise RuntimeError(f"Could not find the file for the module '{mod}'")
                 raise ExternalModuleError
             head, tail = head.parent, head.name
 
@@ -352,9 +348,7 @@ def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
     the module directly.
     """
     try:
-        names = get_names_from_dir(
-            mod, directory, allow_dynamic=allow_dynamic, _found=_found
-        )
+        names = get_names_from_dir(mod, directory, allow_dynamic=allow_dynamic, _found=_found)
     except ExternalModuleError:
         if allow_dynamic:
             names = get_names_dynamically(mod)

@@ -41,12 +41,8 @@ def main():  # noqa: PLR0912, C901
         prog="removestar",
         formatter_class=RawDescriptionHelpArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "paths", nargs="*", help="Files or directories to fix", metavar="PATH"
-    )
-    parser.add_argument(
-        "-i", "--in-place", action="store_true", help="Edit the files in-place."
-    )
+    parser.add_argument("paths", nargs="*", help="Files or directories to fix", metavar="PATH")
+    parser.add_argument("-i", "--in-place", action="store_true", help="Edit the files in-place.")
     parser.add_argument(
         "--version",
         action="version",
@@ -63,7 +59,7 @@ def main():  # noqa: PLR0912, C901
         "--no-dynamic-importing",
         action="store_false",
         dest="allow_dynamic",
-        help="""Don't dynamically import modules to determine the list of names. This is required for star imports from external modules and modules in the standard library.""",
+        help="""Don't dynamically import modules to determine the list of names. This is required for star imports from external modules and modules in the standard library.""",  # noqa: E501
     )
     parser.add_argument(
         "-v",
@@ -81,7 +77,7 @@ def main():  # noqa: PLR0912, C901
         "--max-line-length",
         type=int,
         default=100,
-        help="""The maximum line length for replaced imports before they are wrapped. Set to 0 to disable line wrapping.""",
+        help="""The maximum line length for replaced imports before they are wrapped. Set to 0 to disable line wrapping.""",  # noqa: E501
     )
     # For testing
     parser.add_argument("--_this-file", action="store_true", help=argparse.SUPPRESS)
