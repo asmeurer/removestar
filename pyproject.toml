@@ -107,6 +107,7 @@ addopts = [
     "--doctest-modules"
 ]
 testpaths = [
+    "removestar",
     "tests",
 ]
 log_cli_level = "DEBUG"
