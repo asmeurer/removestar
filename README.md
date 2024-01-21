@@ -34,7 +34,7 @@ or add `removestar` in `.pre-commit-config.yaml` -
 
 ```yaml
 - repo: https://github.com/asmeurer/removestar
-  rev: v1.4
+  rev: "1.5"
   hooks:
     - id: removestar
       args: [-i] # See docs for all args (-i edits file in-place)
