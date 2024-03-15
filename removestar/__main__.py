@@ -15,7 +15,7 @@ $ removestar -i module/ # Modifies every Python file in module/ recursively
 """
 import argparse
 import glob
-import importlib
+import importlib.util
 import io
 import os
 import sys
