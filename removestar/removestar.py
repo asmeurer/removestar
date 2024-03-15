@@ -1,14 +1,17 @@
 import ast
 import builtins
+import contextlib
 import os
 import re
 import sys
 from functools import lru_cache
 from pathlib import Path
 
-from nbconvert import NotebookExporter
 from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
+
+with contextlib.suppress(ImportError):
+    from nbconvert import NotebookExporter
 
 from .output import green, yellow
 
