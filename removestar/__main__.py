@@ -13,6 +13,7 @@ $ removestar -i file.py # Edits file.py in-place
 $ removestar -i module/ # Modifies every Python file in module/ recursively
 
 """
+
 import argparse
 import glob
 import io
