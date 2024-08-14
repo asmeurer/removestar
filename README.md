@@ -293,7 +293,7 @@ See the [CHANGELOG](CHANGELOG.md) file.
 [codecov-link]: https://codecov.io/gh/asmeurer/removestar
 [conda-downloads]: https://img.shields.io/conda/dn/conda-forge/removestar?color=green
 [conda-link]: https://anaconda.org/conda-forge/removestar
-[conda-version]: https://img.shields.io/conda/vn/conda-forge/removestar?color=green
+[conda-version]: https://anaconda.org/conda-forge/removestar/badges/version.svg
 [github-discussions-badge]: https://img.shields.io/static/v1?label=Discussions&message=Ask&color=blue&logo=github
 [github-discussions-link]: https://github.com/asmeurer/removestar/discussions
 [license-badge]: https://img.shields.io/badge/MIT-blue.svg
