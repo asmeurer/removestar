@@ -1,3 +1,19 @@
+# 1.5.1 (2024-08-14)
+
+## Fixes
+
+* Make notebook support and dependencies optional
+
+## Docs
+
+* Valid pre-commit tag in README example
+
+## Maintenance
+
+* Pre commit updates
+* pre-commit autoupdate
+* Fix pytest config to run doctests
+
 # 1.5.0 (2023-09-18)
 
 ## Features
