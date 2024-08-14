@@ -10,30 +10,33 @@ description = "A tool to automatically replace 'import *' imports with explicit 
 license = "MIT"
 requires-python = ">=3.7"
 authors = [
-    { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
+  { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
 ]
 maintainers = [
-    { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
-    { name = "Saransh Chopra", email = "saransh0701@gmail.com" }
+  { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
+  { name = "Saransh Chopra", email = "saransh0701@gmail.com" }
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "pyflakes",
-    "nbformat",
-    "nbconvert",
+  "pyflakes",
 ]
 
 [project.optional-dependencies]
+nb = [
+  "nbformat",
+  "nbconvert",
+]
 dev = [
   "pytest>=6",
   "pytest-cov>=3",

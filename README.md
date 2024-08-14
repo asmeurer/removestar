@@ -22,6 +22,7 @@ Install `removestar` globally to use it through CLI using `pypi` -
 
 ```bash
 pip install removestar
+pip install "removestar[nb]"  # notebook support
 ```
 
 or `conda` -
@@ -39,7 +40,8 @@ or add `removestar` in `.pre-commit-config.yaml` -
     - id: removestar
       args: [-i] # See docs for all args (-i edits file in-place)
       additional_dependencies: # The libraries or packages your code imports
-        - ... # Should be . if running inside a library (to install the library itself in the environment)
+        - ... # Add . if running inside a library (to install the library itself in the environment)
+        - ... # Add nbformat and nbconvert for notebook support
 ```
 
 ## Usage
@@ -72,7 +74,7 @@ $ removestar -i file.py # Edits file.py in-place
 
 $ removestar -i module/ # Modifies every Python file in module/ recursively
 
-# notebooks
+# notebooks (make sure nbformat and nbconvert are installed)
 
 $ removestar file.ipynb # Shows diff but does not edit file.ipynb
 

@@ -16,18 +16,16 @@ $ removestar -i module/ # Modifies every Python file in module/ recursively
 
 import argparse
 import glob
+import importlib.util
 import io
 import os
 import sys
 import tempfile
 
-import nbformat
-from nbconvert import PythonExporter
-
 from . import __version__
 from .helper import get_diff_text
 from .output import get_colored_diff, red
-from .removestar import fix_code, replace_in_nb
+from .removestar import fix_code
 
 
 class RawDescriptionHelpArgumentDefaultsHelpFormatter(
@@ -92,6 +90,14 @@ def main():  # noqa: PLR0912, C901
     if args.max_line_length == 0:
         args.max_line_length = float("inf")
 
+    try:
+        import nbformat
+        from nbconvert import PythonExporter
+
+        from .removestar import replace_in_nb
+    except ImportError:
+        pass
+
     exit_1 = False
     for file in _iter_paths(args.paths):
         _, filename = os.path.split(file)
@@ -144,7 +150,11 @@ def main():  # noqa: PLR0912, C901
                             )
                         )
                     )
-        elif file.endswith(".ipynb"):
+        elif (
+            file.endswith(".ipynb")
+            and importlib.util.find_spec("nbconvert") is not None
+            and importlib.util.find_spec("nbformat") is not None
+        ):
             tmp_file = tempfile.NamedTemporaryFile()
             tmp_path = tmp_file.name
 
