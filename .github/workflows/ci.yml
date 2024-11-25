@@ -38,20 +38,16 @@ jobs:
           allow-prereleases: true
 
       - name: Install removestar (lite)
-        run: |
-          python -m pip install -e ".[dev]"
+        run: python -m pip install -e ".[dev]"
 
       - name: Test removestar (lite)
-        run: |
-          pytest --cov=removestar . -vv
+        run: pytest --cov=removestar . -vv
 
       - name: Install removestar (nb)
-        run: |
-          python -m pip install -e ".[dev,nb]"
+        run: python -m pip install -e ".[dev,nb]"
 
       - name: Test removestar (nb)
-        run: |
-          pytest --cov=removestar . -vv
+        run: pytest --cov=removestar . -vv
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3.1.4
