@@ -31,7 +31,7 @@ def prepare_nb(output_path="_test.ipynb"):
     with open(output_path, "w") as f:
         nbf.write(nb, f)
 
-    tmp_file = tempfile.NamedTemporaryFile()
+    tmp_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
     tmp_path = tmp_file.name
 
     with open(output_path) as f:
