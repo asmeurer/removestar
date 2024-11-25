@@ -155,7 +155,7 @@ def main():  # noqa: PLR0912, C901
             and importlib.util.find_spec("nbconvert") is not None
             and importlib.util.find_spec("nbformat") is not None
         ):
-            tmp_file = tempfile.NamedTemporaryFile()
+            tmp_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
             tmp_path = tmp_file.name
 
             with open(file) as f:
