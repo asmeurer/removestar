@@ -1,3 +1,15 @@
+# 1.5.2 (2024-11-25)
+
+## Features
+
+- Python 3.13 support
+
+## Maintenance
+
+- Get rid of deprecated actions
+- Add dependabot config
+- pre-commit autoupdate
+
 # 1.5.1 (2024-08-14)
 
 ## Fixes
