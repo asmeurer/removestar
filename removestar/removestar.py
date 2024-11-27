@@ -61,7 +61,7 @@ def fix_code(
     try:
         tree = ast.parse(code, filename=file)
     except SyntaxError as e:
-        raise RuntimeError(f"SyntaxError: {e}")
+        raise RuntimeError(f"SyntaxError: {e}") from e
 
     checker = Checker(tree)
 
@@ -352,13 +352,13 @@ def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
     """
     try:
         names = get_names_from_dir(mod, directory, allow_dynamic=allow_dynamic, _found=_found)
-    except ExternalModuleError:
+    except ExternalModuleError as e:
         if allow_dynamic:
             names = get_names_dynamically(mod)
         else:
             raise NotImplementedError(
                 "Static determination of external module imports is not supported."
-            )
+            ) from e
     return names
 
 
@@ -366,10 +366,10 @@ def get_names_dynamically(mod):
     d = {}
     try:
         exec(f"from {mod} import *", d)
-    except ImportError:
-        raise RuntimeError(f"Could not import {mod}")
+    except ImportError as import_e:
+        raise RuntimeError(f"Could not import {mod}") from import_e
     except Exception as e:
-        raise RuntimeError(f"Error importing {mod}: {e}")
+        raise RuntimeError(f"Error importing {mod}: {e}") from e
     return d.keys() - set(MAGIC_GLOBALS)
 
 
@@ -382,9 +382,9 @@ def get_names_from_dir(mod, directory, *, allow_dynamic=True, _found=()):
     try:
         names = get_names(code, filename)
     except SyntaxError as e:
-        raise RuntimeError(f"Could not parse {filename}: {e}")
-    except RuntimeError:
-        raise RuntimeError(f"Could not parse the names from {filename}")
+        raise RuntimeError(f"Could not parse {filename}: {e}") from e
+    except RuntimeError as runtime_e:
+        raise RuntimeError(f"Could not parse the names from {filename}") from runtime_e
 
     for name in names.copy():
         if name.endswith(".*"):
