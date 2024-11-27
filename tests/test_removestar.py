@@ -1527,6 +1527,7 @@ def test_cli(tmpdir):
         [sys.executable, "-m", "removestar", "--_this-file", "none"],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     assert p.stderr == ""
     assert p.stdout == __file__
@@ -1535,6 +1536,7 @@ def test_cli(tmpdir):
         [sys.executable, "-m", "removestar", directory],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     warnings = set(
         f"""\
@@ -1688,6 +1690,7 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
         [sys.executable, "-m", "removestar", "--quiet", directory],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     assert p.stderr == ""
     for d in diffs:
@@ -1699,6 +1702,7 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
         [sys.executable, "-m", "removestar", "--verbose", directory],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     changes = set(
         f"""\
@@ -1736,6 +1740,7 @@ Warning: {directory}/mod_commented_unused_star.py: The removed star import state
         [sys.executable, "-m", "removestar", "--no-dynamic-importing", directory],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     static_error = set(
         f"""\
@@ -1765,6 +1770,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         ],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     assert p.stderr == ""
     for d in diffs:
@@ -1780,6 +1786,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         [sys.executable, "-m", "removestar", "--quiet", "-i", directory],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     assert p.stderr == ""
     assert p.stdout == ""
@@ -1832,6 +1839,7 @@ Error with {directory}/mod7.py: Static determination of external module imports 
         [sys.executable, "-m", "removestar", directory / "notarealfile.py"],
         capture_output=True,
         encoding="utf-8",
+        check=False,
     )
     assert p.stderr == red(f"Error: {directory}/notarealfile.py: no such file or directory") + "\n"
     assert p.stdout == ""

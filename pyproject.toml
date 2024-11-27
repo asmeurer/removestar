@@ -88,14 +88,12 @@ extend-select = [
 ]
 ignore = [
   "B023",        # Function definition does not bind loop variable
-  "B904",        # Raise exception with `raise ... from err`
-  "PLW1510",     # `subprocess.run` without explicit `check` argument
   "T201",        # Print statements
-  "ISC001",      # Conflicts with the formatter in 0.1.2
+  "ISC001",      # Conflicts with ruff format
 ]
 unfixable = [
-  "F841", # Removes unused variables
-  "T20",  # Removes print statements
+  "F841",        # Removes unused variables
+  "T20",         # Removes print statements
 ]
 
 [tool.ruff.lint.mccabe]
