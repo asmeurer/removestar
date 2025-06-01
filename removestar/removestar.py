@@ -339,7 +339,7 @@ def get_mod_filename(mod, directory):
     return filename
 
 
-@lru_cache()
+@lru_cache
 def get_module_names(mod, directory, *, allow_dynamic=True, _found=()):
     """
     Get the names defined in the module 'mod'
