@@ -7,7 +7,7 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
-from pyflakes.checker import _MAGIC_GLOBALS, Checker, ModuleScope
+from pyflakes.checker import Checker, ModuleScope
 from pyflakes.messages import ImportStarUsage, ImportStarUsed
 
 with contextlib.suppress(ImportError):
@@ -16,7 +16,8 @@ with contextlib.suppress(ImportError):
 from .output import green, yellow
 
 # quit and exit are not included in old versions of pyflakes
-MAGIC_GLOBALS = set(_MAGIC_GLOBALS).union({"quit", "exit"})
+# not in pyflakes anymore
+MAGIC_GLOBALS = {"__file__", "__builtins__", "__annotations__", "WindowsError", "quit", "exit"}
 
 
 def names_to_replace(checker):
