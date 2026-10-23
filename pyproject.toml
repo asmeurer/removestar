@@ -8,7 +8,7 @@ readme = { file = "README.md", content-type = "text/markdown" }
 dynamic = ["version"]
 description = "A tool to automatically replace 'import *' imports with explicit imports in files"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 authors = [
   { name = "Aaron Meurer", email = "asmeurer@gmail.com" },
 ]
@@ -22,9 +22,6 @@ classifiers = [
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
