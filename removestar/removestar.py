@@ -331,7 +331,7 @@ def get_mod_filename(mod, directory):
                     break
                 else:
                     same_module = True
-            if head in [Path("."), Path("/")]:
+            if head == Path(".") or head == Path(head.anchor):
                 if same_module:
                     raise RuntimeError(f"Could not find the file for the module '{mod}'")
                 raise ExternalModuleError

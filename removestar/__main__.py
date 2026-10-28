@@ -20,7 +20,6 @@ import importlib.util
 import io
 import os
 import sys
-import tempfile
 
 from . import __version__
 from .helper import get_diff_text
@@ -155,21 +154,17 @@ def main():  # noqa: PLR0912, C901
             and importlib.util.find_spec("nbconvert") is not None
             and importlib.util.find_spec("nbformat") is not None
         ):
-            tmp_file = tempfile.NamedTemporaryFile()  # noqa: SIM115
-            tmp_path = tmp_file.name
-
             with open(file) as f:
                 nb = nbformat.reads(f.read(), nbformat.NO_CONVERT)
 
             ## save as py
             exporter = PythonExporter()
             code, _ = exporter.from_notebook_node(nb)
-            tmp_file.write(code.encode("utf-8"))
 
             try:
                 new_code = fix_code(
                     code=code,
-                    file=tmp_path,
+                    file=file,
                     max_line_length=args.max_line_length,
                     verbose=args.verbose,
                     quiet=args.quiet,
@@ -178,7 +173,7 @@ def main():  # noqa: PLR0912, C901
                 )
                 new_code_not_dict = fix_code(
                     code=code,
-                    file=tmp_path,
+                    file=file,
                     max_line_length=args.max_line_length,
                     verbose=False,
                     quiet=True,
@@ -189,8 +184,6 @@ def main():  # noqa: PLR0912, C901
                 if not args.quiet:
                     print(red(f"Error with {file}: {e}"), file=sys.stderr)
                 continue
-
-            tmp_file.close()
 
             if new_code_not_dict != code:
                 exit_1 = True
