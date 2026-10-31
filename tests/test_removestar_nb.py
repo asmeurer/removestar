@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 import tempfile
 
 import pytest
@@ -63,6 +65,28 @@ def test_fix_code_for_nb():
     assert "\n".join([s for s in new_code_not_dict.split("\n") if s]) == fixed_code
 
     os.remove("_test.ipynb")
+
+
+def test_cli_resolves_relative_imports_from_notebook_directory(tmp_path):
+    (tmp_path / "__init__.py").write_text("")
+    (tmp_path / "helpers.py").write_text("answer = 42\n")
+    notebook_path = tmp_path / "notebook.ipynb"
+    notebook = nbf.v4.new_notebook(
+        cells=[nbf.v4.new_code_cell("from .helpers import *\nprint(answer)")]
+    )
+    nbf.write(notebook, notebook_path)
+
+    result = subprocess.run(
+        [sys.executable, "-m", "removestar", "--in-place", str(notebook_path)],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    updated = nbf.read(notebook_path, nbf.NO_CONVERT)
+    assert updated["cells"][0]["source"] == "from .helpers import answer\nprint(answer)"
 
 
 def test_replace_nb():
